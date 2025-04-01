@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('data_user', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('altura')->nullable();
+
             $table->timestamps();
         });
     }
