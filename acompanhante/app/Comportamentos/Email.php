@@ -2,7 +2,8 @@
 
 namespace App\Comportamentos;
 
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
+
 
 class Email
 {

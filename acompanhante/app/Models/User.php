@@ -10,14 +10,12 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
-
-    use HasUuids; // Laravel 10+ já tem suporte nativo para UUID
+    use HasFactory, Notifiable, HasUuids; // Laravel 10+ já tem suporte nativo para UUID
 
     public $incrementing = false; // Evita IDs auto incrementais
     protected $keyType = 'string'; // Define o tipo como string
     protected $fillable = [
-        'name',
+        'cpf',
         'email',
         'password',
     ];

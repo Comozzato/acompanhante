@@ -8,20 +8,20 @@ use App\Comportamentos\Password;
 
 class User
 {
-    private  Cpf $cpf;
-    private   Email  $email;
-    private  Password $password;
+    private Cpf $cpf;
+    private Email $email;
+    private Password $password;
     public function __construct(
         Cpf $cpf,
         Password $password,
         Email $email
-    ){
+    ) {
         $this->cpf = $cpf;
         $this->email = $email;
         $this->password = $password;
     }
 
-        public function toArray(): array
+    public function toArray(): array
     {
         return [
             'cpf' => $this->cpf->getValue(),

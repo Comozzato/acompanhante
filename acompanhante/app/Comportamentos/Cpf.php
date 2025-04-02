@@ -2,7 +2,8 @@
 
 namespace App\Comportamentos;
 
-use http\Exception\InvalidArgumentException;
+use App\Models\User;
+use InvalidArgumentException;
 
 class Cpf
 {
@@ -14,17 +15,17 @@ class Cpf
         $this->cpf = $cpf;
     }
 
-    public function getValue():string
+    public function getValue(): string
     {
         return $this->cpf;
     }
-    public function validateCpf($cpf):void
+    public function validateCpf(string $cpf): void
     {
-        $cpf = preg_replace("/[^0-9]/is", '',$cpf);
+        $cpf = preg_replace("/[^0-9]/is", '', $cpf);
         if (strlen($cpf) != 11) {
             throw new InvalidArgumentException('Comprimento do CPF inválido');
         }
-        if(preg_match('/(\d)\1{10}/', $cpf)) {
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
             throw new InvalidArgumentException('Formato do CPF inválido');
         }
 
@@ -34,10 +35,18 @@ class Cpf
             }
             $d = ((10 * $d) % 11) % 10;
             if ($cpf[$c] != $d) {
-               throw new InvalidArgumentException('CPF Inválido');
+                throw new InvalidArgumentException('CPF Inválido');
             }
         }
 
+        $this->CpfIsUniqueUser($cpf);
+
+    }
+
+    private function CpfIsUniqueUser(string $cpf): void
+    {
+        if (User::where('cpf', '=', $cpf))
+            throw new InvalidArgumentException('CPF já cadastrado', 400);
     }
 
 
