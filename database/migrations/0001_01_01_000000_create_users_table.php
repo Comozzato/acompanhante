@@ -26,8 +26,9 @@ return new class extends Migration {
         });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->string('id')->primary();
+            $table->uuid('user_id')->nullable(); // Define como UUID
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

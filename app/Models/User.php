@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasUuids; // Laravel 10+ já tem suporte nativo para UUID
+    use HasFactory, Notifiable, HasUuids, HasApiTokens;// Laravel 10+ já tem suporte nativo para UUID
 
     public $incrementing = false; // Evita IDs auto incrementais
     protected $keyType = 'string'; // Define o tipo como string

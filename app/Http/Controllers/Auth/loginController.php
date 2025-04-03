@@ -22,23 +22,18 @@ class loginController extends Controller
         ]);
 
         if (!Auth::attempt($credentials)) {
-            throw new InvalidArgumentException('Credenciais inválidas', 401);
+            return response()->json(['error' => 'Credenciais inválidas'], 401);
         }
 
         $user = Auth::user();
 
-        $session = SessionModel::create([
-            'user_id' => $user->id, // Certifique-se de que $user->id já é uma string
-            'access_token' => Str::random(60),
-            'refresh_token' => Str::random(80),
-            'expires_at' => now()->addHours(2),
-        ]);
-
+        // Criar access token
+        $token = $user->createToken('auth_token')->plainTextToken;
+        
         return response()->json([
-            'id_session' => $session->id_session,
-            'access_token' => $session->access_token,
-            'refresh_token' => $session->refresh_token,
-            'expires_at' => $session->expires_at,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user
         ]);
     }
 }

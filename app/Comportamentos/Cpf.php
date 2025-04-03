@@ -45,7 +45,7 @@ class Cpf
 
     private function CpfIsUniqueUser(string $cpf): void
     {
-        if (User::where('cpf', '=', $cpf))
+        if (User::where('cpf', '=', $cpf)->exists())
             throw new InvalidArgumentException('CPF já cadastrado', 400);
     }
 
