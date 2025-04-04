@@ -24,6 +24,8 @@ class SessionModel extends Model
         'last_activity',
         'access_token',
         'refresh_token',
+        'access_expires_at',
+        'refresh_expires_at',
         'expires_at',
     ];
 

@@ -21,9 +21,9 @@ class RegisterController extends Controller
     }
     public function register(Request $request): Response
     {
-        $dataRequest = $request->only('cpf', 'email', 'password');
+        $dataRequest = $request->only('cpf', 'email', 'password', 'password_confirmation');
         $cpf = new Cpf($dataRequest['cpf']);
-        $password = new Password($dataRequest['password']);
+        $password = new Password($dataRequest['password'], $dataRequest['password_confirmation']);
         $email = new Email($dataRequest['email']);
         $user = new User(
             $cpf,
