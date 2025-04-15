@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 
 use App\Http\Requests\LoginRequest;
 use App\Modules\Auth\Login\Authenticate;
-use App\Modules\Auth\Login\CreateToken;
+use App\Modules\Auth\Login\generateAuthCookies;
+use Illuminate\Http\JsonResponse;
 
 
 class loginController extends Controller
@@ -15,14 +16,13 @@ class loginController extends Controller
 
     public function __construct(
         private Authenticate $authenticate,
-        private CreateToken $createToken
+        private generateAuthCookies $createToken
     ) {
 
     }
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
-        $this->authenticate->auth($request);
-        
-        return $this->createToken->generate();
+        $user = $this->authenticate->auth($request);
+        return $this->createToken->generate($user);
     }
 }

@@ -6,17 +6,25 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ForgotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\AuthenticateBySessionCookie;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-});
+
+
+Route::get('/user', function () {
+    return 'logado';
+})->middleware('auth.session');
+
+Route::get('role', function () {
+    return Auth::user()->role;
+})->middleware('auth.session');
+
+Route::get('authenticate', function () {
+    return response()->json([
+        'message' => Auth::check(),
+    ]);
+})->middleware('auth.session');;
 
 
 Route::prefix('auth')->group(function () {
-    
-    Route::post('register', [RegisterController::class, 'register']);
-    Route::post('login', [loginController::class, 'login']);
     Route::prefix('password/forgot')->group(function () {
         Route::post('send-code', [ForgotController::class, 'sendCode']);
         Route::post('verify-code', [ForgotController::class, 'verifyCode']);
@@ -24,8 +32,9 @@ Route::prefix('auth')->group(function () {
     });
 
 
-    Route::post('/auth/logout', [LoginController::class, 'logout'])->middleware('auth.session');;
-
+    Route::post('register', [RegisterController::class, 'register']);
+    Route::post('login', [loginController::class, 'login']);
+    Route::post('logout', [LogoutController::class, 'logout'])->middleware('auth.jwt');
 });
 
 

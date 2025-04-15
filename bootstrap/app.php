@@ -13,7 +13,7 @@
             )
             ->withMiddleware(function (Middleware $middleware) {
                 $middleware->alias([
-                    'auth.session' => \App\Http\Middleware\AuthenticateBySessionCookie::class,
+                    'auth.jwt' => \App\Http\Middleware\VerifyAccessToken::class,
                 ]);
             })
             ->withExceptions(function (Exceptions $exceptions) {

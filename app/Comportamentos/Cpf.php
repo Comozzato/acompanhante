@@ -20,7 +20,7 @@ class Cpf
         return $this->cpf;
     }
     public function validateCpf(string $cpf): void
-    {
+    {   
         $cpf = preg_replace("/[^0-9]/is", '', $cpf);
         if (strlen($cpf) != 11) {
             throw new HttpResponseException(response(['message' => 'Comprimento do CPF inválido'], 400));
@@ -33,19 +33,19 @@ class Cpf
                 $d += $cpf[$c] * (($t + 1) - $c);
             }
             $d = ((10 * $d) % 11) % 10;
+
             if ($cpf[$c] != $d) {
                 throw new HttpResponseException(response(['message' => 'CPF inválido'], 400));
             }
         }
-
         $this->CpfIsUniqueUser($cpf);
-
     }
 
     private function CpfIsUniqueUser(string $cpf): void
     {
-        if (User::where('cpf', '=', $cpf)->exists())
+        if (User::where('cpf', '=', $cpf)->exists()) {
             throw new HttpResponseException(response(['message' => 'CPF já cadastrado'], 400));
+        }
     }
 
 

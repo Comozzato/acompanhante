@@ -13,11 +13,10 @@ use Illuminate\Http\Response;
 
 class RegisterController extends Controller
 {
-    protected Register $register;
 
-    public function __construct(Register $register)
+
+    public function __construct(private Register $register)
     {
-        $this->register = $register;
     }
     public function register(Request $request): Response
     {
@@ -30,6 +29,7 @@ class RegisterController extends Controller
             $password,
             $email
         );
+        
         $this->register->registrarUser($user);
         return response(['message' => 'Usuário registrado com sucesso'], 201);
     }
