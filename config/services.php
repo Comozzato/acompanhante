@@ -14,6 +14,12 @@ return [
     |
     */
 
+    'anuncio_api' => [
+        'url' => env('ANUNCIO_API_URL'),
+        'user' => env('ANUNCIO_API_USER'),
+        'pass' => env('ANUNCIO_API_PASS'),
+    ],
+    
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
