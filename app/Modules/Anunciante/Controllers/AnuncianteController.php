@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 
 class AnuncianteController
 {
-    protected $service;
-    public function __construct(AnuncianteService $service)
+  
+    public function __construct(private AnuncianteService $service)
     {
-        $this->service = $service;
+      
     }
 
     public function getDados($id)
@@ -24,10 +24,10 @@ class AnuncianteController
         return $this->service->postDados($id, $request->validated());
     }
 
-    public function postMidia(AnuncianteMidiaRequest $request, $id)
+    public function postMidia(Request $request, $id)
     {
         $file = $request->file('file');
-        $tipo = $request->input('tipo'); // 'imagem' ou 'video'
+        $tipo = $request->input('tipo'); 
         return $this->service->postMidia($id, $file, $tipo);
     }
 }
