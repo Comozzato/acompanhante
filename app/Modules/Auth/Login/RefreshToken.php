@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Modules\Auth\Login\SessionVerify;
 use Crypt;
 use DomainException;
+use Firebase\JWT\JWT;
 use Str;
 
 class RefreshToken
@@ -15,7 +16,7 @@ class RefreshToken
     }
 
     public function getRefreshToken(User $user): string
-    {   
+    {
         if (!$user instanceof User) {
             throw new DomainException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
         }
@@ -28,7 +29,7 @@ class RefreshToken
             'ip' => request()->ip(), // IP de onde o token foi emitido
             'user_agent' => request()->header('User-Agent', 'Desconhecido'), // para validar se é o mesmo dispositivo
         ];
-
-        return Crypt::encryptString(json_encode($payload));
+        $key = env('JWT_SECRET', 'your-secret-key'); // Defina uma chave secreta no .env
+        return JWT::encode($payload, $key, 'HS256');
     }
 }

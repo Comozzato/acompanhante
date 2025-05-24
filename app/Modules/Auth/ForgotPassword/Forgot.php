@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\ForgotPassword;
 
-use App\Comportamentos\Email;
-use App\Comportamentos\Password;
+
+use App\Behaviors\EmailBehaviors;
+use App\Behaviors\PasswordBehaviors;
 use App\Models\User;
 
 class Forgot
@@ -15,7 +16,7 @@ class Forgot
     {
     }
 
-    public function forgot(string $code, Email $email, Password $password): void
+    public function forgot(string $code, EmailBehaviors $email, PasswordBehaviors $password): void
     {
         $this->verifyCode->verify($email, $code);
         $this->verifyCode->deleteCode($email);

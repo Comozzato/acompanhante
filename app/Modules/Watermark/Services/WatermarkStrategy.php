@@ -11,8 +11,8 @@ class WatermarkStrategy
     public function resolve(TypeMediaValueEnum $mediaType): WatermarkServiceInterface
     {
         return match ($mediaType) {
-            TypeMediaValueEnum::IMAGE => app(ImageWatermark::class),
-            TypeMediaValueEnum::VIDEO => app(VideoWatermark::class),
+            TypeMediaValueEnum::IMAGE => new ImageWatermark(),
+            TypeMediaValueEnum::VIDEO => new VideoWatermark(),
             default => throw new \InvalidArgumentException('Tipo de mídia não suportado para marca d\'água'),
         };
     }

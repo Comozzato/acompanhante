@@ -1,5 +1,6 @@
 <?php
-namespace App\Modules\Anunciante\Requests;
+
+namespace App\Http\Controllers\Anunciante\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

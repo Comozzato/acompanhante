@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\ForgotPassword;
 
-use App\Comportamentos\Email;
+use App\Behaviors\EmailBehaviors;
+
 use Cache;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerifyCode
 {
-    public function verify(Email $email, string $code): void
+    public function verify(EmailBehaviors $email, string $code): void
     {
         $codeCacher = Cache::store('file')->get('forgot_password_code_' . $email->getEmailIfExists());
         if ($code !== $codeCacher) {
@@ -21,7 +22,7 @@ class VerifyCode
         
     }
 
-    public function deleteCode(Email $email): void
+    public function deleteCode(EmailBehaviors $email): void
     {
         Cache::store('file')->forget('forgot_password_code_' . $email->getEmailIfExists());
     }

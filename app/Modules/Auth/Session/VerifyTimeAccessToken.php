@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\Session;
 
-use App\Models\SessionModel;
+use App\Models\Session;
 use Crypt;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,16 +18,19 @@ class VerifyTimeAccessToken
         if (!$accessToken) {
             throw new HttpResponseException(response(['message' => 'Não autenticado. Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
         }
-        $decryptedToken = Crypt::decryptString($accessToken);
-        $tokenData = json_decode($decryptedToken, true);
-        info($tokenData);
-        if ($tokenData['exp'] > now()->timestamp) {
+        $tokenParts = explode('.', $accessToken);
+        if (count($tokenParts) !== 3) {
+            throw new HttpResponseException(response(['message' => 'Token inválido.'], Response::HTTP_UNAUTHORIZED));
+        }
+        $payload = json_decode(base64_decode(strtr($tokenParts[1], '-_', '+/')), true);
+    
+        if (isset($payload['exp']) && $payload['exp'] > now()->timestamp) {
             return true;
         }
-        if (!SessionModel::where('id', $tokenData['user_id'])->where('access_token', $tokenData['access_token'])->exists()) {
+        if (!Session::where('id', $payload['sub'])->where('access_token', $accessToken)->exists()) {
             throw new HttpResponseException(response()->json(['message' => 'Não autenticado. Sessão não encontrada.'], response::HTTP_UNAUTHORIZED));
         }
-        
+
         return false;
     }
 

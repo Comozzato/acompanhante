@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\Login;
 
-use App\Models\SessionModel;
+use App\Models\Session;
 use App\Models\User;
 
 class SessionVerify
 {   
-    public function __construct(private SessionModel $sessionModel) 
+    public function __construct(private Session $sessionModel) 
     {
 
     }

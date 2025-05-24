@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\Session;
 
-use App\Models\SessionModel;
+
+use App\Models\Session;
 use Crypt;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,12 +20,13 @@ class VerifyTimeRefresh
         if (!$refreshToken) {
             throw new HttpResponseException(response(['message' => 'Não autenticado. Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
         }
-        $decryptedToken = Crypt::decryptString($refreshToken);
-        $tokenData = json_decode($decryptedToken, true); // retorna um array associativo
+        $key = env('JWT_SECRET', 'your-secret-key');
+        $decoded = JWT::decode($refreshToken, new Key($key, 'HS256'));
+        $tokenData = json_decode(json_encode($decoded), true); // Converte para objeto
         if ($tokenData['token_type'] !== 'refresh_token') {
             throw new HttpResponseException(response()->json(['message' => 'Token inválido.'], Response::HTTP_UNAUTHORIZED));
         }
-        $session = SessionModel::where('user_id', $tokenData['sub'])->where('refres_token', $tokenData['refres_token'])->first();
+        $session = Session::where('user_id', $tokenData['sub'])->where('refresh_token', $refreshToken)->first();
         if (!$session) {
             throw new HttpResponseException(response()->json(['message' => 'Não autenticado. Sessão não encontrada.'], response::HTTP_UNAUTHORIZED));
         }
@@ -32,7 +36,7 @@ class VerifyTimeRefresh
     }
 
 
-    private function validate(array $refreshToken, SessionModel $session): void
+    private function validate(array $refreshToken, Session $session): void
     {
 
         if ($refreshToken['exp'] < now()->timestamp) {
@@ -40,12 +44,11 @@ class VerifyTimeRefresh
                 response()->json(['message' => 'Token expirado.'], Response::HTTP_UNAUTHORIZED)
             );
         }
-        // Verifica se IP e user agent correspondem
         if (
-            $session->ip !== request()->ip() ||
+            $session->ip_address !== request()->ip() ||
             $session->user_agent !== request()->header('User-Agent', 'Desconhecido')
         ) {
-            $session->delete(); // invalida imediatamente
+            //$session->delete(); // invalida imediatamente
             throw new HttpResponseException(
                 response()->json(['message' => 'Inconsistência na origem da requisição.'], Response::HTTP_UNAUTHORIZED)
             );

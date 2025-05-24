@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Behaviors\EmailBehaviors;
 use App\Behaviors\PasswordBehaviors;
-use App\Comportamentos\Email;
-use App\Comportamentos\Password;
 use App\Modules\Auth\ForgotPassword\Forgot;
 use App\Modules\Auth\ForgotPassword\SendCodeForUser;
 use App\Modules\Auth\ForgotPassword\VerifyCode;

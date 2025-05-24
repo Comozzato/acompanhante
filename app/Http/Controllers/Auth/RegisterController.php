@@ -2,35 +2,40 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Comportamentos\Cpf;
-use App\Comportamentos\Email;
-use App\Comportamentos\Password;
+use App\Behaviors\CpfBehaviors;
+use App\Behaviors\EmailBehaviors;
+use App\Behaviors\NameBehaviors;
+use App\Behaviors\PasswordBehaviors;
 use App\Http\Controllers\Controller;
-use App\Modules\Auth\Register\Register;
-use App\Modules\Auth\Register\User;
+use App\Modules\Auth\Register\RegisterUser;
+use App\Modules\Auth\Register\UserDto;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+
+
 
 class RegisterController extends Controller
 {
-
-
-    public function __construct(private Register $register)
+    //  
+    protected RegisterUser $register;
+    public function __construct(RegisterUser $registerUser)
     {
+        $this->register = $registerUser;
     }
-    public function register(Request $request): Response
+
+    public function register(Request $request)
     {
+       
+        //$dataRequest = $request->only('name', 'cpf', 'email', 'password', 'password_confirmation');
         $dataRequest = $request->only('cpf', 'email', 'password', 'password_confirmation');
-        $cpf = new Cpf($dataRequest['cpf']);
-        $password = new Password($dataRequest['password'], $dataRequest['password_confirmation']);
-        $email = new Email($dataRequest['email']);
-        $user = new User(
-            $cpf,
-            $password,
-            $email
+
+        $userDto = new UserDto(
+          //  new NameBehaviors($dataRequest['name']),
+            new CpfBehaviors($dataRequest['cpf']),
+            new EmailBehaviors($dataRequest['email']),
+            new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
         );
         
-        $this->register->registrarUser($user);
-        return response(['message' => 'Usuário registrado com sucesso'], 201);
+        $this->register->create($userDto);
+        return response(['message' => 'Register successfully'], 201);
     }
 }

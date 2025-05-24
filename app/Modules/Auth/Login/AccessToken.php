@@ -6,6 +6,7 @@ namespace App\Modules\Auth\Login;
 use App\Models\User;
 use Crypt;
 use DomainException;
+use Firebase\JWT\JWT;
 
 class AccessToken
 {
@@ -15,7 +16,7 @@ class AccessToken
     }
 
     public function getAccessToken(User $user): string
-    {   
+    {
         if (!$user instanceof User) {
             throw new DomainException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
         }
@@ -24,12 +25,13 @@ class AccessToken
             'name' => $user->name,
             'role' => $user->role,
             'iat' => now()->timestamp,
-            'exp' => now()->addMinutes(15)->timestamp,
+            'exp' => now()->addDays(7)->timestamp,
             'ip' => request()->ip(),
             'user_agent' => request()->header('User-Agent', 'Desconhecido')
         ];
 
-        return Crypt::encryptString(json_encode($payload));
+        $key = env('JWT_SECRET', 'your-secret-key'); // Defina uma chave secreta no .env
+        return JWT::encode($payload, $key, 'HS256');
     }
 
 
