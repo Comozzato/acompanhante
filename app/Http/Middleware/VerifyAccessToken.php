@@ -24,13 +24,16 @@ class VerifyAccessToken
 
         $accessToken = $request->cookie('access_token');
         //$refreshToken = $request->cookie('refresh_token');
-    
         if (empty($accessToken)) {
             return response()->json(['message' => 'Não autenticado.'], Response::HTTP_UNAUTHORIZED);
         }
-        if ($this->tokenVerifier->verify($accessToken)) {
-            return $next($request);
-        }
+        $payload = $this->tokenVerifier->verify($accessToken); // sua função de validação
+        $request->attributes->set('user_id', $payload['sub']);
+        $request->attributes->set('role', $payload['role']);
+        return $next($request);
+        // if ($this->tokenVerifier->verify($accessToken)) {
+        //     return $next($request);
+        // }
 
         // if ($this->verifyTimeRefresh->verify($refreshToken)) {
         //     $userId = $this->verifyTimeRefresh->getSubToken(); // <- pega o sub
@@ -40,7 +43,7 @@ class VerifyAccessToken
         //     return $response->withCookie($cookie);
         // }
 
-        return response()->json(['message' => 'Não autenticado. Sessão expirada.'], Response::HTTP_UNAUTHORIZED);
+        // return response()->json(['message' => 'Não autenticado. Sessão expirada.'], Response::HTTP_UNAUTHORIZED);
     }
 }
 

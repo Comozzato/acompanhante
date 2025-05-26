@@ -16,7 +16,7 @@ class TokenVerifier
     {
         $this->key = base64_decode(config('services.token.key'));
     }
-    public function verify(string $accessToken): bool
+    public function verify(string $accessToken): array
     {
         if (!$accessToken) {
             throw new HttpResponseException(response(['message' => 'Não autenticado. Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
@@ -29,11 +29,11 @@ class TokenVerifier
         if ($payload['exp'] < now()->timestamp) {
             throw new HttpResponseException(response(['message' => 'Token expirado.'], Response::HTTP_UNAUTHORIZED));
         }
+
         if (Session::where('id', $payload['sub'])->where('access_token', $accessToken)->exists()) {
             throw new HttpResponseException(response()->json(['message' => 'Não autenticado. Sessão não encontrada.'], response::HTTP_UNAUTHORIZED));
         }
-        
-        return true;
+        return $payload;
     }
 
 

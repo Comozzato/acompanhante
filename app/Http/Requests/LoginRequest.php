@@ -25,7 +25,7 @@ class LoginRequest extends FormRequest
             'password.required' => 'O campo senha é obrigatório.'
         ];
     }
-
+    
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response(['message' => $validator->errors()->first()], 400));

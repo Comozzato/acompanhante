@@ -25,7 +25,7 @@ class AccessToken
             throw new DomainException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
         }
 
-        $accessExpiresTimesTamp = now()->minutes((int) $this->access_expire)->timestamp;
+        $accessExpiresTimesTamp = now()->addminutes((int) $this->access_expire)->timestamp;
         $now = now()->timestamp;
 
         $payload = [

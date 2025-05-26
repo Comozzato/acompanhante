@@ -12,7 +12,6 @@ class CpfBehaviors
     public function __construct(string $cpf)
     {
         $this->validateCpf($cpf);
-
     }
 
     public function getValue(): string
@@ -44,11 +43,14 @@ class CpfBehaviors
                 ], 422));
             }
         }
-        $this->used($cpf);
 
-        $this->cpf = $cpf;
+        $this->cpf = $cpf; 
+   }
+    private function getCpfNoUsed(): string
+    {
+        $this->used($this->cpf);
+        return $this->cpf;
     }
-
     private function used($cpf)
     {
         if (User::where('cpf', '=', $cpf)->exists()) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Anunciante;
 use App\Behaviors\CpfBehaviors;
 use App\Http\Controllers\Anunciante\Requests\AnuncianteDadosRequest;
 use App\Http\Controllers\Anunciante\Requests\AnuncianteMidiaRequest;
+use App\Models\User;
 use App\Modules\Anunciante\Services\AnuncianteService;
 use App\Services\S3ImageGalleryService;
 use Auth;
@@ -21,7 +22,7 @@ class AnuncianteController
 
     public function getMyAnuncios()
     {
-        $user = Auth::user();
+        $user = User::find(Request()->attributes->get('user_id'));
         $cpf = new CpfBehaviors($user->cpf);
         return $this->service->getAnuncioCpf($cpf);
     }
