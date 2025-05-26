@@ -27,7 +27,6 @@ class RegisterController extends Controller
        
         //$dataRequest = $request->only('name', 'cpf', 'email', 'password', 'password_confirmation');
         $dataRequest = $request->only('cpf', 'email', 'password', 'password_confirmation');
-        info($request);
         $userDto = new UserDto(
           //  new NameBehaviors($dataRequest['name']),
             new CpfBehaviors($dataRequest['cpf']),

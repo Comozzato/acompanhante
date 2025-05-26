@@ -22,7 +22,7 @@ class RefreshTokenController extends Controller
 
     public function newRefreshToken(Request $request)
     {
-        info($request);
+
         $refreshToken = $request->cookie('refresh_token');
         $this->verifyTimeRefresh->verify($refreshToken);
         $user = User::find($this->verifyTimeRefresh->getSubToken());

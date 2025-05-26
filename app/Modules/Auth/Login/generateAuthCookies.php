@@ -34,17 +34,17 @@ class GenerateAuthCookies
         $refresh_token = $this->refreshToken->getRefreshToken($user);
         $this->createSession->create($user, $access_token, $refresh_token);
 
-        return response()
-            ->json(['message' => 'Login bem-sucedido'])
-            ->withCookie($this->createCookiesAcccessToken($access_token))
-            ->withCookie($this->createCookiesRefreshToken($refresh_token));
-        
         // return response()
-        //     ->json([
-        //         'message' => 'Login bem-sucedido',
-        //         'access_token' => $access_token,
-        //         'refresh_token' => $refresh_token
-        //     ]);
+        //     ->json(['message' => 'Login bem-sucedido'])
+        //     ->withCookie($this->createCookiesAcccessToken($access_token))
+        //     ->withCookie($this->createCookiesRefreshToken($refresh_token));
+        
+        return response()
+            ->json([
+                'message' => 'Login bem-sucedido',
+                'access_token' => $access_token,
+                'refresh_token' => $refresh_token
+            ]);
     }
     
     public function createCookiesAcccessToken(string $access_token): Cookie
