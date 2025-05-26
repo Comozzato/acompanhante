@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\User;
 use App\Modules\Auth\Session\CreateNewAccessToken;
+use App\Modules\Auth\Session\TokenVerifier;
 use App\Modules\Auth\Session\VerifyTimeAccessToken;
 use App\Modules\Auth\Session\VerifyTimeRefresh;
 use Closure;
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class VerifyAccessToken
 {
 
-    public function __construct(private VerifyTimeAccessToken $verifyTimeAccessToken, private VerifyTimeRefresh $verifyTimeRefresh, private CreateNewAccessToken $createNewAccessToken)
+    public function __construct(private TokenVerifier $tokenVerifier, private VerifyTimeRefresh $verifyTimeRefresh, private CreateNewAccessToken $createNewAccessToken)
     {
 
     }
@@ -27,7 +28,7 @@ class VerifyAccessToken
         if (empty($accessToken)) {
             return response()->json(['message' => 'Não autenticado.'], Response::HTTP_UNAUTHORIZED);
         }
-        if ($this->verifyTimeAccessToken->verify($accessToken)) {
+        if ($this->tokenVerifier->verify($accessToken)) {
             return $next($request);
         }
 

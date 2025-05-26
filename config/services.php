@@ -17,6 +17,15 @@ return [
         'url' => env('URL_FRONT'),
     ],
 
+    'login' => [
+        'security' => env('APP_ENV') === 'production',
+    ],
+
+    'token' => [
+        'access_expire' => env('ACCESS_TOKEN_EXPIRE_MINUTES', 15),
+        'refresh_expire' => env('REFRESH_TOKEN_EXPIRE_DAYS', 7),
+        'key' => env('JWT_SECRET')
+    ],
     'anuncio_api' => [
         'url' => env('ANUNCIO_API_URL'),
         'user' => env('ANUNCIO_API_USER'),

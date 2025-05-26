@@ -25,6 +25,7 @@ class Authenticate
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             throw new HttpResponseException(response(['message' => 'Credenciais inválidas'], 400));
         }
+        
         return $user;
     }
 

@@ -40,12 +40,12 @@ class ConviteMail extends Mailable
      * Get the message content definition.
      */
     public function content(): Content
-    {   
+    {
 
         return new Content(
             view: 'emails.convite',
             with: [
-                'link' => $this->link,
+                'link' => $this->link . '/cadastro',
             ],
         );
     }

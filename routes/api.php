@@ -4,6 +4,7 @@ use App\Http\Controllers\Anunciante\AnuncianteController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\RefreshTokenController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ConviteController;
 use App\Http\Controllers\ForgotController;
@@ -18,9 +19,10 @@ Route::get('/user', function () {
 ;
 
 Route::get('role', function () {
-    return Auth::user()->role;
+
+    
 })->middleware('auth.jwt');
-;
+
 
 Route::get('authenticate', function () {
     return response()->json([
@@ -41,6 +43,7 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [RegisterController::class, 'register']);
     Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LogoutController::class, 'logout'])->middleware('auth.jwt');
+    Route::post('refresh-token', [RefreshTokenController::class, 'newRefreshToken']);
 });
 
 
@@ -49,6 +52,7 @@ Route::get('anuciante/{id}', [AnuncianteController::class, 'getDados']);
 Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
 Route::post('anuciante/midia/{id}', [AnuncianteController::class, 'postMidia']);
 Route::post('convite', [ConviteController::class, 'enviarConvite']);
-Route::post('anuciante/meus-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
+Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
+Route::post('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios']);
 Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
 

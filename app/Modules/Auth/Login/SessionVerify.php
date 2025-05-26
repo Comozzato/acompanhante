@@ -20,7 +20,7 @@ class SessionVerify
         $existingSession = $this->sessionModel->where('user_id', $user->id)
             ->where('user_agent', $userAgent)
             ->first();
-
+        
         if ($existingSession) {
             $existingSession->delete();
         }

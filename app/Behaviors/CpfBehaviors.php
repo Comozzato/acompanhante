@@ -12,7 +12,7 @@ class CpfBehaviors
     public function __construct(string $cpf)
     {
         $this->validateCpf($cpf);
-        $this->cpf = $cpf;
+
     }
 
     public function getValue(): string
@@ -45,6 +45,8 @@ class CpfBehaviors
             }
         }
         $this->used($cpf);
+
+        $this->cpf = $cpf;
     }
 
     private function used($cpf)

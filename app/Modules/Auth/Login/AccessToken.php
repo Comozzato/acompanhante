@@ -10,9 +10,13 @@ use Firebase\JWT\JWT;
 
 class AccessToken
 {
+
+    private $access_expire;
+    private readonly string $key;
     public function __construct()
     {
-
+        $this->access_expire = config('services.token.access_expire');
+        $this->key = base64_decode(config('services.token.key'));
     }
 
     public function getAccessToken(User $user): string
@@ -20,18 +24,23 @@ class AccessToken
         if (!$user instanceof User) {
             throw new DomainException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
         }
+
+        $accessExpiresTimesTamp = now()->minutes((int) $this->access_expire)->timestamp;
+        $now = now()->timestamp;
+
         $payload = [
+            'iss' => config('app.url'),
             'sub' => $user->id,
             'name' => $user->name,
             'role' => $user->role,
-            'iat' => now()->timestamp,
-            'exp' => now()->addDays(7)->timestamp,
+            'iat' => $now,
+            'exp' => $accessExpiresTimesTamp,
             'ip' => request()->ip(),
             'user_agent' => request()->header('User-Agent', 'Desconhecido')
         ];
 
-        $key = env('JWT_SECRET', 'your-secret-key'); // Defina uma chave secreta no .env
-        return JWT::encode($payload, $key, 'HS256');
+
+        return JWT::encode($payload, $this->key, 'HS256');
     }
 
 
