@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('feed', function (Blueprint $table) {
             $table->id();
-            $table->foreignUuid('anunciante_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->enum('tipo', ['imagem', 'video', 'texto'])->index(); // Tipo de mídia
             $table->string('titulo')->nullable();
             $table->text('conteudo')->nullable(); // Texto principal do post

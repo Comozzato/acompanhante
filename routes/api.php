@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/user', function () {
     return User::find(request()->attributes->get('user_id'));
 })->middleware('auth.jwt');
-;
 
 Route::get('role', function () {
 
@@ -40,8 +39,6 @@ Route::prefix('auth')->group(function () {
         Route::post('verify-code', [ForgotController::class, 'verifyCode']);
         Route::post('reset', [ForgotController::class, 'reset']);
     });
-
-
     Route::post('register', [RegisterController::class, 'register']);
     Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LogoutController::class, 'logout'])->middleware('auth.jwt');

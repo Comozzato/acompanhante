@@ -6,6 +6,7 @@ namespace App\Modules\Auth\Session;
 
 use App\Models\Session;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class TokenVerifier
@@ -29,13 +30,9 @@ class TokenVerifier
         if ($payload['exp'] < now()->timestamp) {
             throw new HttpResponseException(response(['message' => 'Token expirado.'], Response::HTTP_UNAUTHORIZED));
         }
-
-        if (Session::where('id', $payload['sub'])->where('access_token', $accessToken)->exists()) {
-            throw new HttpResponseException(response()->json(['message' => 'Não autenticado. Sessão não encontrada.'], response::HTTP_UNAUTHORIZED));
-        }
+        $this->verifySession($accessToken, $payload);
         return $payload;
     }
-
 
     private function decodePayload(string $jwt): array
     {
@@ -53,14 +50,34 @@ class TokenVerifier
     private function verifyAssinatura($jwt)
     {
         list($headerB64, $payloadB64, $signatureB64) = explode('.', $jwt);
-
         // Recria a assinatura
         $expectedSignature = hash_hmac('sha256', "$headerB64.$payloadB64", $this->key, true);
         $expectedSignatureB64 = rtrim(strtr(base64_encode($expectedSignature), '+/', '-_'), '=');
-
         // Compara com a assinatura do token
         if (!hash_equals($expectedSignatureB64, $signatureB64)) {
             throw new HttpResponseException(response(['message' => 'invalido'], Response::HTTP_UNAUTHORIZED));
         }
+    }
+
+    private function verifySession($accessToken, $payload): void
+    {
+
+        $chaveCache = 'session:' . $accessToken . ':' . $payload['sub'];
+        $session = Cache::store('file')->get($chaveCache);
+        if ($session) {
+            return;
+        }
+
+        if (
+            !Session::where('user_id', $payload['sub'])
+                ->where('ip_address', '=', $payload['ip'])
+                ->where('user_agent', '=', $payload['user_agent'])
+                ->where('access_token', '=', $accessToken)
+                ->exists()
+        ) {
+            throw new HttpResponseException(response(['message' => 'Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
+        }
+
+        Cache::store('file')->put($chaveCache, true, now()->addMinutes(10));
     }
 }
