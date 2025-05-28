@@ -19,7 +19,7 @@ class TokenVerifier
     }
     public function verify(string $accessToken): array
     {
-        if (!$accessToken) {
+        if (empty($accessToken)) {
             throw new HttpResponseException(response(['message' => 'Não autenticado. Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
         }
         $this->verifyAssinatura($accessToken);

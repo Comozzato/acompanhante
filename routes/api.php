@@ -52,9 +52,11 @@ Route::middleware('auth.jwt')->group(function () {
     Route::get('anuciante/{id}', [AnuncianteController::class, 'getDados']);
     Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
     Route::post('anuciante/midia/{id}', [AnuncianteController::class, 'postMidia']);
-    Route::post('convite', [ConviteController::class, 'enviarConvite']);
-    Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
+    
+
     Route::post('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios']);
     Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
 
 });
+Route::post('convite', [ConviteController::class, 'enviarConvite']);
+Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
