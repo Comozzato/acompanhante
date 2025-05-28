@@ -49,7 +49,7 @@ Route::prefix('auth')->group(function () {
 
 
 Route::middleware('auth.jwt')->group(function () {
-    Route::get('anuciante/{id}', [AnuncianteController::class, 'getDados']);
+    Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
     Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
     Route::post('anuciante/midia/{id}', [AnuncianteController::class, 'postMidia']);
     
