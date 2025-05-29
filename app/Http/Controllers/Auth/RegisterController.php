@@ -24,8 +24,8 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-
-            $dataRequest = $request->only('name', 'cpf', 'email', 'password', 'password_confirmation');
+        info($request);
+        $dataRequest = $request->only('name', 'cpf', 'email', 'password', 'password_confirmation');
         
         $userDto = new UserDto(
             //  new NameBehaviors($dataRequest['name']),
