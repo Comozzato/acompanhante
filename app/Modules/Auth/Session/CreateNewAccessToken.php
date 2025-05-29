@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Modules\Auth\Session;
 
 use App\Models\User;
-use App\Modules\Auth\Login\generateAuthCookies;
+use App\Modules\Auth\Login\GenerateAuthCookies;
 use DomainException;
 use Symfony\Component\HttpFoundation\Cookie;
 
 class CreateNewAccessToken
 {
-    public function __construct(private generateAuthCookies $authCookies)
+    public function __construct(private GenerateAuthCookies $authCookies)
     {
 
     }
