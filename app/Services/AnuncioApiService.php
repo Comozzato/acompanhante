@@ -24,9 +24,9 @@ class AnuncioApiService
     }
 
     public function getAnuncionsCpf(CpfBehaviors $cpf)
-    {   
+    {
 
-        
+
         $endpoint = rtrim($this->url, '/') . "/wp-json/meusanuncios/v1/busca/?cpf={$cpf->getValue()}";
         $headers = [
             'Authorization' => 'Basic ' . $this->token,

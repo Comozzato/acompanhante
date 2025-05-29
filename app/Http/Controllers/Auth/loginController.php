@@ -7,9 +7,6 @@ use App\Http\Requests\LoginRequest;
 use App\Modules\Auth\Login\Authenticate;
 use App\Modules\Auth\Login\generateAuthCookies;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class LoginController extends Controller
 {

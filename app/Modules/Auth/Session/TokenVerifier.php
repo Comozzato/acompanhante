@@ -18,7 +18,8 @@ class TokenVerifier
         $this->key = base64_decode(config('services.token.key'));
     }
     public function verify(string $accessToken): array
-    {
+    {   
+        info($accessToken);
         if (empty($accessToken)) {
             throw new HttpResponseException(response(['message' => 'Não autenticado. Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
         }

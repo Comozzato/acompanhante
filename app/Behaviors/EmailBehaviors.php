@@ -21,7 +21,6 @@ class EmailBehaviors
                 'email' => ['O email não é válido']
             ], 422));
         }
-        $this->used($email);
     }
 
     private function used($email)
