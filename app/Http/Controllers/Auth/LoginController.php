@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Modules\Auth\Login\Authenticate;
-use App\Modules\Auth\Login\generateAuthCookies;
+use App\Modules\Auth\Login\GenerateAuthCookies;
 use Illuminate\Http\JsonResponse;
 
 class LoginController extends Controller
 {
     public function __construct(
         private Authenticate $authenticate,
-        private generateAuthCookies $createToken
+        private GenerateAuthCookies $createToken
     ) {
 
     }
