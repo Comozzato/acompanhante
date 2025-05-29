@@ -7,18 +7,23 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 class EmailBehaviors
 {
     private string $email;
-    public function __construct(string $email)
+    public function __construct(?string $email)
     {
         $this->validate($email);
         $this->email = $email;
     }
 
 
-    private function validate(string $email): void
-    {
+    private function validate($email): void
+    {   
+        if (empty($email)) {
+            throw new HttpResponseException(response([
+                'message' => 'O email é obrigatório'
+            ], 422));
+        }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new HttpResponseException(response([
-                'email' => ['O email não é válido']
+                'message' => 'O email não é válido'
             ], 422));
         }
     }
@@ -27,7 +32,7 @@ class EmailBehaviors
     {
         if (User::where('email', '=', $email)->exists()) {
             throw new HttpResponseException(response([
-                'email' => ['Email em uso']
+                'message' => 'Email em uso'
             ], 422));
         }
     }
