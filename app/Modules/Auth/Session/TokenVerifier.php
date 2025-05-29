@@ -19,7 +19,9 @@ class TokenVerifier
     }
     public function verify(string $accessToken): array
     {   
-        info($accessToken);
+        if (empty($this->key)) {
+            throw new HttpResponseException(response(['message' => 'Chave de assinatura não configurada.'], Response::HTTP_INTERNAL_SERVER_ERROR));
+        }
         if (empty($accessToken)) {
             throw new HttpResponseException(response(['message' => 'Não autenticado. Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
         }

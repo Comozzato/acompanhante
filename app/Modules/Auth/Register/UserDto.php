@@ -27,7 +27,7 @@ class UserDto
     {
         return [
             //'name' => $this->name->getValue(),
-            'cpf' => $this->cpf->getValue(),
+            'cpf' => $this->cpf->getCpfNoUsed(),
             'email' => $this->email->getValue(),
             'password' => $this->password->getValue(),
         ];
