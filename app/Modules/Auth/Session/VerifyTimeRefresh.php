@@ -54,7 +54,7 @@ class VerifyTimeRefresh
     }
     private function validate(array $refreshToken, Session $session): void
     {
-
+        
         if ($refreshToken['exp'] < now()->timestamp) {
             throw new HttpResponseException(
                 response()->json(['message' => 'Token expirado.'], Response::HTTP_UNAUTHORIZED)
