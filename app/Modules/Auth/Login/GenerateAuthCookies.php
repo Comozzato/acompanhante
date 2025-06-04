@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Auth\Login;
 use App\Models\User;
 
-
-use DomainException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Cookie;

@@ -60,4 +60,7 @@ Route::middleware('auth.jwt')->group(function () {
 });
 Route::post('convite', [ConviteController::class, 'enviarConvite']);
 Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
+
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
+
+Route::post('post-feed', [\App\Http\Controllers\Feed\FeedController::class, 'post']);
