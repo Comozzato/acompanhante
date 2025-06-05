@@ -3,14 +3,12 @@ namespace App\Http\Controllers\Anunciante;
 
 use App\Behaviors\CpfBehaviors;
 use App\Http\Controllers\Anunciante\Requests\AnuncianteDadosRequest;
-use App\Http\Controllers\Anunciante\Requests\AnuncianteMidiaRequest;
+
 use App\Models\User;
 use App\Modules\Anunciante\Services\AnuncianteService;
 use App\Services\S3ImageGalleryService;
-use Auth;
+
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Response;
 
 class AnuncianteController
 {
@@ -48,13 +46,13 @@ class AnuncianteController
         return $this->service->postDados($id, $request->validated());
     }
 
-    public function postMidia(Request $request, $id)
-    {
-        $file = $request->file('file');
-        $tipo = $request->input('tipo');
-        return $this->service->postMidia($id, $file, $tipo);
+    // public function postMidia(Request $request, $id)
+    // {
+    //     $file = $request->file('file');
+    //     $tipo = $request->input('tipo');
+    //     return $this->service->postMidia($id, $file, $tipo);
 
-    }
+    // }
 
     public function getImagemFeed(Request $request)
     {

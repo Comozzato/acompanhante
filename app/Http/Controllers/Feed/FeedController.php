@@ -27,10 +27,10 @@ class FeedController extends \App\Http\Controllers\Controller
         return response()->json(['message' => 'Feed de posts']);
     }
 
-    public function post(Request $request)
-    {
-        $inputFilePostFeed = $request->file('file');    
-        $outputFileMaster =  $this->treantment->ImageFeed(new \Illuminate\Http\File($inputFilePostFeed));
-        return response()->json(['message' => $outputFileMaster]);
-    }
+    // public function post(Request $request)
+    // {
+    //     $inputFilePostFeed = $request->file('file');    
+    //     $outputFileMaster =  $this->treantment->ImageFeed(new \Illuminate\Http\File($inputFilePostFeed));
+    //     return response()->json(['message' => $outputFileMaster]);
+    // }
 }

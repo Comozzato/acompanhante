@@ -2,7 +2,9 @@
 
 namespace App\Modules\PostImgFeed\Services\Strategies;
 
-use App\Modules\Watermark\Contracts\ImageWatermark;
+use App\Modules\PostImgFeed\Contracts\ImageWatermark;
+
+
 // Removi WatermarkServiceInterface, pois não está sendo usado diretamente nesta classe.
 // Se for necessário para outras partes do seu módulo, mantenha-o.
 
