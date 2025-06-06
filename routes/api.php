@@ -50,7 +50,7 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth.jwt')->group(function () {
     
-    Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
+   
    Route::post('anuciante/midia/{id}', action: [AnuncianteController::class, 'postMidia']);
     
 
@@ -62,5 +62,5 @@ Route::post('convite', [ConviteController::class, 'enviarConvite']);
 Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
 
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
-
+ Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);    
 // Route::post('post-feed', [\App\Http\Controllers\Feed\FeedController::class, 'post']);
