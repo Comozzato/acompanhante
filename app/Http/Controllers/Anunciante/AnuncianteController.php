@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Anunciante;
 use App\Behaviors\CpfBehaviors;
 use App\Http\Controllers\Anunciante\Requests\AnuncianteDadosRequest;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Anunciante\Services\AnuncianteService;
 use App\Services\S3ImageGalleryService;
 
 use Illuminate\Http\Request;
 
-class AnuncianteController
+class AnuncianteController extends Controller
 {
 
     public function __construct(private AnuncianteService $service)
@@ -43,6 +44,7 @@ class AnuncianteController
 
     public function postDados(AnuncianteDadosRequest $request, $id)
     {
+        info($request);
         return $this->service->postDados($id, $request->validated());
     }
 

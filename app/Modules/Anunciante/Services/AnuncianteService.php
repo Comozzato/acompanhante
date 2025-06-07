@@ -8,6 +8,7 @@ use App\Services\AnuncioApiService;
 use App\Services\S3ImageGalleryService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rules\Enum;
+use Log;
 
 class AnuncianteService
 {
@@ -27,6 +28,7 @@ class AnuncianteService
 
     public function postDados($id, array $dados)
     {
+        
         return $this->api->postAnuncioDados($id, $dados);
     }
 
