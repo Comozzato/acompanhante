@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace app\Http\Controllers\Feed;
 
+use App\Enums\ImagesFeed;
 use App\Modules\PostImgFeed\Services\Treantment;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 
 class FeedController extends \App\Http\Controllers\Controller
-{   
+{
 
     /**
      * Exemplo de método que poderia ser adicionado ao FeedController.
@@ -27,10 +29,10 @@ class FeedController extends \App\Http\Controllers\Controller
         return response()->json(['message' => 'Feed de posts']);
     }
 
-    // public function post(Request $request)
-    // {
-    //     $inputFilePostFeed = $request->file('file');    
-    //     $outputFileMaster =  $this->treantment->ImageFeed(new \Illuminate\Http\File($inputFilePostFeed));
-    //     return response()->json(['message' => $outputFileMaster]);
-    // }
+     public function post(Request $request)
+    {
+        $dataRequest = $request->input(['titulo','conteudo']);
+        $inputFilePostFeed = $request->file('file');
+        $outputFileMaster =  $this->treantment->processImageFeed($inputFilePostFeed, ImagesFeed::MASTER);
+    }
 }

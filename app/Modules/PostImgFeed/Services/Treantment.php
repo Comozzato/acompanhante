@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace App\Modules\PostImgFeed\Services;
 
 
+use App\Enums\ImagesFeed;
 use App\Modules\PostImgFeed\Services\Strategies\TypeImg;
-use Illuminate\Http\File;
+use App\Modules\PostImgFeed\Services\WatermarkStrategy;
+
 
 class Treantment
 {
-    public function ImageFeed(?File $file)
-    {   
-        // if (!$file) {
-        //     throw new \InvalidArgumentException('Arquivo não fornecido');
-        // }
-        // $waterMarksStrategy = new WatermarkStrategy();
-        // $outputFileMaster =  $waterMarksStrategy->resolve(TypeImg::Imagem_master)
-        //     ->applyWatermark($file);
 
-        // return $outputFileMaster;
+    public function __construct(private WatermarkStrategy $watermarkStrategy)
+    {
+    }
+
+    public function processImageFeed($file)
+    {
+         if (!$file) {
+             throw new \InvalidArgumentException('Arquivo não fornecido');
+        }
+        $outputMaster =  $this->watermarkStrategy->resolve(ImagesFeed::MASTER, $file);
+
+        return $outputMaster;
     }
 }

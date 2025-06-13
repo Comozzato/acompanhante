@@ -13,10 +13,12 @@ return new class extends Migration {
         Schema::create('feed', function (Blueprint $table) {
             $table->id();
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('tipo', ['imagem', 'video', 'texto'])->index(); // Tipo de mídia
+            $table->enum('tipo', ['imagem', 'video'])->index(); // Tipo de mídia
             $table->string('titulo')->nullable();
             $table->text('conteudo')->nullable(); // Texto principal do post
-            $table->string('midia_path')->nullable(); // Caminho para imagem/vídeo (quando aplicável)
+            $table->string('midia_path_master')->nullable(); // Caminho para imagem/vídeo (quando aplicável)
+            $table->string('midia_path_thumbnail1')->nullable(); // Caminho para imagem/vídeo (quando aplicável)
+            $table->string('midia_path_thumbnail2')->nullable(); // Caminho para imagem/vídeo (quando aplicável)
             $table->boolean('ativo')->default(true); // Visível no feed?
             $table->timestamp('publicado_em')->nullable(); // Agendamento opcional
             $table->timestamps();

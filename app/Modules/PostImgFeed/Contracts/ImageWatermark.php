@@ -1,6 +1,10 @@
 <?php
 namespace App\Modules\PostImgFeed\Contracts;
+use App\Enums\ImagesFeed;
+
 interface ImageWatermark
 {
-    public function applyWatermark(string $inputFile, ?string $outputFile = null): string;
+    public function applyWatermark($inputFile): string;
+    public function getSupportedType(): ImagesFeed;
+
 }
