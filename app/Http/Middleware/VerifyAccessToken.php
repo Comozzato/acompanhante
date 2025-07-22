@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class VerifyAccessToken
 {
 
-    public function __construct(private TokenVerifier $tokenVerifier, private VerifyTimeRefresh $verifyTimeRefresh, private CreateNewAccessToken $createNewAccessToken)
+    public function __construct(private TokenVerifier $tokenVerifier)
     {
 
     }

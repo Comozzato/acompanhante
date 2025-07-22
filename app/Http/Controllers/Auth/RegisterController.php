@@ -24,17 +24,19 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        info($request);
+
         $dataRequest = $request->only('name', 'cpf', 'email', 'password', 'password_confirmation');
-        
+        $cpf = new CpfBehaviors($dataRequest['cpf']);
+        $email = new EmailBehaviors($dataRequest['email']);
+        $password = new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation']);
         $userDto = new UserDto(
             //  new NameBehaviors($dataRequest['name']),
-            new CpfBehaviors($dataRequest['cpf']),
-            new EmailBehaviors($dataRequest['email']),
-            new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
+            $cpf,
+            $email,
+            $password
         );
-
+        
         $this->register->create($userDto);
-        return response(['message' => 'Register successfully'], 201);
+        return response()->json(['message' => 'Register successfully'], 201);
     }
 }

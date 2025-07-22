@@ -9,7 +9,7 @@ use App\Modules\PostImgFeed\Services\ImageProcessing\WatermarkApplier;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\ImageResizeConfig;
 use Illuminate\Support\Facades\Storage;
 
-class MasterImageWaterMark implements ImageWatermark
+class ThumbNailPrimaryWaterMark implements ImageWatermark
 {
     public function __construct(
         private ImageResizer $resizer,
@@ -18,7 +18,7 @@ class MasterImageWaterMark implements ImageWatermark
 
     public function getSupportedType(): ImagemFeed
     {
-        return ImagemFeed::MASTER;
+        return ImagemFeed::THBPRIMARY;
     }
 
     public function applyWatermark($inputFile): string
@@ -34,15 +34,15 @@ class MasterImageWaterMark implements ImageWatermark
             'image/gif' => imagecreatefromgif($inputFile),
             default => throw new \RuntimeException("Tipo de imagem não suportado: {$imageInfo['mime']}"),
         };
-
-        $resized = $this->resizer->resizeWithWhiteBackground($image, new ImageResizeConfig(630, 950));
+        
+        $resized = $this->resizer->resizeWithWhiteBackground($image, new ImageResizeConfig(620, 930,true));
         imagedestroy($image);
 
         $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), 'middle');
         $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), 'top');
         $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), 'bottom');
 
-        $filename = 'master_' . pathinfo($inputFile, PATHINFO_FILENAME) . '.png';
+        $filename = 'primary_' . pathinfo($inputFile, PATHINFO_FILENAME) . '.png';
         $relativePath = 'watermarked/' . $filename;
         Storage::makeDirectory('watermarked');
         $finalPath = Storage::path($relativePath);
@@ -51,8 +51,6 @@ class MasterImageWaterMark implements ImageWatermark
             imagedestroy($resized);
             throw new \RuntimeException("Falha ao salvar imagem: {$finalPath}");
         }
-
-        imagedestroy($resized);
         return $finalPath;
     }
 }
