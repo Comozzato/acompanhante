@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace app\Http\Controllers\Feed;
 
-use App\Enums\ImagesFeed;
+use App\Enums\ImagemFeed;
 use App\Models\Feed;
+use App\Models\Midia;
 use App\Modules\PostImgFeed\Services\Treantment;
-use Illuminate\Http\File;
 use Illuminate\Http\Request;
 
 class FeedController extends \App\Http\Controllers\Controller
@@ -20,21 +20,64 @@ class FeedController extends \App\Http\Controllers\Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function __construct(Private Treantment $treantment)
+    public function __construct(private Treantment $treantment)
     {
         // Você pode adicionar middleware ou outras configurações aqui, se necessário.
     }
-    public function index()
+
+    public function index(Request $request)
     {
-        // Aqui você pode implementar a lógica para retornar o feed de posts.
-        return response()->json(['message' => 'Feed de posts']);
+        $user = $request->user(); // usuário autenticado, se houver
+
+        $query = Feed::query()->with(['anunciante', 'midia']);
+
+        // Exemplo futuro: recomendação por algoritmo
+        // if ($request->boolean('algoritmo') && $user) {
+        //     // Aqui entraria o motor de recomendação
+        //     //$query = Feed::recommendedForUser($user);
+        // }
+
+        // // Filtro por anunciantes seguidos
+        // if ($request->boolean('seguindo') && $user) {
+        //     $ids = $user->anunciantesSeguidos()->pluck('id');
+        //     $query->whereIn('anunciante_id', $ids);
+        // }
+        // Filtro por categoria
+        // if ($request->filled('categoria')) {
+        //     $query->where('categoria', $request->input('categoria'));
+        // }
+
+        // Ordenar por mais recente
+        $query->orderByDesc('publicado_em');
+
+        // Paginação simples
+        $posts = $query->paginate($request->input('limit', 10));
+
+        return response()->json($posts);
     }
 
-     public function post(Request $request)
+
+
+    public function post(Request $request)
     {
-        $dataRequest = $request->input(['titulo','conteudo']);
+        $dataRequest = $request->input();
         $inputFilePostFeed = $request->file('file');
-        $outputFileMaster =  $this->treantment->processImageFeed($inputFilePostFeed, ImagesFeed::MASTER);
-        Feed::created(['']);
+        $paths = $this->treantment->processImageFeed($inputFilePostFeed);
+        $post = [
+            'anunciante_id' => '01974b96-9adb-71c1-930a-d2a9e1cc1aed',
+            'tipo' => 'imagem',
+            'titulo' => $dataRequest['titulo'],
+            'conteudo' => $dataRequest['conteudo'],
+            'ativo' => true,
+            'publicado_em' => now()->setTimezone('America/Sao_Paulo')
+        ];
+        $feed = Feed::create($post);
+        foreach ($paths as $path) {
+            Midia::create([
+                'feed_id' => $feed->id,
+                'midia' => $path
+            ]);
+        }
+        return response()->json(['message' => 'criado com sucesso'], 200);
     }
 }

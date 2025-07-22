@@ -19,7 +19,6 @@ Route::get('/user', function () {
 })->middleware('auth.jwt');
 
 Route::get('role', function () {
-
     $data = request()->attributes;
     return $data->get('role');
 })->middleware('auth.jwt');
@@ -49,11 +48,7 @@ Route::prefix('auth')->group(function () {
 
 
 Route::middleware('auth.jwt')->group(function () {
-
-
    Route::post('anuciante/midia/{id}', action: [AnuncianteController::class, 'postMidia']);
-
-
     Route::get('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios']);
     Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
 
@@ -64,3 +59,4 @@ Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnunc
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
  Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
 Route::post('post-feed', [FeedController::class, 'post']);
+Route::post('posts', [FeedController::class, 'index']);

@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace App\Modules\PostImgFeed\Services;
 
-use App\Enums\ImagesFeed;
+
+use App\Enums\ImagemFeed;
 use App\Modules\PostImgFeed\Contracts\ImageWatermark;
 use App\Modules\PostImgFeed\Services\Strategies\MasterImageWaterMark;
 use InvalidArgumentException;
@@ -27,12 +28,11 @@ class WatermarkStrategy
         }
     }
 
-    public function resolve(ImagesFeed $value, $file): string
+    public function resolve(ImagemFeed $value, $file): string
     {
 
         $key = $value->value;
-
-        // 2. Verifique se a chave existe no mapa de instâncias
+     
         if (!isset($this->strategyMap[$key])) {
             throw new \InvalidArgumentException("Não há uma estratégia de marca d'água registrada para o tipo '{$key}'.");
         }

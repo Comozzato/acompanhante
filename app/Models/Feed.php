@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Feed extends Model
 {
     //
+
+    protected $table = 'feed';
     protected $fillable = [
         'anunciante_id',
         'tipo',
@@ -24,7 +26,17 @@ class Feed extends Model
 
     public function anunciante()
     {
-        return $this->belongsTo(User::class)->select('name');
+        return $this->belongsTo(User::class)->select('id');
     }
 
+    public function midia()
+    {
+        return $this->hasMany(Midia::class)->select('id','feed_id', 'midia'); // imagens, vídeos etc.
+    }
+
+    public static function recommendedForUser(User $user)
+    {
+        // Aqui entraria o algoritmo futuro
+        return self::query(); // por enquanto retorna tudo
+    }
 }
