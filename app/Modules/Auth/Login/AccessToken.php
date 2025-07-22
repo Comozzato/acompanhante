@@ -7,6 +7,7 @@ use App\Models\User;
 use Crypt;
 use DomainException;
 use Firebase\JWT\JWT;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class AccessToken
 {
@@ -22,7 +23,7 @@ class AccessToken
     public function getAccessToken(User $user): string
     {
         if (!$user instanceof User) {
-            throw new DomainException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
+            throw new HttpResponseException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
         }
 
         $accessExpiresTimesTamp = now()->addminutes((int) $this->access_expire)->timestamp;
