@@ -10,18 +10,22 @@ class Feed extends Model
 
     protected $table = 'feed';
     protected $fillable = [
-        'anunciante_id',
+        'user_id',
         'tipo',
         'titulo',
         'conteudo',
-        'midia_path',
         'ativo',
         'publicado_em',
     ];
 
     protected $casts = [
-        'publicado_em' => 'datetime',
+        'publicado_em' => 'datetime:d/m/Y H:i:s',
         'ativo' => 'boolean',
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
     ];
 
     public function anunciante()

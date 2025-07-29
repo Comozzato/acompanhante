@@ -7,6 +7,7 @@ use App\Modules\PostImgFeed\Contracts\ImageWatermark;
 use App\Modules\PostImgFeed\Services\ImageProcessing\ImageResizer;
 use App\Modules\PostImgFeed\Services\ImageProcessing\WatermarkApplier;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\ImageResizeConfig;
+use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionYConfig;
 use Illuminate\Support\Facades\Storage;
 
 class ThumbNailSecundaryWaterMark implements ImageWatermark
@@ -17,7 +18,7 @@ class ThumbNailSecundaryWaterMark implements ImageWatermark
     ) {}
 
     public function getSupportedType(): ImagemFeed
-    {   
+    {
         return ImagemFeed::THBSECUNDARY;
     }
 
@@ -35,24 +36,30 @@ class ThumbNailSecundaryWaterMark implements ImageWatermark
             default => throw new \RuntimeException("Tipo de imagem não suportado: {$imageInfo['mime']}"),
         };
 
-        $resized = $this->resizer->resizeWithWhiteBackground($image, new ImageResizeConfig(390, 585,true));
+        $resized = $this->resizer->resizeWithWhiteBackground($image, new ImageResizeConfig(390, 585, true));
         imagedestroy($image);
 
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), 'middle');
-        $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), 'top');
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), 'bottom');
+        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), new PositionYConfig('middle'));
+        $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionYConfig('top'));
+        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionYConfig('bottom'));
 
-        $filename =  'secundary_'. pathinfo($inputFile, PATHINFO_FILENAME) . '.png';
-        $relativePath = 'watermarked/' . $filename;
-        Storage::makeDirectory('watermarked');
-        $finalPath = Storage::path($relativePath);
-
-        if (!imagepng($resized, $finalPath)) {
-            imagedestroy($resized);
-            throw new \RuntimeException("Falha ao salvar imagem: {$finalPath}");
+        $filename = generate_unique_filename('secundary', pathinfo($inputFile, PATHINFO_FILENAME));
+        $relativePath = auth_user()->id . '/posts/' . $filename;
+        if (!file_exists($inputFile)) {
+            throw new \RuntimeException("Arquivo não encontrado: {$inputFile}");
         }
 
+        ob_start(); // inicia o buffer de saída
+        imagepng($resized); // renderiza imagem tratada no buffer
+        $content = ob_get_clean(); // obtém o conteúdo e limpa o buffer
+
+        if ($content === false || strlen($content) === 0) {
+            throw new \RuntimeException("Arquivo inválido ou vazio: {$inputFile}");
+        }
+
+        Storage::disk('s3')->put($relativePath, $content);
         imagedestroy($resized);
-        return $finalPath;
+
+        return $relativePath;
     }
 }

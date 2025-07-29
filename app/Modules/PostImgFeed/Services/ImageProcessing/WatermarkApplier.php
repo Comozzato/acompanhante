@@ -2,9 +2,12 @@
 // App\Modules\PostImgFeed\Services\ImageProcessing\WatermarkApplier.php
 namespace App\Modules\PostImgFeed\Services\ImageProcessing;
 
+use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionYConfig;
+
 class WatermarkApplier
-{
-    public function applyFromFile($baseImage, string $watermarkPath, string $position = 'middle'): void
+{   
+
+    public function applyFromFile($baseImage, string $watermarkPath, PositionYConfig $position): void
     {
         if (!file_exists($watermarkPath)) return;
 
@@ -15,16 +18,9 @@ class WatermarkApplier
         $imgHeight = imagesy($baseImage);
         $wmWidth = imagesx($watermark);
         $wmHeight = imagesy($watermark);
-
         $x = intval(($imgWidth - $wmWidth) / 2);
-        $padding = 10;
-        $y = match ($position) {
-            'top'    => $padding,
-            'middle' => intval(($imgHeight - $wmHeight) / 2),
-            'bottom' => $imgHeight - $wmHeight - $padding,
-            default  => intval(($imgHeight - $wmHeight) / 2),
-        };
-        
+        $y = $position->resolveY($imgHeight, $wmHeight);
+
         imagecopyresampled($baseImage, $watermark, $x, $y, 0, 0, $wmWidth, $wmHeight, $wmWidth, $wmHeight);
         imagedestroy($watermark);
     }

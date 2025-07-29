@@ -22,7 +22,7 @@ class VerifyAccessToken
     public function handle(Request $request, Closure $next)
     {
 
-        $accessToken = $request->cookie('access_token');
+        $accessToken = $request->bearerToken('access_token');
         if (empty($accessToken)) {
             return response()->json(['message' => 'Não autenticado.'], Response::HTTP_UNAUTHORIZED);
         }

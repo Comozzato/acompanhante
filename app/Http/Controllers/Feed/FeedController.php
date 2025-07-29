@@ -9,6 +9,7 @@ use App\Models\Feed;
 use App\Models\Midia;
 use App\Modules\PostImgFeed\Services\Treantment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FeedController extends \App\Http\Controllers\Controller
 {
@@ -28,6 +29,8 @@ class FeedController extends \App\Http\Controllers\Controller
     public function index(Request $request)
     {
         $user = $request->user(); // usuário autenticado, se houver
+
+        $arquivos = Storage::disk('s3')->files('0195fda0-1218-70d8-88a5-02b62cc5a11e/posts');
 
         $query = Feed::query()->with(['anunciante', 'midia']);
 
@@ -64,7 +67,7 @@ class FeedController extends \App\Http\Controllers\Controller
         $inputFilePostFeed = $request->file('file');
         $paths = $this->treantment->processImageFeed($inputFilePostFeed);
         $post = [
-            'anunciante_id' => '01974b96-9adb-71c1-930a-d2a9e1cc1aed',
+            'user_id' => auth_user()->id,
             'tipo' => 'imagem',
             'titulo' => $dataRequest['titulo'],
             'conteudo' => $dataRequest['conteudo'],
@@ -79,5 +82,12 @@ class FeedController extends \App\Http\Controllers\Controller
             ]);
         }
         return response()->json(['message' => 'criado com sucesso'], 200);
+    }
+
+    public function getImagemFeed(Request $request)
+    {
+        $path = $request->input('path');
+    
+        return Storage::disk('s3')->get($path); // Retorna o conteúdo da imagem
     }
 }

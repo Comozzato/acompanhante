@@ -10,6 +10,7 @@ use App\Http\Controllers\ConviteController;
 use App\Http\Controllers\ForgotController;
 use App\Http\Controllers\Feed\FeedController;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
@@ -48,15 +49,15 @@ Route::prefix('auth')->group(function () {
 
 
 Route::middleware('auth.jwt')->group(function () {
-   Route::post('anuciante/midia/{id}', action: [AnuncianteController::class, 'postMidia']);
+    Route::post('anuciante/midia/{id}', action: [AnuncianteController::class, 'postMidia']);
     Route::get('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios']);
     Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
-
 });
 Route::post('convite', [ConviteController::class, 'enviarConvite']);
 Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
 
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
- Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
-Route::post('post-feed', [FeedController::class, 'post']);
+Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
+Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');
 Route::post('posts', [FeedController::class, 'index']);
+Route::post('imagem', [FeedController::class, 'getImagemFeed']);

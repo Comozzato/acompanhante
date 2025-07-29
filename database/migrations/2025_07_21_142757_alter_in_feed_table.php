@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('feed', function (Blueprint $table) {
             //
-            $table->dropColumn('midia_path');
+            //$table->dropColumn('midia_path');
         });
     }
 
