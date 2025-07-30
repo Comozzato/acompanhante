@@ -16,6 +16,6 @@ class Midia extends Model
 
     public function getUrlAttribute()
     {
-        return Storage::disk('s3')->temporaryUrl($this->midia, now()->addMinutes(15));
+        return Storage::disk('s3')->temporaryUrl($this->midia, now()->addMinutes(60));
     }
 }

@@ -8,6 +8,7 @@ use App\Modules\PostImgFeed\Services\ImageProcessing\ImageResizer;
 use App\Modules\PostImgFeed\Services\ImageProcessing\WatermarkApplier;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\ImageResizeConfig;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionYConfig;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class ThumbNailSecundaryWaterMark implements ImageWatermark
@@ -22,7 +23,7 @@ class ThumbNailSecundaryWaterMark implements ImageWatermark
         return ImagemFeed::THBSECUNDARY;
     }
 
-    public function applyWatermark($inputFile): string
+    public function applyWatermark(UploadedFile $inputFile): string
     {
         $imageInfo = getimagesize($inputFile);
         if (!$imageInfo) {

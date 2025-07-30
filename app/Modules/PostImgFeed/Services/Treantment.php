@@ -17,7 +17,7 @@ class Treantment
     {
     }
 
-    public function processImageFeed($file): array
+    public function processImageFeed($type,$file): array
     {
          if (!$file) {
              throw new \InvalidArgumentException('Arquivo não fornecido');
@@ -28,6 +28,9 @@ class Treantment
             ImagemFeed::THBSECUNDARY,
         ];
         $path = [];
+        if($type === ImagemFeed::VIDEO->value) {
+            $path[] = $this->watermarkStrategy->resolve(ImagemFeed::VIDEO, $file);
+        }
         foreach($imagensFeed as $img)
         {
            $path[] = $this->watermarkStrategy->resolve($img, $file);

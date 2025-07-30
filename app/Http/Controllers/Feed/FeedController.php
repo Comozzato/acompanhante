@@ -29,9 +29,6 @@ class FeedController extends \App\Http\Controllers\Controller
     public function index(Request $request)
     {
         $user = $request->user(); // usuário autenticado, se houver
-
-        $arquivos = Storage::disk('s3')->files('0195fda0-1218-70d8-88a5-02b62cc5a11e/posts');
-
         $query = Feed::query()->with(['anunciante', 'midia']);
 
         // Exemplo futuro: recomendação por algoritmo
@@ -51,7 +48,6 @@ class FeedController extends \App\Http\Controllers\Controller
         // }
 
         // Ordenar por mais recente
-        $query->orderByDesc('publicado_em');
 
         // Paginação simples
         $posts = $query->paginate($request->input('limit', 10));
@@ -59,35 +55,54 @@ class FeedController extends \App\Http\Controllers\Controller
         return response()->json($posts);
     }
 
+    public function indexByUser()
+    {
+        $query = Feed::query()
+            ->where('user_id', auth_user()->id)
+            ->with(['anunciante', 'midia'])
+            ->orderByDesc('publicado_em');
 
+        $query->orderByDesc('publicado_em');
+
+        $posts = $query->paginate();
+
+        return response()->json($posts);
+    }
 
     public function post(Request $request)
     {
+        info($request);
         $dataRequest = $request->input();
         $inputFilePostFeed = $request->file('file');
-        $paths = $this->treantment->processImageFeed($inputFilePostFeed);
+
         $post = [
             'user_id' => auth_user()->id,
-            'tipo' => 'imagem',
-            'titulo' => $dataRequest['titulo'],
-            'conteudo' => $dataRequest['conteudo'],
+            'tipo' => $dataRequest['type'],
+            'titulo' => 'titulo',
+            'conteudo' => $dataRequest['post'],
             'ativo' => true,
             'publicado_em' => now()->setTimezone('America/Sao_Paulo')
         ];
         $feed = Feed::create($post);
-        foreach ($paths as $path) {
-            Midia::create([
-                'feed_id' => $feed->id,
-                'midia' => $path
-            ]);
+
+        if ($inputFilePostFeed) {
+            // Processa a imagem e aplica as marcas d'água
+            $paths = $this->treantment->processImageFeed($dataRequest['type'],$inputFilePostFeed);
+            foreach ($paths as $path) {
+                Midia::create([
+                    'feed_id' => $feed->id,
+                    'midia' => $path
+                ]);
+            }
         }
+
         return response()->json(['message' => 'criado com sucesso'], 200);
     }
 
     public function getImagemFeed(Request $request)
     {
         $path = $request->input('path');
-    
+
         return Storage::disk('s3')->get($path); // Retorna o conteúdo da imagem
     }
 }

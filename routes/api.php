@@ -59,5 +59,6 @@ Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnunc
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
 Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
 Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');
-Route::post('posts', [FeedController::class, 'index']);
-Route::post('imagem', [FeedController::class, 'getImagemFeed']);
+Route::get('posts', [FeedController::class, 'index']);
+Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
+Route::post('imagem', [FeedController::class, 'getImagemFeed']);    

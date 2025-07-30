@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Modules\PostImgFeed\Services\Strategies\MasterImageWaterMark;
 use App\Modules\PostImgFeed\Services\Strategies\ThumbNailPrimaryWaterMark;
 use App\Modules\PostImgFeed\Services\Strategies\ThumbNailSecundaryWaterMark;
+use App\Modules\PostImgFeed\Services\Strategies\VideoWaterMark;
 use App\Modules\PostImgFeed\Services\WatermarkStrategy;
 use Illuminate\Foundation\Application;
 class WatermarkServiceProvider extends ServiceProvider
@@ -31,7 +32,8 @@ class WatermarkServiceProvider extends ServiceProvider
                 new ThumbNailSecundaryWaterMark(
                     $app->make('App\Modules\PostImgFeed\Services\ImageProcessing\ImageResizer'),
                     $app->make('App\Modules\PostImgFeed\Services\ImageProcessing\WatermarkApplier')
-                )
+                ),
+                new VideoWaterMark()
             ];
 
             return new WatermarkStrategy($strategies);
