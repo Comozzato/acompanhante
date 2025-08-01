@@ -13,14 +13,12 @@ use App\Modules\PostImgFeed\Services\WatermarkStrategy;
 class Treantment
 {
 
-    public function __construct(private WatermarkStrategy $watermarkStrategy)
-    {
-    }
+    public function __construct(private WatermarkStrategy $watermarkStrategy) {}
 
-    public function processImageFeed($type,$file): array
+    public function processImageFeed($file): array
     {
-         if (!$file) {
-             throw new \InvalidArgumentException('Arquivo não fornecido');
+        if (!$file) {
+            throw new \InvalidArgumentException('Arquivo não fornecido');
         }
         $imagensFeed = [
             ImagemFeed::MASTER,
@@ -28,14 +26,17 @@ class Treantment
             ImagemFeed::THBSECUNDARY,
         ];
         $path = [];
-        if($type === ImagemFeed::VIDEO->value) {
+        // Verifica se o arquivo é uma imagem ou vídeo
+        if (in_array($file->getClientMimeType(), ['image/jpeg', 'image/png'])) {
+            // Processa cada tipo de imagem com a estratégia de marca d'água
+            foreach ($imagensFeed as $img) {
+                $path[] = $this->watermarkStrategy->resolve($img, $file);
+            }
+        }
+        if ($file->getClientMimeType() === 'video/mp4') {
+            // Se for um vídeo, adiciona o caminho do vídeo processado
             $path[] = $this->watermarkStrategy->resolve(ImagemFeed::VIDEO, $file);
         }
-        foreach($imagensFeed as $img)
-        {
-           $path[] = $this->watermarkStrategy->resolve($img, $file);
-        }
-
         return $path;
     }
 }

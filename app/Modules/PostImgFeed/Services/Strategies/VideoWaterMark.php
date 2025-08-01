@@ -9,13 +9,10 @@ use App\Modules\PostImgFeed\Contracts\ImageWatermark;
 use Illuminate\Http\UploadedFile;
 use FFMpeg\FFMpeg;
 use FFMpeg\Format\Video\X264;
-use Illuminate\Support\Facades\Storage;
-use FFMpeg\FFProbe;
+use ProtoneMedia\LaravelFFMpeg\Filters\WatermarkFactory;
 
 class VideoWaterMark implements ImageWatermark
 {
-
-
     public function getSupportedType(): ImagemFeed
     {
         return ImagemFeed::VIDEO;
@@ -23,41 +20,45 @@ class VideoWaterMark implements ImageWatermark
 
     public function applyWatermark(UploadedFile $uploadedFile): string
     {
-        // 1. Mover o vídeo para um local temporário
+        // 1. Mover o vídeo de upload para um local temporário
         $tempInputPath = storage_path('app/tmp/' . uniqid('video_') . '.' . $uploadedFile->getClientOriginalExtension());
         $uploadedFile->move(dirname($tempInputPath), basename($tempInputPath));
 
-        // 2. Caminho da imagem da marca d’água
+        // 2. Definir os caminhos de forma limpa
         $imagePath = public_path('watermarks/wmnovacolor24.png');
-
-        // 3. Caminho de saída do vídeo
-        $outputFilename = generate_unique_filename('video', pathinfo($tempInputPath, PATHINFO_FILENAME)) . '.mp4';
+        $outputFilename = 'video-' . uniqid() . '.mp4';
         $relativePath = auth_user()->id . '/posts/' . $outputFilename;
         $absoluteOutputPath = storage_path('app/tmp/' . $outputFilename);
+        $filterScriptPath = storage_path('app/tmp/filter_script_' . uniqid() . '.txt');
 
-        // 4. Processar com FFmpeg
-        $ffmpeg = FFMpeg::create([
-            'ffmpeg.binaries'  => 'C:\\ffmpeg\\bin\\ffmpeg.exe',
-            'ffprobe.binaries' => 'C:\\ffmpeg\\bin\\ffprobe.exe',
-        ]);
-        $video = $ffmpeg->open($tempInputPath);
+        FFMpeg::fromDisk('local')
+            ->open($tempInputPath)
+            ->addFilter(function (WatermarkFactory $watermark) {
+                $watermark->fromDisk('public_root') // ou 'local', se a imagem estiver no storage
+                    ->open('watermarks/wmnovacolor24.png')
+                    ->right(10)
+                    ->bottom(10);
+            })
+            ->export()
+            ->toDisk('s3')
+            ->inFormat(new X264('aac', 'libx264'))
+            ->save($relativePath);
+        // 8. Salvar o vídeo
+        // 9. Subir para S3 e limpar TODOS os arquivos temporários
 
-        $video->filters()->watermark($imagePath, [
-            'position' => 'relative',
-            'bottom' => 50,
-            'right' => 50,
-        ]);
-
-        $video->save(new X264(), $absoluteOutputPath);
-
-        // 5. Subir para S3 (opcional)
-        $content = file_get_contents($absoluteOutputPath);
-        Storage::disk('s3')->put($relativePath, $content);
-
-        // 6. Limpeza
         unlink($tempInputPath);
         unlink($absoluteOutputPath);
+        unlink($filterScriptPath);
 
         return $relativePath;
     }
+
+    /**
+     * Aplica o filtro de marca d'água de forma robusta para o ambiente Windows.
+     */
+    // private function waterMark(Video $video): Video
+    // {
+    //     $video->
+    //     return $video;
+    // }
 }

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace app\Http\Controllers\Feed;
 
-use App\Enums\ImagemFeed;
 use App\Models\Feed;
-use App\Models\Midia;
-use App\Modules\PostImgFeed\Services\Treantment;
+use App\Modules\PostImgFeed\Services\PostServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+
 
 class FeedController extends \App\Http\Controllers\Controller
 {
@@ -21,7 +20,7 @@ class FeedController extends \App\Http\Controllers\Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function __construct(private Treantment $treantment)
+    public function __construct(Private PostServices $service)
     {
         // Você pode adicionar middleware ou outras configurações aqui, se necessário.
     }
@@ -74,28 +73,7 @@ class FeedController extends \App\Http\Controllers\Controller
         info($request);
         $dataRequest = $request->input();
         $inputFilePostFeed = $request->file('file');
-
-        $post = [
-            'user_id' => auth_user()->id,
-            'tipo' => $dataRequest['type'],
-            'titulo' => 'titulo',
-            'conteudo' => $dataRequest['post'],
-            'ativo' => true,
-            'publicado_em' => now()->setTimezone('America/Sao_Paulo')
-        ];
-        $feed = Feed::create($post);
-
-        if ($inputFilePostFeed) {
-            // Processa a imagem e aplica as marcas d'água
-            $paths = $this->treantment->processImageFeed($dataRequest['type'],$inputFilePostFeed);
-            foreach ($paths as $path) {
-                Midia::create([
-                    'feed_id' => $feed->id,
-                    'midia' => $path
-                ]);
-            }
-        }
-
+        $this->service->post($dataRequest, $inputFilePostFeed);
         return response()->json(['message' => 'criado com sucesso'], 200);
     }
 

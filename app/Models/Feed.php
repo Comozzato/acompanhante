@@ -11,9 +11,7 @@ class Feed extends Model
     protected $table = 'feed';
     protected $fillable = [
         'user_id',
-        'tipo',
-        'titulo',
-        'conteudo',
+        'post', // Renomeado de conteudo para post
         'ativo',
         'publicado_em',
     ];

@@ -6,6 +6,9 @@ use App\Modules\PostImgFeed\Services\Strategies\MasterImageWaterMark;
 use App\Modules\PostImgFeed\Services\Strategies\ThumbNailPrimaryWaterMark;
 use App\Modules\PostImgFeed\Services\Strategies\ThumbNailSecundaryWaterMark;
 use App\Modules\PostImgFeed\Services\WatermarkStrategy;
+use Illuminate\Contracts\Foundation\MaintenanceMode;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Foundation\MaintenanceModeManager;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,7 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // 
+
         $this->app->bind(WatermarkStrategy::class, function ($app) {
             return new WatermarkStrategy([
                 new MasterImageWaterMark(
