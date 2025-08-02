@@ -122,15 +122,4 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
-    'providers' => [
-        ProtoneMedia\LaravelFFMpeg\Support\ServiceProvider::class,
-    ],
-
-    'aliases' => [
-
-        'FFMpeg' => ProtoneMedia\LaravelFFMpeg\Support\FFMpeg::class
-    ],
-
-
 ];
