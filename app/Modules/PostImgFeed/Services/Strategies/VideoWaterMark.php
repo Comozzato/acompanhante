@@ -22,16 +22,8 @@ class VideoWaterMark implements ImageWatermark
 
     public function applyWatermark(UploadedFile $uploadedFile): string
     {
-        // Caminhos
-        // dd([
-        //     'tamanho' => $uploadedFile->getSize(),
-        //     'extensão' => $uploadedFile->getClientOriginalExtension(),
-        //     'mime' => $uploadedFile->getMimeType(),
-        // ]);
-        $relativeInputPath = 'tmp/' . uniqid('video_') . '.' . $uploadedFile->getClientOriginalExtension();
-        $absoluteInputPath = storage_path('app/private/' . $relativeInputPath); // ⬅️ corrigido
-
-        $uploadedFile->move(dirname($absoluteInputPath), basename($absoluteInputPath));
+        // Caminho temporário para o upload
+        [$relativeInputPath, $absoluteInputPath] = $this->criarVideoTemporario($uploadedFile);
         // Caminho da imagem
         $relativeOutputPath = auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
         // Processar vídeo com FFMpeg
@@ -42,6 +34,23 @@ class VideoWaterMark implements ImageWatermark
         if (!file_exists($watermarkPath)) {
             throw new \Exception("Arquivo de marca d'água não encontrado: $watermarkPath");
         }
+        $this->criarVideo($relativeInputPath, $relativeOutputPath);
+        // Limpar arquivo temporário
+        Storage::disk('local')->exists($absoluteInputPath) && unlink($absoluteInputPath);
+
+        return $relativeOutputPath;
+    }
+
+
+    private function criarVideoTemporario(UploadedFile $uploadedFile): array
+    {
+        $relativeInputPath = 'tmp/' . uniqid('video_') . '.' . $uploadedFile->getClientOriginalExtension();
+        $absoluteInputPath = storage_path('app/private/' . $relativeInputPath); // ⬅️ corrigido
+        $uploadedFile->move(dirname($absoluteInputPath), basename($absoluteInputPath));
+        return [$relativeInputPath, $absoluteInputPath];
+    }
+    private function criarVideo($relativeInputPath, $relativeOutputPath)
+    {
         FFMpeg::fromDisk('local')
             ->open($relativeInputPath)
             ->addWatermark(function (WatermarkFactory $watermark) {
@@ -56,20 +65,5 @@ class VideoWaterMark implements ImageWatermark
             ->toDisk('s3')  // salva no local
             ->inFormat(new VideoX264('aac', 'libx264'))
             ->save($relativeOutputPath);
-
-        // Limpar arquivo temporário
-        unlink($absoluteInputPath);
-
-        return $relativeOutputPath;
     }
-
-
-    /**
-     * Aplica o filtro de marca d'água de forma robusta para o ambiente Windows.
-     */
-    // private function waterMark(Video $video): Video
-    // {
-    //     $video->
-    //     return $video;
-    // }
 }
