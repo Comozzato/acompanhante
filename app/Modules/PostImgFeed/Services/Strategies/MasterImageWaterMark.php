@@ -7,6 +7,8 @@ use App\Modules\PostImgFeed\Contracts\ImageWatermark;
 use App\Modules\PostImgFeed\Services\ImageProcessing\ImageResizer;
 use App\Modules\PostImgFeed\Services\ImageProcessing\WatermarkApplier;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\ImageResizeConfig;
+use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionConfig;
+use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionXConfig;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionYConfig;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -37,12 +39,13 @@ class MasterImageWaterMark implements ImageWatermark
             default => throw new \RuntimeException("Tipo de imagem não suportado: {$imageInfo['mime']}"),
         };
 
-        $resized = $this->resizer->resizeWithWhiteBackground($image, new ImageResizeConfig(630, 950));
+        $resized = $this->resizer->resizeWithBlackBackground($image, new ImageResizeConfig(630, 950));
         imagedestroy($image);
 
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), new PositionYConfig('middle'));
-        $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionYConfig('top'));
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionYConfig('bottom'));
+        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), new PositionConfig(
+            new PositionXConfig('center'),
+            new PositionYConfig('middle')
+        ));
 
         $filename = generate_unique_filename('master', pathinfo($inputFile, PATHINFO_FILENAME));
         $relativePath = auth_user()->id . '/posts/' . $filename;

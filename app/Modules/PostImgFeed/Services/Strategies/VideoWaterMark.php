@@ -6,6 +6,7 @@ namespace App\Modules\PostImgFeed\Services\Strategies;
 
 use App\Enums\ImagemFeed;
 use App\Modules\PostImgFeed\Contracts\ImageWatermark;
+use FFMpeg\FFProbe;
 use FFMpeg\Format\Video\X264;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -49,28 +50,78 @@ class VideoWaterMark implements ImageWatermark
         $uploadedFile->move(dirname($absoluteInputPath), basename($absoluteInputPath));
         return [$relativeInputPath, $absoluteInputPath];
     }
-    
+
     private function criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath)
     {
         $video = FFMpeg::fromDisk('local')->open($relativeInputPath);
 
-        $video = $this->waterMark($video);
-
+        $video = $this->waterMark($video, $relativeInputPath);
+        $format = new X264('copy', 'libx264'); // mantém áudio original
+        $format->setKiloBitrate(0) // 0 para deixar CRF controlar a qualidade
+            ->setAdditionalParameters([
+                '-preset',
+                'slow', // compressão eficiente
+                '-crf',
+                '18',      // alta qualidade
+                '-c:a',
+                'copy'     // mantém áudio original
+            ]);
+        // Exporta o vídeo com a marca d'água
         $video->export()
             ->toDisk('s3')  // salva no local
-            ->inFormat(new X264('aac', 'libx264'))
+            ->inFormat($format)
             ->save($relativeOutputPath);
     }
 
-    private function waterMark(MediaOpener $video): MediaOpener
+    private function waterMark(MediaOpener $video, $relativeInputPath): MediaOpener
     {
-        return $video->addWatermark(function (WatermarkFactory $watermark) {
+        [$wmf_path, $wmurl_path, $vwidth, $vheight] = $this->getWaterMarkPathForResolution($relativeInputPath);
+
+        $wmf_dims = getimagesize(public_path($wmf_path));
+        $wmf_width = $wmf_dims[0];
+        $wmf_height = $wmf_dims[1];
+
+        // 2. Obter as dimensões da segunda marca d'água (URL)
+        $wmurl_dims = getimagesize(public_path($wmurl_path));
+        $wmurl_width = $wmurl_dims[0];
+        $wmurl_height = $wmurl_dims[1];
+        $video->addWatermark(function (WatermarkFactory $watermark) use ($wmf_path, $wmurl_path, $vwidth, $vheight, $wmf_width, $wmf_height, $wmurl_width, $wmurl_height) {
             $watermark->fromDisk('public_root')
-                ->open('watermarks/wmnovacolor24.png')
-                ->top(25)
-                ->bottom(25)
-                ->left(25)
-                ->right(25);
+                ->open($wmf_path)
+                ->left(intval(($vwidth / 2) - ($wmf_width / 2)))
+                ->top(intval(($vheight / 2) - ($wmf_height / 2)));
         });
+        $video->addWatermark(function (WatermarkFactory $watermark) use ($wmf_path, $wmurl_path, $vwidth, $vheight, $wmf_width, $wmf_height, $wmurl_width, $wmurl_height) {
+            $offsetFromBottom = 30;
+
+            $watermark->fromDisk('public_root')
+                ->open($wmurl_path)
+                ->bottom($offsetFromBottom)
+                ->left(intval(($vwidth / 2) - ($wmurl_width / 2)));
+        });
+        return $video;
+    }
+
+    private function getWaterMarkPathForResolution($relativeInputPath)
+    {
+
+
+        $camtn = 'vdimages' . DIRECTORY_SEPARATOR;
+        $ffprobe = FFProbe::create([
+            'ffprobe.binaries' => env('FFPROBE_BINARIES'),
+            'timeout'          => 3600,
+            'ffmpeg.threads'   => 12,
+        ]);
+        $dimensions = $ffprobe->streams(storage_path('app/private/' . $relativeInputPath))->videos()->first()->getDimensions();
+        $vwidth = $dimensions->getWidth();
+        $vheight = $dimensions->getHeight();
+        $warr = [240, 426, 480, 640, 720, 854, 1080, 1280, 1920];
+        if (!in_array($vwidth, $warr)) {
+            throw new \Exception("Resolução não suportada: $vwidth");
+        }
+        $wmf_path = $camtn . $vwidth . '.png';
+        $wmurl_path = $camtn . 'www' . $vwidth . '.png';
+
+        return [$wmf_path, $wmurl_path, $vwidth, $vheight];
     }
 }

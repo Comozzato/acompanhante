@@ -61,4 +61,5 @@ Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
 Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');
 Route::get('posts', [FeedController::class, 'index']);
 Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
-Route::post('imagem', [FeedController::class, 'getImagemFeed']);    
+Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid'])->middleware('auth.jwt');
+Route::post('imagem', [FeedController::class, 'getImagemFeed']);

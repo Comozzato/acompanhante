@@ -20,7 +20,7 @@ class FeedController extends \App\Http\Controllers\Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function __construct(Private PostServices $service)
+    public function __construct(private PostServices $service)
     {
         // Você pode adicionar middleware ou outras configurações aqui, se necessário.
     }
@@ -53,7 +53,15 @@ class FeedController extends \App\Http\Controllers\Controller
 
         return response()->json($posts);
     }
-
+    public function findForPostid($id)
+    {
+        $query = Feed::query()
+            ->where('post_id', $id)
+            ->with(['anunciante', 'midia'])
+            ->orderByDesc('publicado_em');
+        $posts = $query->paginate();
+        return response()->json($posts);
+    }
     public function indexByUser()
     {
         $query = Feed::query()
@@ -70,7 +78,7 @@ class FeedController extends \App\Http\Controllers\Controller
 
     public function post(Request $request)
     {
-        info($request);
+
         $dataRequest = $request->input();
         $inputFilePostFeed = $request->file('file');
         $this->service->post($dataRequest, $inputFilePostFeed);

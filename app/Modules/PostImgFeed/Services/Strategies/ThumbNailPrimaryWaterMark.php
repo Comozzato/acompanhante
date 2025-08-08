@@ -7,6 +7,8 @@ use App\Modules\PostImgFeed\Contracts\ImageWatermark;
 use App\Modules\PostImgFeed\Services\ImageProcessing\ImageResizer;
 use App\Modules\PostImgFeed\Services\ImageProcessing\WatermarkApplier;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\ImageResizeConfig;
+use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionConfig;
+use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionXConfig;
 use App\Modules\PostImgFeed\Services\ImageProcessing\Config\PositionYConfig;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -37,12 +39,22 @@ class ThumbNailPrimaryWaterMark implements ImageWatermark
             default => throw new \RuntimeException("Tipo de imagem não suportado: {$imageInfo['mime']}"),
         };
 
-        $resized = $this->resizer->resizeWithWhiteBackground($image, new ImageResizeConfig(620, 930, true));
+        $resized = $this->resizer->resizeWithBlackBackground($image, new ImageResizeConfig(620, 930, true));
         imagedestroy($image);
 
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), new PositionYConfig('middle'));
-        $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionYConfig('top'));
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionYConfig('bottom'));
+     
+        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), new PositionConfig(
+            new PositionXConfig('center'),
+            new PositionYConfig('middle')
+        ));
+        $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionConfig(
+            new PositionXConfig('left'),
+            new PositionYConfig('top')
+        ));
+        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionConfig(
+            new PositionXConfig('center'),
+            new PositionYConfig('bottom')
+        ));
 
         $filename = generate_unique_filename('primary', pathinfo($inputFile, PATHINFO_FILENAME));
         $relativePath = auth_user()->id . '/posts/' . $filename;

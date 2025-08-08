@@ -6,7 +6,7 @@ use App\Modules\PostImgFeed\Services\ImageProcessing\Config\ImageResizeConfig;
 
 class ImageResizer
 {
-    public function resizeWithWhiteBackground($image, ImageResizeConfig $config)
+    public function resizeWithBlackBackground($image, ImageResizeConfig $config)
     {
         $origWidth = imagesx($image);
         $origHeight = imagesy($image);
@@ -16,8 +16,8 @@ class ImageResizer
         $newHeight = intval($origHeight * $scale);
 
         $canvas = imagecreatetruecolor($config->width, $config->height);
-        $white = imagecolorallocate($canvas, 255, 255, 255);
-        imagefill($canvas, 0, 0, $white);
+        $black = imagecolorallocate($canvas, 0, 0, 0);
+        imagefill($canvas, 0, 0, $black);
         $dstX = intval(($config->width - $newWidth) / 2);
         $dstY = intval(($config->height - $newHeight) / 2);
 

@@ -44,7 +44,7 @@ class AnuncianteController extends Controller
 
     public function postDados(AnuncianteDadosRequest $request, $id)
     {
-        info($request);
+
         return $this->service->postDados($id, $request->validated());
     }
 

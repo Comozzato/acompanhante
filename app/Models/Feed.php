@@ -12,6 +12,7 @@ class Feed extends Model
     protected $fillable = [
         'user_id',
         'post', // Renomeado de conteudo para post
+        'post_id', // Novo campo adicionado
         'ativo',
         'publicado_em',
     ];

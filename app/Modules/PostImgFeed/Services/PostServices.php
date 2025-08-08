@@ -1,7 +1,9 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Modules\PostImgFeed\Services;
+
 use App\Models\Feed;
 use App\Models\Midia;
 use App\Modules\PostImgFeed\Services\Treantment;
@@ -21,9 +23,13 @@ class PostServices
     public function post($dataRequest, $file)
     {
         DB::beginTransaction();
+        if (!$dataRequest['post_id']) {
+            throw new \Exception('Post ID is required');
+        }
         $post = [
             'user_id' => auth_user()->id,
             'post' => $dataRequest['post'],
+            'post_id' => $dataRequest['post_id'],
             'ativo' => true,
             'publicado_em' => now()->setTimezone('America/Sao_Paulo')
         ];
