@@ -31,7 +31,7 @@ class Feed extends Model
 
     public function anunciante()
     {
-        return $this->belongsTo(User::class)->select('id');
+        return $this->belongsTo(User::class, 'user_id')->select('id'); // Anunciante que criou o post
     }
 
     public function midia()

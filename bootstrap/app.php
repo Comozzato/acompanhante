@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(IgnorePrefetch::class);
         $middleware->alias([
             'auth.jwt' => \App\Http\Middleware\VerifyAccessToken::class,
+            'basic.external' => \App\Http\Middleware\BasicAuthExternal::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

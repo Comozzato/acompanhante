@@ -6,6 +6,7 @@ namespace app\Http\Controllers\Feed;
 
 use App\Models\Feed;
 use App\Modules\PostImgFeed\Services\PostServices;
+use App\Notifications\PostReprovado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -30,7 +31,6 @@ class FeedController extends \App\Http\Controllers\Controller
     {
         $user = $request->user(); // usuário autenticado, se houver
         $query = Feed::query()->with(['anunciante', 'midia']);
-
         // Exemplo futuro: recomendação por algoritmo
         // if ($request->boolean('algoritmo') && $user) {
         //     // Aqui entraria o motor de recomendação
@@ -48,7 +48,7 @@ class FeedController extends \App\Http\Controllers\Controller
         // }
 
         // Ordenar por mais recente
-        $query->where('publish', false);
+        $query->where('publish', 'postado');
         // Paginação simples
         $posts = $query->paginate($request->input('limit', 10));
 
@@ -63,6 +63,9 @@ class FeedController extends \App\Http\Controllers\Controller
         $posts = $query->paginate();
         return response()->json($posts);
     }
+
+
+
     public function indexByUser()
     {
         $query = Feed::query()
@@ -76,18 +79,29 @@ class FeedController extends \App\Http\Controllers\Controller
 
         return response()->json($posts);
     }
-    public function aprovarPublicacao($id)
+    public function aprovarPublicacao($id, Request $request)
     {
         // Verifica se o usuário tem permissão para aprovar publicações
 
         Gate::forUser(auth_user())->allows('admin');
-
-        Feed::query()
+        $data = $request->input();
+        if ($data['publish'] !== 'aprovado' && $data['publish'] !== 'reprovado') {
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json(['message' => 'Status inválido'], 400));
+        }
+        $post = Feed::query()
+            ->with('anunciante')
             ->where('id', $id)
-            ->update(['publish' => true]);
+            ->first();
 
-        return response()->json(['message' => 'Publicação aprovada com sucesso'], 200);
+        $post->update(['publish' => $data['publish']]);
+        if ($data['publish'] === 'reprovado') {
+            $post->anunciante->notify(new PostReprovado($post, $data['motivo']));
+        }
+
+        return response()->json(['message' => 'Publicação atualizada com sucesso'], 200);
     }
+
+
     public function post(Request $request)
     {
 
@@ -97,10 +111,34 @@ class FeedController extends \App\Http\Controllers\Controller
         return response()->json(['message' => 'criado com sucesso'], 200);
     }
 
+
+
     public function getImagemFeed(Request $request)
     {
         $path = $request->input('path');
 
         return Storage::disk('s3')->get($path); // Retorna o conteúdo da imagem
+    }
+
+
+    public function getFeedApiForPostId($id)
+    {
+        $query = Feed::query()
+            ->where('post_id', $id)
+            ->where('publish', 'aprovado')
+            ->with(['midia'])
+            ->orderByDesc('publicado_em');
+        $posts = $query->paginate();
+        return response()->json($posts);
+    }
+
+    public function getAllFeedApi()
+    {   
+        $query = Feed::query()
+            ->where('publish', 'aprovado')
+            ->with(['midia'])
+            ->orderByDesc('publicado_em');
+        $posts = $query->paginate();
+        return response()->json($posts);
     }
 }

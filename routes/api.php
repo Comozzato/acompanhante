@@ -64,3 +64,19 @@ Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao'])->
 Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
 Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid'])->middleware('auth.jwt');
 Route::post('imagem', [FeedController::class, 'getImagemFeed']);
+
+// API para WordPress buscar
+Route::get('wp-json/posts/feed/{id}', [FeedController::class, 'getFeedApiForPostId'])->middleware('basic.external');
+Route::get('wp-json/posts', [FeedController::class, 'getAllFeedApi'])->middleware('basic.external');
+
+// busca as notificacoes do usuario autenticado
+Route::get('/notificacoes', function () {
+    return auth_user()->notificacoesNaoLidas;
+})->middleware('auth.jwt');
+
+// Marcar como lida
+Route::post('/notificacoes/{id}/lida', function ($id) {
+    $notification = auth_user()->notifications()->findOrFail($id);
+    $notification->markAsRead();
+    return response()->json(['message' => 'Notificação marcada como lida']);
+})->middleware('auth.jwt');

@@ -12,21 +12,9 @@ class Authentic
         $userId = Request::instance()->attributes->get('user_id');
 
         if (!$userId) {
-            return null; // ou lançar uma exceção, se preferir
+            return null;
         }
 
-        $user = User::find($userId);
-
-        if (!$user) {
-            return null; // ou lançar uma exceção personalizada
-        }
-
-        $user = (object)[
-            'role' => $user->role,
-            'id' => $user->id,
-            'email' => $user->email,
-            'cpf' => $user->cpf,
-        ];
-        return $user;
+        return User::with('unreadNotifications')->find($userId);
     }
 }
