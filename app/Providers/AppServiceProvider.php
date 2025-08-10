@@ -41,5 +41,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        $this->register();
+
+        $registerGates = require app_path('Gates/Auth.php');
+        $registerGates(); // Executa o closure
     }
 }

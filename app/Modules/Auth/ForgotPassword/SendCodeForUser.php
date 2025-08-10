@@ -7,9 +7,10 @@ namespace App\Modules\Auth\ForgotPassword;
 
 use App\Behaviors\EmailBehaviors;
 use App\Mail\ForgotPassword;
-use Cache;
+
 use Illuminate\Http\Client\HttpClientException;
-use Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 
 class SendCodeForUser
 {

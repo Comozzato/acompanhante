@@ -7,6 +7,7 @@ namespace app\Http\Controllers\Feed;
 use App\Models\Feed;
 use App\Modules\PostImgFeed\Services\PostServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -47,7 +48,7 @@ class FeedController extends \App\Http\Controllers\Controller
         // }
 
         // Ordenar por mais recente
-
+        $query->where('publish', false);
         // Paginação simples
         $posts = $query->paginate($request->input('limit', 10));
 
@@ -75,7 +76,18 @@ class FeedController extends \App\Http\Controllers\Controller
 
         return response()->json($posts);
     }
+    public function aprovarPublicacao($id)
+    {
+        // Verifica se o usuário tem permissão para aprovar publicações
 
+        Gate::forUser(auth_user())->allows('admin');
+
+        Feed::query()
+            ->where('id', $id)
+            ->update(['publish' => true]);
+
+        return response()->json(['message' => 'Publicação aprovada com sucesso'], 200);
+    }
     public function post(Request $request)
     {
 

@@ -15,11 +15,13 @@ class Feed extends Model
         'post_id', // Novo campo adicionado
         'ativo',
         'publicado_em',
+        'publish', // Novo campo adicionado para controle de publicação
     ];
 
     protected $casts = [
         'publicado_em' => 'datetime:d/m/Y H:i:s',
         'ativo' => 'boolean',
+        'publish' => 'boolean', // Novo campo adicionado para controle de publicação
     ];
 
     protected $hidden = [
