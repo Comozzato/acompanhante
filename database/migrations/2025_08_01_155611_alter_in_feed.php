@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('feed', function (Blueprint $table) {
             //
-            $table->dropColumn('titulo');
-            $table->dropColumn('tipo');
+            //$table->dropColumn('titulo');
+            //$table->dropColumn('tipo');
         });
     }
 

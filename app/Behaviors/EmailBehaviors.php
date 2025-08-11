@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Behaviors;
+
 use App\Models\User;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Validator;
 
 class EmailBehaviors
 {
@@ -14,35 +16,40 @@ class EmailBehaviors
     }
 
 
-    private function validate($email): void
-    {   
-        if (empty($email)) {
-            throw new HttpResponseException(response([
-                'message' => 'O email é obrigatório'
-            ], 422));
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new HttpResponseException(response([
-                'message' => 'O email não é válido'
-            ], 422));
+    private function validate(string $email): void
+    {
+        $data = ['email' => $email];
+        $rules = [
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email', // Verifica se já existe no banco
+            ],
+        ];
+
+        $messages = [
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email' => 'O e-mail não é válido.',
+            'email.unique' => 'Este e-mail já está em uso.',
+        ];
+
+        $validator = Validator::make($data, $rules, $messages);
+
+        if ($validator->fails()) {
+            $message = $validator->messages()->first();
+            throw new HttpResponseException(response()->json(['message' => $message], 400));
         }
     }
 
-    private function used($email)
-    {
-        if (User::where('email', '=', $email)->exists()) {
-            throw new HttpResponseException(response([
-                'message' => 'Email em uso'
-            ], 422));
-        }
-    }
+
+
 
     public function getValue(): string
     {
         return $this->email;
     }
 
-      public function getEmailIfExists()
+    public function getEmailIfExists()
     {
         if (User::where('email', $this->email)->exists()) {
             return $this->email;

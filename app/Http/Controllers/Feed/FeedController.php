@@ -94,6 +94,7 @@ class FeedController extends \App\Http\Controllers\Controller
             ->first();
 
         $post->update(['publish' => $data['publish']]);
+        
         if ($data['publish'] === 'reprovado') {
             $post->anunciante->notify(new PostReprovado($post, $data['motivo']));
         }

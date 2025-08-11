@@ -83,4 +83,6 @@ class TokenVerifier
 
         Cache::store('file')->put($chaveCache, true, now()->addMinutes(10));
     }
+
+    
 }

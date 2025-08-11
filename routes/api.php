@@ -56,8 +56,11 @@ Route::middleware('auth.jwt')->group(function () {
 Route::post('convite', [ConviteController::class, 'enviarConvite']);
 Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
 
+//Api de Anunciante WordPress
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
 Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
+
+// API de Feed
 Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');
 Route::get('posts', [FeedController::class, 'index']);
 Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao'])->middleware('auth.jwt');
@@ -79,4 +82,10 @@ Route::post('/notificacoes/{id}/lida', function ($id) {
     $notification = auth_user()->notifications()->findOrFail($id);
     $notification->markAsRead();
     return response()->json(['message' => 'Notificação marcada como lida']);
+})->middleware('auth.jwt');
+
+
+// rotas de teste
+Route::get('/rota-protegida', function () {
+    return response()->json(['message' => 'API is working']);
 })->middleware('auth.jwt');

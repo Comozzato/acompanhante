@@ -4,6 +4,7 @@ namespace App\Behaviors;
 
 use App\Models\User;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Validator;
 
 class CpfBehaviors
 {
@@ -18,33 +19,46 @@ class CpfBehaviors
     {
         return $this->cpf;
     }
-    public function validateCpf($cpf): void
+    public function validateCpf(string $cpf): void
     {
-        $cpf = preg_replace("/[^0-9]/is", '', $cpf);
-        if (strlen($cpf) != 11) {
-            throw new HttpResponseException(response([
-                'message' => 'Comprimento do CPF inválido'
-            ], 400
-        ));
-        }
-        if (preg_match('/(\d)\1{10}/', $cpf)) {
-            throw new HttpResponseException(response([
-                'message' => 'Formato do CPF inválido'
-            ], 400
-        ));
-        }
+        $cpf = preg_replace('/[^0-9]/', '', $cpf);
 
-        for ($t = 9; $t < 11; $t++) {
-            for ($d = 0, $c = 0; $c < $t; $c++) {
-                $d += $cpf[$c] * (($t + 1) - $c);
-            }
-            $d = ((10 * $d) % 11) % 10;
-            if ($cpf[$c] != $d) {
-                throw new HttpResponseException(response([
-                    'message' => 'Formato do CPF inválido'
-                ], 400
-            ));
-            }
+        $data = ['cpf' => $cpf];
+
+        $rules = [
+            'cpf' => [
+                'required',
+                'digits:11',
+                'unique:users,cpf',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/(\d)\1{10}/', $value)) {
+                        return $fail('Formato do CPF inválido.');
+                    }
+
+                    for ($t = 9; $t < 11; $t++) {
+                        for ($d = 0, $c = 0; $c < $t; $c++) {
+                            $d += $value[$c] * (($t + 1) - $c);
+                        }
+                        $d = ((10 * $d) % 11) % 10;
+                        if ($value[$c] != $d) {
+                            return $fail('Formato do CPF inválido.');
+                        }
+                    }
+                },
+            ],
+        ];
+
+        $messages = [
+            'cpf.required' => 'O CPF é obrigatório.',
+            'cpf.digits'   => 'O CPF deve ter exatamente 11 dígitos.',
+            'cpf.unique'   => 'Este CPF já está cadastrado.',
+        ];
+
+        $validator = Validator::make($data, $rules, $messages);
+
+        if ($validator->fails()) {
+            $message = $validator->messages()->first();
+            throw new HttpResponseException(response()->json(['message'=>$message],400));
         }
 
         $this->cpf = $cpf;
