@@ -48,7 +48,7 @@ class FeedController extends \App\Http\Controllers\Controller
         // }
 
         // Ordenar por mais recente
-        $query->where('publish', 'postado');
+        $query->where('publish', 'Pendente');
         // Paginação simples
         $posts = $query->paginate($request->input('limit', 10));
 
@@ -126,7 +126,7 @@ class FeedController extends \App\Http\Controllers\Controller
     {
         $query = Feed::query()
             ->where('post_id', $id)
-            ->where('publish', 'aprovado')
+            ->where('publish', 'Aprovado')
             ->with(['midia'])
             ->orderByDesc('publicado_em');
         $posts = $query->paginate();
@@ -136,7 +136,7 @@ class FeedController extends \App\Http\Controllers\Controller
     public function getAllFeedApi()
     {   
         $query = Feed::query()
-            ->where('publish', 'aprovado')
+            ->where('publish', 'Aprovado')
             ->with(['midia'])
             ->orderByDesc('publicado_em');
         $posts = $query->paginate();

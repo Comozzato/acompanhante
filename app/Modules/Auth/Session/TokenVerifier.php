@@ -18,7 +18,7 @@ class TokenVerifier
         $this->key = base64_decode(config('services.token.key'));
     }
     public function verify(string $accessToken): array
-    {   
+    {
         if (empty($this->key)) {
             throw new HttpResponseException(response(['message' => 'Chave de assinatura não configurada.'], Response::HTTP_INTERNAL_SERVER_ERROR));
         }
@@ -52,13 +52,21 @@ class TokenVerifier
 
     private function verifyAssinatura($jwt)
     {
-        list($headerB64, $payloadB64, $signatureB64) = explode('.', $jwt);
-        // Recria a assinatura
+        $parts = explode('.', $jwt);
+
+        if (count($parts) !== 3) {
+            throw new HttpResponseException(
+                response(['message' => 'Token malformado'], Response::HTTP_UNAUTHORIZED)
+            );
+        }
+        list($headerB64, $payloadB64, $signatureB64) = $parts;
         $expectedSignature = hash_hmac('sha256', "$headerB64.$payloadB64", $this->key, true);
         $expectedSignatureB64 = rtrim(strtr(base64_encode($expectedSignature), '+/', '-_'), '=');
-        // Compara com a assinatura do token
+
         if (!hash_equals($expectedSignatureB64, $signatureB64)) {
-            throw new HttpResponseException(response(['message' => 'invalido'], Response::HTTP_UNAUTHORIZED));
+            throw new HttpResponseException(
+                response(['message' => 'invalido'], Response::HTTP_UNAUTHORIZED)
+            );
         }
     }
 
@@ -83,6 +91,4 @@ class TokenVerifier
 
         Cache::store('file')->put($chaveCache, true, now()->addMinutes(10));
     }
-
-    
 }

@@ -21,7 +21,8 @@ class AnuncianteController extends Controller
 
     public function getMyAnuncios()
     {
-        $user = User::find(Request()->attributes->get('user_id'));
+        $user = auth_user();
+        info($user);
         $cpf = new CpfBehaviors($user->cpf, false);
         return $this->service->getAnuncioCpf($cpf);
     }

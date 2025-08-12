@@ -51,8 +51,8 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth.jwt')->group(function () {
     Route::post('anuciante/midia/{id}', action: [AnuncianteController::class, 'postMidia']);
     Route::get('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios']);
-    
 });
+
 Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
 Route::post('convite', [ConviteController::class, 'enviarConvite']);
 Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
@@ -87,6 +87,10 @@ Route::post('/notificacoes/{id}/lida', function ($id) {
 
 
 // rotas de teste
-Route::get('/rota-protegida', function () {
+Route::get('/rota-protegida-jwt', function () {
     return response()->json(['message' => 'API is working']);
 })->middleware('auth.jwt');
+
+Route::get('/rota-protegida-basic', function () {
+    return response()->json(['message' => 'API is working']);
+})->middleware('basic.external');

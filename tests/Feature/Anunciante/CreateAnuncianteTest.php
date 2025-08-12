@@ -120,7 +120,6 @@ class CreateAnuncianteTest extends TestCase
 
     public function testLoginWithInvalidCredentials()
     {
-
         $response = $this->post('/api/auth/login', [
             'email' => 'invalido@teste.com',
             'password' => 'SenhaIncorreta',
@@ -131,4 +130,40 @@ class CreateAnuncianteTest extends TestCase
         ]);
     }
 
+    public function testWithGetAnunciosCpf()
+    {
+        $data = User::factory()->create([
+            'password' => bcrypt('Senha123@')
+        ]);
+        $login = $this->post('/api/auth/login', [
+            'email' => $data->email,
+            'password' => 'Senha123@',
+        ]);
+        $token = $login->json('access_token');
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+                        ->get('/api/anuciante/meus-anuncios');
+        $response->assertStatus(200);
+    }
+
+    public function testWithGetAnuncioForCpf()
+    {
+        $data = User::factory()->create([
+            'password' => bcrypt('Senha123@')
+        ]);
+        $login = $this->post('/api/auth/login', [
+            'email' => $data->email,
+            'password' => 'Senha123@',
+            
+        ]);
+        $token = $login->json('access_token');
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+                        ->get('/api/anuciante/buscar-anuncios', [
+                            'cpf' => $data->cpf
+                        ]);
+
+        info($response->json());
+        $response->assertStatus(200);
+    }
 }
