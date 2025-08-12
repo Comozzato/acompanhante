@@ -21,7 +21,6 @@ class Feed extends Model
     protected $casts = [
         'publicado_em' => 'datetime:d/m/Y H:i:s',
         'ativo' => 'boolean',
-        'publish' => 'boolean', // Novo campo adicionado para controle de publicação
     ];
 
     protected $hidden = [
@@ -36,12 +35,19 @@ class Feed extends Model
 
     public function midia()
     {
-        return $this->hasMany(Midia::class)->select('id','feed_id', 'midia'); // imagens, vídeos etc.
+        return $this->hasMany(Midia::class)->select('id', 'feed_id', 'midia'); // imagens, vídeos etc.
     }
 
     public static function recommendedForUser(User $user)
     {
         // Aqui entraria o algoritmo futuro
         return self::query(); // por enquanto retorna tudo
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($feed) {
+            $feed->midia->each->delete();
+        });
     }
 }

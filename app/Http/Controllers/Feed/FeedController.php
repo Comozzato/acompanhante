@@ -85,7 +85,7 @@ class FeedController extends \App\Http\Controllers\Controller
 
         Gate::forUser(auth_user())->allows('admin');
         $data = $request->input();
-        if ($data['publish'] !== 'aprovado' && $data['publish'] !== 'reprovado') {
+        if ($data['publish'] !== 'Aprovado' && $data['publish'] !== 'Reprovado') {
             throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json(['message' => 'Status inválido'], 400));
         }
         $post = Feed::query()
@@ -141,5 +141,15 @@ class FeedController extends \App\Http\Controllers\Controller
             ->orderByDesc('publicado_em');
         $posts = $query->paginate();
         return response()->json($posts);
+    }
+
+    public function deleteFeed($id)
+    {
+        $feed = Feed::find($id);
+        if (!$feed) {
+            return response()->json(['message' => 'Feed não encontrado'], 404);
+        }
+        $feed->delete();
+        return response()->json(['message' => 'Feed deletado com sucesso'], 200);
     }
 }

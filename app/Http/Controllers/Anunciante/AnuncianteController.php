@@ -22,7 +22,7 @@ class AnuncianteController extends Controller
     public function getMyAnuncios()
     {
         $user = User::find(Request()->attributes->get('user_id'));
-        $cpf = new CpfBehaviors($user->cpf);
+        $cpf = new CpfBehaviors($user->cpf, false);
         return $this->service->getAnuncioCpf($cpf);
     }
     public function getAnuncioCpf(request $request)
@@ -30,7 +30,7 @@ class AnuncianteController extends Controller
 
         $data = $request->input('cpf');
 
-        $cpf = new CpfBehaviors($data);
+        $cpf = new CpfBehaviors($data, false);
         // if (Gate::denies('ver-cpf',$cpf)) {
         //     abort(403, 'Você não tem permissão para acessar este CPF.');
         // }
@@ -60,10 +60,11 @@ class AnuncianteController extends Controller
     {
         $path = $request->input('path');
 
-        $s3 = new S3ImageGalleryService();
-
-        $imageContent = $s3->getImage($path); // deve retornar binário da imagem
-
-        return $imageContent;
+        $imageContent = S3ImageGalleryService::getImage($path); // deve retornar binário da imagem
+        if (is_null($imageContent)) {
+           
+            return response()->json(['message' => 'Imagem não encontrada'], 404);
+        }
+        return response()->json(['image' => $imageContent]);
     }
 }

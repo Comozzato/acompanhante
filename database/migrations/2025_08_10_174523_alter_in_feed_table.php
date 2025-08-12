@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('feed', function (Blueprint $table) {
             //
-            $table->string('publish')->default('postado');
+            $table->string('publish')->default('Pendente');
         });
     }
 

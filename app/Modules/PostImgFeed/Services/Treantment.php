@@ -21,6 +21,7 @@ class Treantment
             throw new \InvalidArgumentException('Arquivo não fornecido');
         }
         $imagensFeed = [
+            ImagemFeed::NO_WATERMARK,
             ImagemFeed::MASTER,
             ImagemFeed::THBPRIMARY,
             ImagemFeed::THBSECUNDARY,

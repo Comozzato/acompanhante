@@ -21,9 +21,8 @@ class ConviteMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(private EmailBehaviors $emailBehaviors)
-    {
-        $this->link = config('services.front_end.url');
+    public function __construct(private EmailBehaviors $emailBehaviors) {
+        $this->link = config('services.front_end.url') . '/cadastro?email=' . urlencode($this->emailBehaviors->getValue());
     }
 
     /*
@@ -41,13 +40,12 @@ class ConviteMail extends Mailable
      */
     public function content(): Content
     {
-
-        return new Content(
-            view: 'emails.convite',
-            with: [
-                'link' => $this->link . '/cadastro'. '?email='. $this->emailBehaviors->getValue()
-            ],
-        );
+       
+        return (new Content(
+            view: 'emails.convite'
+        ))->with([
+            'link' => $this->link
+        ]);
     }
 
     /**

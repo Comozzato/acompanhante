@@ -34,21 +34,21 @@ class S3ImageGalleryService
     
     }
 
-    public function getImage(string $filePath, int $minutes = 5): ?string
+    public static function getImage(string $filePath, int $minutes = 5): ?string
     {
-        if (Storage::disk($this->disk)->exists($filePath)) {
+        if (Storage::disk(self::$disk)->exists($filePath)) {
             // Para buckets privados, use temporaryUrl
-            // return Storage::disk($this->disk)->temporaryUrl($filePath, now()->addMinutes($minutes));
+            return Storage::disk(self::$disk)->temporaryUrl($filePath, now()->addMinutes(60));
             // Para buckets públicos, a URL direta é suficiente
-            return Storage::disk($this->disk)->get($filePath);
+            //return Storage::disk(self::$disk)->get($filePath);
         }
         return null;
     }
 
-    public function deleteImage(string $filePath): bool
+    public static function deleteImage(string $filePath): bool
     {
-        if (Storage::disk($this->disk)->exists($filePath)) {
-            return Storage::disk($this->disk)->delete($filePath);
+        if (Storage::disk(self::$disk)->exists($filePath)) {
+            return Storage::disk(self::$disk)->delete($filePath);
         }
         return false;
     }

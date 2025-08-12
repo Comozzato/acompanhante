@@ -10,16 +10,16 @@ class CpfBehaviors
 {
     private string $cpf;
 
-    public function __construct(string $cpf)
+    public function __construct(string $cpf, bool $cpfUnique = true)
     {
-        $this->validateCpf($cpf);
+        $this->validateCpf($cpf, $cpfUnique);
     }
 
     public function getValue(): string
     {
         return $this->cpf;
     }
-    public function validateCpf(string $cpf): void
+    public function validateCpf(string $cpf, bool $unique = true): void
     {
         $cpf = preg_replace('/[^0-9]/', '', $cpf);
 
@@ -29,7 +29,8 @@ class CpfBehaviors
             'cpf' => [
                 'required',
                 'digits:11',
-                'unique:users,cpf',
+                // Só adiciona a regra unique se $unique for true
+                ...($unique ? ['unique:users,cpf'] : []),
                 function ($attribute, $value, $fail) {
                     if (preg_match('/(\d)\1{10}/', $value)) {
                         return $fail('Formato do CPF inválido.');
@@ -58,7 +59,7 @@ class CpfBehaviors
 
         if ($validator->fails()) {
             $message = $validator->messages()->first();
-            throw new HttpResponseException(response()->json(['message'=>$message],400));
+            throw new HttpResponseException(response()->json(['message' => $message], 400));
         }
 
         $this->cpf = $cpf;
@@ -71,10 +72,12 @@ class CpfBehaviors
     private function used($cpf)
     {
         if (User::where('cpf', '=', $cpf)->exists()) {
-            throw new HttpResponseException(response([
-                'message' => 'CPF já cadastrado'
-            ], 400
-        ));
+            throw new HttpResponseException(response(
+                [
+                    'message' => 'CPF já cadastrado'
+                ],
+                400
+            ));
         }
     }
 }

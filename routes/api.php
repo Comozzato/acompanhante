@@ -51,8 +51,9 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth.jwt')->group(function () {
     Route::post('anuciante/midia/{id}', action: [AnuncianteController::class, 'postMidia']);
     Route::get('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios']);
-    Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
+    
 });
+Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
 Route::post('convite', [ConviteController::class, 'enviarConvite']);
 Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
 
@@ -67,7 +68,7 @@ Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao'])->
 Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
 Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid'])->middleware('auth.jwt');
 Route::post('imagem', [FeedController::class, 'getImagemFeed']);
-
+Route::delete('delete/feed/{id}', [FeedController::class, 'deleteFeed']);//->middleware('auth.jwt');
 // API para WordPress buscar
 Route::get('wp-json/posts/feed/{id}', [FeedController::class, 'getFeedApiForPostId'])->middleware('basic.external');
 Route::get('wp-json/posts', [FeedController::class, 'getAllFeedApi'])->middleware('basic.external');

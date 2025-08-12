@@ -83,6 +83,7 @@
             <p>Para aceitar o convite, clique no botão abaixo:</p>
         </div>
         <div class="cta">
+        
             <a href="{{ $link }}">Aceitar convite</a>
         </div>
         <div class="footer">

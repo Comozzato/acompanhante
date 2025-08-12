@@ -24,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('feed', function (Blueprint $table) {
             //
+            $table->dropColumn('post_id'); // Remove o campo post_id
         });
     }
 };
