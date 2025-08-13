@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Feed extends Model
 {
     //
-
     protected $table = 'feed';
     protected $fillable = [
         'user_id',
@@ -17,6 +16,7 @@ class Feed extends Model
         'publicado_em',
         'publish', // Novo campo adicionado para controle de publicação
     ];
+    protected $appends = ['notifications'];
 
     protected $casts = [
         'publicado_em' => 'datetime:d/m/Y H:i:s',
@@ -49,5 +49,14 @@ class Feed extends Model
         static::deleting(function ($feed) {
             $feed->midia->each->delete();
         });
+    }
+
+    public function getNotificationsAttribute()
+    {
+        return $this->anunciante
+            ->notifications
+            ->where('data.post_id', $this->id)
+            ->sortByDesc('created_at')
+            ->values(); // resetar os índices
     }
 }

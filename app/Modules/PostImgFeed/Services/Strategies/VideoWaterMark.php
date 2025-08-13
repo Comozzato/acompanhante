@@ -8,6 +8,7 @@ use App\Enums\ImagemFeed;
 use App\Modules\PostImgFeed\Contracts\ImageWatermark;
 use FFMpeg\FFProbe;
 use FFMpeg\Format\Video\X264;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
@@ -104,8 +105,6 @@ class VideoWaterMark implements ImageWatermark
 
     private function getWaterMarkPathForResolution($relativeInputPath)
     {
-
-
         $camtn = 'vdimages' . DIRECTORY_SEPARATOR;
         $ffprobe = FFProbe::create([
             'ffprobe.binaries' => env('FFPROBE_BINARIES'),
@@ -117,7 +116,7 @@ class VideoWaterMark implements ImageWatermark
         $vheight = $dimensions->getHeight();
         $warr = [240, 426, 480, 640, 720, 854, 1080, 1280, 1920];
         if (!in_array($vwidth, $warr)) {
-            throw new \Exception("Resolução não suportada: $vwidth");
+            throw new HttpResponseException(response()->json(['message' => "Resolução não suportada: $vwidth"], 400));
         }
         $wmf_path = $camtn . $vwidth . '.png';
         $wmurl_path = $camtn . 'www' . $vwidth . '.png';

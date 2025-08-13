@@ -63,7 +63,19 @@ class FeedController extends \App\Http\Controllers\Controller
         $posts = $query->paginate();
         return response()->json($posts);
     }
+    public function findPostById($id)
+    {
+        $post = Feed::query()
+            ->where('id', $id)
+            ->with(['anunciante', 'midia'])
+            ->first();
 
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        return response()->json($post);
+    }
 
 
     public function indexByUser()
@@ -93,11 +105,13 @@ class FeedController extends \App\Http\Controllers\Controller
             ->where('id', $id)
             ->first();
 
-        $post->update(['publish' => $data['publish']]);
-        
-        if ($data['publish'] === 'reprovado') {
-            $post->anunciante->notify(new PostReprovado($post, $data['motivo']));
+        if ($data['publish'] === 'Reprovado') {
+            if (empty($data['motivo'])) {
+                throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json(['message' => 'Motivo de reprovação é obrigatório'], 400));
+            }
+            $post->notify(new PostReprovado($post, $data['motivo']));
         }
+        $post->update(['publish' => $data['publish']]);
 
         return response()->json(['message' => 'Publicação atualizada com sucesso'], 200);
     }
@@ -134,7 +148,7 @@ class FeedController extends \App\Http\Controllers\Controller
     }
 
     public function getAllFeedApi()
-    {   
+    {
         $query = Feed::query()
             ->where('publish', 'Aprovado')
             ->with(['midia'])

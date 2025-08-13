@@ -29,6 +29,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'notifications'
     ];
 
     /**
@@ -43,4 +44,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    
 }

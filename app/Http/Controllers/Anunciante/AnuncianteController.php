@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Anunciante;
 
 use App\Behaviors\CpfBehaviors;
@@ -10,33 +11,28 @@ use App\Modules\Anunciante\Services\AnuncianteService;
 use App\Services\S3ImageGalleryService;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class AnuncianteController extends Controller
 {
 
-    public function __construct(private AnuncianteService $service)
-    {
-
-    }
+    public function __construct(private AnuncianteService $service) {}
 
     public function getMyAnuncios()
     {
         $user = auth_user();
-        info($user);
         $cpf = new CpfBehaviors($user->cpf, false);
         return $this->service->getAnuncioCpf($cpf);
     }
     public function getAnuncioCpf(request $request)
     {
-
+        Gate::forUser(auth_user())->allows('admin');
         $data = $request->input('cpf');
-
+        if(empty($data)) {
+            return response()->json(['message' => 'CPF não informado'], 400);
+        }
         $cpf = new CpfBehaviors($data, false);
-        // if (Gate::denies('ver-cpf',$cpf)) {
-        //     abort(403, 'Você não tem permissão para acessar este CPF.');
-        // }
         return $this->service->getAnuncioCpf($cpf);
-
     }
     public function getDados($id)
     {
@@ -45,7 +41,6 @@ class AnuncianteController extends Controller
 
     public function postDados(AnuncianteDadosRequest $request, $id)
     {
-
         return $this->service->postDados($id, $request->validated());
     }
 
@@ -63,7 +58,7 @@ class AnuncianteController extends Controller
 
         $imageContent = S3ImageGalleryService::getImage($path); // deve retornar binário da imagem
         if (is_null($imageContent)) {
-           
+
             return response()->json(['message' => 'Imagem não encontrada'], 404);
         }
         return response()->json(['image' => $imageContent]);

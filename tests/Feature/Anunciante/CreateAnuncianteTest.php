@@ -132,38 +132,59 @@ class CreateAnuncianteTest extends TestCase
 
     public function testWithGetAnunciosCpf()
     {
-        $data = User::factory()->create([
-            'password' => bcrypt('Senha123@')
-        ]);
-        $login = $this->post('/api/auth/login', [
-            'email' => $data->email,
-            'password' => 'Senha123@',
-        ]);
-        $token = $login->json('access_token');
+        $token = $this->fakeLogin();
 
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
-                        ->get('/api/anuciante/meus-anuncios');
+            ->get('/api/anuciante/meus-anuncios');
         $response->assertStatus(200);
     }
 
     public function testWithGetAnuncioForCpf()
     {
+        $token = $this->fakeLogin();
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->post('/api/anuciante/buscar-anuncios', [
+                'cpf' => '07182340305'
+            ]);
+        $response->assertStatus(200);
+    }
+
+    public function testWithGetAnuncioDados()
+    {
+        $token = $this->fakeLogin();
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->get('/api/anuciante/dados/85527');
+        
+        $response->assertStatus(200);
+    }
+
+    public function testWithPostAnuncioDados()
+    {
+        $token = $this->fakeLogin();
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->post('/api/anuciante/post/85527', [
+                'whatsapp_acompanhante' => '(teste) teste',
+            ]);
+        $response->assertStatus(200);
+    }
+
+    private function fakeLogin($role = 'admn'): string
+    {
         $data = User::factory()->create([
-            'password' => bcrypt('Senha123@')
+            'password' => bcrypt('Senha123@'),
+            'role' => $role
         ]);
+
         $login = $this->post('/api/auth/login', [
             'email' => $data->email,
             'password' => 'Senha123@',
-            
         ]);
+
         $token = $login->json('access_token');
 
-        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
-                        ->get('/api/anuciante/buscar-anuncios', [
-                            'cpf' => $data->cpf
-                        ]);
-
-        info($response->json());
-        $response->assertStatus(200);
+        return $token;
     }
 }

@@ -41,19 +41,19 @@ class AnuncioApiService
     }
 
     public function getAnuncionsCpf(CpfBehaviors $cpf)
-    {
+    {   
+
         $endpoint = rtrim($this->url, '/') . "/wp-json/meusanuncios/v1/busca/?cpf={$cpf->getValue()}";
         $headers = [
             'Authorization' => 'Basic ' . $this->token,
         ];
         $response = Http::withHeaders($headers)->get($endpoint);
-
+        
         if ($response->failed()) {
             $body = $response->json();
             $message = $body['message'] ?? 'Erro ao obter dados do anúncio';
             throw new HttpResponseException(response(['message' => $message], $response->status()));
         }
-
         return $response->json();
     }
     public function getAnuncioDados(int|string $id): array
@@ -63,7 +63,6 @@ class AnuncioApiService
             'Authorization' => 'Basic ' . $this->token,
         ];
         $response = Http::withHeaders($headers)->get($endpoint);
-
         if ($response->failed()) {
             $body = $response->json();
             $message = $body['message'] ?? 'Erro ao obter dados do anúncio';

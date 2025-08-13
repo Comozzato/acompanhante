@@ -35,6 +35,7 @@ class GenerateAuthCookies
         return response()
             ->json([
                 'message' => 'Login bem-sucedido',
+                'notifications' => $user->unreadNotifications()->count(),
                 'access_token' => $access_token,
                 'refresh_token' => $refresh_token
             ]);

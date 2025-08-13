@@ -58,15 +58,16 @@ Route::post('convite', [ConviteController::class, 'enviarConvite']);
 Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
 
 //Api de Anunciante WordPress
-Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados']);
-Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);
+Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados'])->middleware('auth.jwt');
+Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados'])->middleware('auth.jwt');
 
 // API de Feed
 Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');
 Route::get('posts', [FeedController::class, 'index']);
 Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao'])->middleware('auth.jwt');
 Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
-Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid'])->middleware('auth.jwt');
+Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid']);//->middleware('auth.jwt');
+Route::get('find/feed/{id}', [FeedController::class, 'findPostById']);
 Route::post('imagem', [FeedController::class, 'getImagemFeed']);
 Route::delete('delete/feed/{id}', [FeedController::class, 'deleteFeed']);//->middleware('auth.jwt');
 // API para WordPress buscar
