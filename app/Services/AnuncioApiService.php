@@ -47,8 +47,7 @@ class AnuncioApiService
         $headers = [
             'Authorization' => 'Basic ' . $this->token,
         ];
-        $response = Http::withHeaders($headers)->get($endpoint);
-        
+        $response = Http::withHeaders($headers)->get($endpoint); 
         if ($response->failed()) {
             $body = $response->json();
             $message = $body['message'] ?? 'Erro ao obter dados do anúncio';
