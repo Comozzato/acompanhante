@@ -8,6 +8,7 @@ use App\Models\Feed;
 use App\Models\Midia;
 use App\Modules\PostImgFeed\Services\Treantment;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PostServices
 {
@@ -22,29 +23,38 @@ class PostServices
 
     public function post($dataRequest, $file)
     {
-        DB::beginTransaction();
-        if (!$dataRequest['post_id']) {
-            throw new \Exception('Post ID is required');
-        }
-        $post = [
-            'user_id' => auth_user()->id,
-            'post' => $dataRequest['post'],
-            'post_id' => $dataRequest['post_id'],
-            'ativo' => true,
-            'publicado_em' => now()->setTimezone('America/Sao_Paulo')
-        ];
-        $feed = Feed::create($post);
-
-        if ($file) {
-            // Processa a imagem e aplica as marcas d'água
-            $paths = $this->treantment->processImageFeed($file);
-            foreach ($paths as $path) {
-                Midia::create([
-                    'feed_id' => $feed->id,
-                    'midia' => $path
-                ]);
+        try {
+            // Start a database transaction
+            DB::beginTransaction();
+            if (!$dataRequest['post_id']) {
+                throw new \Exception('Post ID is required');
             }
+            $post = [
+                'user_id' => auth_user()->id,
+                'post' => $dataRequest['post'],
+                'post_id' => $dataRequest['post_id'],
+                'ativo' => true,
+                'publicado_em' => now()->setTimezone('America/Sao_Paulo')
+            ];
+            $feed = Feed::create($post);
+
+            if ($file) {
+                // Processa a imagem e aplica as marcas d'água
+                $paths = $this->treantment->processImageFeed($file);
+                foreach ($paths as $path) {
+                    Midia::create([
+                        'feed_id' => $feed->id,
+                        'midia' => $path
+                    ]);
+                }
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log the actual error that caused the transaction to fail
+            Log::error("Transaction failed: " . $e->getMessage());
+            // You can also re-throw the exception or handle it as needed
+            throw $e;
         }
-        DB::commit();
     }
 }
