@@ -3,11 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
 
 class Feed extends Model
 {   
-    use Notifiable;
     //
     protected $table = 'feed';
     protected $fillable = [

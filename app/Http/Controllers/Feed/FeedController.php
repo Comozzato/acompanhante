@@ -109,7 +109,7 @@ class FeedController extends \App\Http\Controllers\Controller
             if (empty($data['motivo'])) {
                 throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json(['message' => 'Motivo de reprovação é obrigatório'], 400));
             }
-            $post->notify(new PostReprovado($post, $data['motivo']));
+            $post->anunciante->notify(new PostReprovado($post, $data['motivo']));
         }
         $post->update(['publish' => $data['publish']]);
 
