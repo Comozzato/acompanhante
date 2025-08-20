@@ -9,8 +9,8 @@ use App\Mail\ConviteMail;
 use App\Services\AnuncioApiService;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail as FacadesMail;
-use Mail;
+use Illuminate\Support\Facades\Mail;
+
 
 
 class ConviteController extends Controller
@@ -28,7 +28,7 @@ class ConviteController extends Controller
 
         try {
             $email = new EmailBehaviors($validated['email']);
-            FacadesMail::to($email->getValue())->send(new ConviteMail($email));
+            Mail::to($email->getValue())->send(new ConviteMail($email));
             return response()->json(['message' => 'Convite enviado com sucesso!'], 200);
         } catch (\Exception $e) {
             return response()->json([
