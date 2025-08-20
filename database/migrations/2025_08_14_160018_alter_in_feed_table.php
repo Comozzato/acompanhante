@@ -15,9 +15,9 @@ return new class extends Migration
             //
             // $table->dropColumn('titulo');
             // $table->dropColumn('tipo');
-            $table->dropColumn('midia_path_master');
-            $table->dropColumn('midia_path_thumbnail1');
-            $table->dropColumn('midia_path_thumbnail2');
+            // $table->dropColumn('midia_path_master');
+            // $table->dropColumn('midia_path_thumbnail1');
+            // $table->dropColumn('midia_path_thumbnail2');
         });
     }
 
