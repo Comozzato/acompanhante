@@ -41,19 +41,18 @@ class ThumbNailSecundaryWaterMark implements ImageWatermark
 
         $resized = $this->resizer->resizeWithBlackBackground($image, new ImageResizeConfig(390, 585, true));
         imagedestroy($image);
-
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), new PositionConfig(
+        $this->applier->applyFromFile($resized, public_path('watermarks/wmsmallhome.png'), new PositionConfig(
             new PositionXConfig('center'),
             new PositionYConfig('middle')
         ));
-        $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionConfig(
-            new PositionXConfig('center'),
-            new PositionYConfig('top')
-        ));
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionConfig(
-            new PositionXConfig('center'),
-            new PositionYConfig('bottom')
-        ));
+        // $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionConfig(
+        //     new PositionXConfig('center'),
+        //     new PositionYConfig('top')
+        // ));
+        // $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionConfig(
+        //     new PositionXConfig('center'),
+        //     new PositionYConfig('bottom')
+        // ));
         $filename = generate_unique_filename('secundary', pathinfo($inputFile, PATHINFO_FILENAME));
         $relativePath = auth_user()->id . '/posts/' . $filename;
         if (!file_exists($inputFile)) {
