@@ -138,20 +138,18 @@ class FeedController extends \App\Http\Controllers\Controller
 
     public function getFeedApiForPostId($tipo, $id)
     {
+        if (!in_array($tipo, ['imagem', 'video', 'geral'])) {
+            return null; // Tipo inválido, retorna null ou pode lançar uma exceção
+        }
         $query = Feed::query()
             ->where('post_id', $id)
             ->where('publish', 'Aprovado');
+            
         if ($tipo === 'geral') {
-            // Qualquer tipo de mídia, mas só feeds que tenham pelo menos uma
-            $query->whereHas('midia')
-                ->with('midia');
+            $query->whereHas('midia')->with('midia');
         } else {
-            // Apenas mídias do tipo específico
-            $query->whereHas('midia', function ($q) use ($tipo) {
-                $q->where('tipo', $tipo);
-            })->with(['midia' => function ($q) use ($tipo) {
-                $q->where('tipo', $tipo);
-            }]);
+            $query->whereHas('midia', fn($q) => $q->ofTipo($tipo))
+                ->with(['midia' => fn($q) => $q->ofTipo($tipo)]);
         }
         $posts = $query->orderByDesc('publicado_em')->paginate();
         return response()->json($posts);

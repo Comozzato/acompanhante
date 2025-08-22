@@ -13,7 +13,7 @@ class Midia extends Model
 
     protected $fillable = ['feed_id', 'midia'];
 
-    protected $appends = ['url','tipo'];
+    protected $appends = ['url', 'tipo'];
 
     public function getUrlAttribute()
     {
@@ -30,7 +30,25 @@ class Midia extends Model
         };
     }
     public function deleteFile()
-    {   
+    {
         S3ImageGalleryService::deleteImage($this->midia);
+    }
+
+    public function scopeOfTipo($query, $tipo)
+    {
+        $extensoes = [
+            'imagem' => ['jpg', 'jpeg', 'png', 'gif'],
+            'video'  => ['mp4', 'avi', 'mov'],
+        ];
+
+        if (!isset($extensoes[$tipo])) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($extensoes, $tipo) {
+            foreach ($extensoes[$tipo] as $ext) {
+                $q->orWhere('midia', 'ILIKE', "%.$ext");
+            }
+        });
     }
 }
