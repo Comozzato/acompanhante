@@ -6,11 +6,8 @@ namespace App\Modules\Auth\Login;
 
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
-use Auth;
-use Hash;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Hash;
 
 class Authenticate
 {

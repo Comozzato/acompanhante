@@ -29,6 +29,7 @@ class VideoWaterMark implements ImageWatermark
         [$relativeInputPath, $absoluteInputPath] = $this->salvarUploadTemporario($uploadedFile);
         // Caminho da imagem
         $relativeOutputPath = auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
+        
         // Processar vídeo com FFMpeg
         if (!Storage::disk('local')->exists($relativeInputPath)) {
             throw new \Exception("Arquivo não encontrado: $relativeInputPath");

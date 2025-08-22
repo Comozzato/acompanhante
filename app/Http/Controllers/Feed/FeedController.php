@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Http\Controllers\Feed;
 
+use App\Http\Requests\PostFeedRequest;
 use App\Models\Feed;
 use App\Modules\PostImgFeed\Services\PostServices;
 use App\Notifications\PostReprovado;
@@ -117,11 +118,12 @@ class FeedController extends \App\Http\Controllers\Controller
     }
 
 
-    public function post(Request $request)
+    public function post(PostFeedRequest $request)
     {
-
+        $request->validated();
         $dataRequest = $request->input();
         $inputFilePostFeed = $request->file('file');
+
         $this->service->post($dataRequest, $inputFilePostFeed);
         return response()->json(['message' => 'criado com sucesso'], 200);
     }
@@ -144,7 +146,7 @@ class FeedController extends \App\Http\Controllers\Controller
         $query = Feed::query()
             ->where('post_id', $id)
             ->where('publish', 'Aprovado');
-            
+
         if ($tipo === 'geral') {
             $query->whereHas('midia')->with('midia');
         } else {

@@ -28,13 +28,13 @@ class Treantment
         ];
         $path = [];
         // Verifica se o arquivo é uma imagem ou vídeo
-        if (in_array($file->getClientMimeType(), ['image/jpeg', 'image/png'])) {
+        if (in_array($file->getClientOriginalExtension(), ['jpeg', 'png'])) {
             // Processa cada tipo de imagem com a estratégia de marca d'água
             foreach ($imagensFeed as $img) {
                 $path[] = $this->watermarkStrategy->resolve($img, $file);
             }
         }
-        if ($file->getClientMimeType() === 'video/mp4') {
+        if (in_array($file->getClientOriginalExtension(), ['mp4', 'mov', 'avi', 'mkv'])) {
             // Se for um vídeo, adiciona o caminho do vídeo processado
             $paths = $this->watermarkStrategy->resolve(ImagemFeed::VIDEO, $file);
             $path = json_decode($paths, true);
