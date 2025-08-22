@@ -41,6 +41,7 @@ class PostServices
             if ($file) {
                 // Processa a imagem e aplica as marcas d'água
                 $paths = $this->treantment->processImageFeed($file);
+
                 foreach ($paths as $path) {
                     Midia::create([
                         'feed_id' => $feed->id,

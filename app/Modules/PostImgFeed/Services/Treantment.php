@@ -36,7 +36,8 @@ class Treantment
         }
         if ($file->getClientMimeType() === 'video/mp4') {
             // Se for um vídeo, adiciona o caminho do vídeo processado
-            $path[] = $this->watermarkStrategy->resolve(ImagemFeed::VIDEO, $file);
+            $paths = $this->watermarkStrategy->resolve(ImagemFeed::VIDEO, $file);
+            $path = json_decode($paths, true);
         }
         return $path;
     }

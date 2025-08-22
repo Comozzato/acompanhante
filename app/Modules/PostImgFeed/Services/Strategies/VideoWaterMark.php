@@ -6,6 +6,7 @@ namespace App\Modules\PostImgFeed\Services\Strategies;
 
 use App\Enums\ImagemFeed;
 use App\Modules\PostImgFeed\Contracts\ImageWatermark;
+use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\FFProbe;
 use FFMpeg\Format\Video\X264;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -36,11 +37,9 @@ class VideoWaterMark implements ImageWatermark
         if (!file_exists($watermarkPath)) {
             throw new \Exception("Arquivo de marca d'água não encontrado: $watermarkPath");
         }
-        $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
-        // Limpar arquivo temporário
+        $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
         Storage::disk('local')->exists($absoluteInputPath) && unlink($absoluteInputPath);
-
-        return $relativeOutputPath;
+        return $paths;
     }
 
 
@@ -52,10 +51,9 @@ class VideoWaterMark implements ImageWatermark
         return [$relativeInputPath, $absoluteInputPath];
     }
 
-    private function criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath)
+    private function criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath): string
     {
         $video = FFMpeg::fromDisk('local')->open($relativeInputPath);
-
         $video = $this->waterMark($video, $relativeInputPath);
         $format = new X264('copy', 'libx264'); // mantém áudio original
         $format->setKiloBitrate(0) // 0 para deixar CRF controlar a qualidade
@@ -72,6 +70,12 @@ class VideoWaterMark implements ImageWatermark
             ->toDisk('s3')  // salva no local
             ->inFormat($format)
             ->save($relativeOutputPath);
+
+        $thumbPath = $this->thumbnailFromExported($relativeOutputPath);
+        return json_encode([
+            $relativeOutputPath,
+            $thumbPath,
+        ]);
     }
 
     private function waterMark(MediaOpener $video, $relativeInputPath): MediaOpener
@@ -94,7 +98,6 @@ class VideoWaterMark implements ImageWatermark
         });
         $video->addWatermark(function (WatermarkFactory $watermark) use ($wmf_path, $wmurl_path, $vwidth, $vheight, $wmf_width, $wmf_height, $wmurl_width, $wmurl_height) {
             $offsetFromBottom = 30;
-
             $watermark->fromDisk('public_root')
                 ->open($wmurl_path)
                 ->bottom($offsetFromBottom)
@@ -122,5 +125,21 @@ class VideoWaterMark implements ImageWatermark
         $wmurl_path = $camtn . 'www' . $vwidth . '.png';
 
         return [$wmf_path, $wmurl_path, $vwidth, $vheight];
+    }
+
+
+    private function thumbnailFromExported(string $relativeOutputPath): string
+    {
+        // abre do S3 o vídeo já com watermark
+        $video = FFMpeg::fromDisk('s3')->open($relativeOutputPath);
+
+        $frame = $video->frame(TimeCode::fromSeconds(1));
+        $thumbnail_local_path = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
+
+        $frame->export()
+            ->toDisk('s3')
+            ->save($thumbnail_local_path);
+
+        return $thumbnail_local_path;
     }
 }
