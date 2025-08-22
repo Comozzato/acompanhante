@@ -50,6 +50,7 @@ class FeedController extends \App\Http\Controllers\Controller
 
         // Ordenar por mais recente
         $query->where('publish', 'Pendente');
+        $query->orderByDesc('publicado_em');
         // Paginação simples
         $posts = $query->paginate($request->input('limit', 10));
 
