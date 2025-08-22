@@ -34,7 +34,7 @@ class VideoWaterMark implements ImageWatermark
         if (!Storage::disk('local')->exists($relativeInputPath)) {
             throw new \Exception("Arquivo não encontrado: $relativeInputPath");
         }
-        $watermarkPath = public_path('watermarks\\wmnovacolor24.png');
+        $watermarkPath = public_path('watermarks/wmnovacolor24.png');
         if (!file_exists($watermarkPath)) {
             throw new \Exception("Arquivo de marca d'água não encontrado: $watermarkPath");
         }
