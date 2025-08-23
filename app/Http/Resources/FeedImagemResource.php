@@ -33,13 +33,10 @@ class FeedImagemResource extends JsonResource
         return $formatted;
     }
 
-    private function getImageType($filename): string
+    private function getImageType($filename)
     {
         if (str_contains($filename, 'master')) {
             return 'file';
-        }
-        if (str_contains($filename, 'sem_marca')) {
-            return 'sem_marca';
         }
         if (str_contains($filename, 'primary')) {
             return 'primary';
@@ -47,6 +44,5 @@ class FeedImagemResource extends JsonResource
         if (str_contains($filename, 'secundary')) {
             return 'thumb';
         }
-        return 'outro';
     }
 }

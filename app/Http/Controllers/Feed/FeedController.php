@@ -147,9 +147,7 @@ class FeedController extends \App\Http\Controllers\Controller
         if ($id) {
             $query->where('post_id', $id);
         }
-        if ($tipo === 'geral') {
-            $queryImagemClone = $query->clone();
-        }
+        $queryImagemClone = $query->clone();
         if ($tipo === 'video' || $tipo === 'geral') {
             $postsVideos = $query->typeMidia('video')->get();
             $video = FeedVideoResource::collection($postsVideos)->toArray(request());
