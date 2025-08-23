@@ -153,6 +153,7 @@ class FeedController extends \App\Http\Controllers\Controller
             $video = FeedVideoResource::collection($postsVideos)->toArray(request());
         }
         if ($tipo === 'imagem' || $tipo === 'geral') {
+
             $postsImagems = $queryImagemClone->typeMidia('imagem')->get();
             $imagem = FeedImagemResource::collection($postsImagems)->toArray(request());
         }

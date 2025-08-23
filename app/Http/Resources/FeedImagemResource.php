@@ -27,6 +27,9 @@ class FeedImagemResource extends JsonResource
         $formatted = [];
         foreach ($images as $image) {
             $type = $this->getImageType($image['midia']);
+            if ($type == null) {
+                continue;
+            }
             $formatted[$type][] = $image['url'];
         }
 
@@ -35,14 +38,12 @@ class FeedImagemResource extends JsonResource
 
     private function getImageType($filename)
     {
-        if (str_contains($filename, 'master')) {
-            return 'file';
-        }
         if (str_contains($filename, 'primary')) {
             return 'primary';
         }
         if (str_contains($filename, 'secundary')) {
             return 'thumb';
         }
+        return null; // Retorna null para tipos não especificados
     }
 }
