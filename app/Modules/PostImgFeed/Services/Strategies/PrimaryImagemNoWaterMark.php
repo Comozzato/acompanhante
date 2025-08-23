@@ -39,7 +39,7 @@ class PrimaryImagemNoWaterMark implements ImageWatermark
         }
         imagedestroy($image);
 
-        $filename = generate_unique_filename('master', pathinfo($inputFile, PATHINFO_FILENAME));
+        $filename = generate_unique_filename('sem_marca', pathinfo($inputFile, PATHINFO_FILENAME));
         $relativePath = auth_user()->id . '/posts/' . $filename;
         if (!file_exists($inputFile)) {
             throw new \RuntimeException("Arquivo não encontrado: {$inputFile}");

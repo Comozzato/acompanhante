@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Feed extends Model
-{   
+{
     //
     protected $table = 'feed';
     protected $fillable = [
@@ -59,4 +59,30 @@ class Feed extends Model
             ->sortByDesc('created_at')
             ->values(); // resetar os índices
     }
+
+    public function scopeTypeMidia($query, $tipo)
+    {
+        if ($tipo === 'geral') {
+            // Traz todos os feeds que tenham qualquer mídia
+            $query->whereHas('midia')->with('midia');
+        } elseif ($tipo === 'video') {
+            // Garante que tem pelo menos um vídeo
+            $query->whereHas('midia', fn($q) => $q->ofTipo('video'))
+                ->with(['midia' => function ($q) {
+                    $q->where(function ($sub) {
+                        $sub->ofTipo('video')
+                            ->orWhere(function ($qq) {
+                                $qq->ofTipo('imagem');
+                            });
+                    });
+                }]);
+        } elseif ($tipo === 'imagem') {
+            // só imagens que NÃO são thumbnails
+            return $query->whereHas('midia', fn($q) => $q->ofTipo('imagem')->where('midia', 'NOT ILIKE', '%thumb%'))
+                ->with(['midia' => fn($q) => $q->ofTipo('imagem')->where('midia', 'NOT ILIKE', '%thumb%')]);
+        }
+    }
+
+
+
 }

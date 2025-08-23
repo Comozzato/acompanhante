@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace app\Http\Controllers\Feed;
 
 use App\Http\Requests\PostFeedRequest;
+use App\Http\Resources\FeedGeralResource;
+use App\Http\Resources\FeedImagemResource;
+use App\Http\Resources\FeedResource;
+use App\Http\Resources\FeedVideoResource;
 use App\Models\Feed;
 use App\Modules\PostImgFeed\Services\PostServices;
 use App\Notifications\PostReprovado;
@@ -118,7 +122,6 @@ class FeedController extends \App\Http\Controllers\Controller
         return response()->json(['message' => 'Publicação atualizada com sucesso'], 200);
     }
 
-
     public function post(PostFeedRequest $request)
     {
         $request->validated();
@@ -128,8 +131,6 @@ class FeedController extends \App\Http\Controllers\Controller
         $this->service->post($dataRequest, $inputFilePostFeed);
         return response()->json(['message' => 'criado com sucesso'], 200);
     }
-
-
 
     public function getImagemFeed(Request $request)
     {
@@ -141,31 +142,24 @@ class FeedController extends \App\Http\Controllers\Controller
     public function getAllFeedApi($tipo, $id = null)
     {
         $query = Feed::query();
+        $video = [];
+        $imagem = [];
         if ($id) {
             $query->where('post_id', $id);
         }
         if ($tipo === 'geral') {
-            // Traz todos os feeds que tenham qualquer mídia
-            $query->whereHas('midia')->with('midia');
-        } elseif ($tipo === 'video') {
-            // Garante que tem pelo menos um vídeo
-            $query->whereHas('midia', fn($q) => $q->ofTipo('video'))
-                ->with(['midia' => function ($q) {
-                    $q->where(function ($sub) {
-                        $sub->ofTipo('video')
-                            ->orWhere(function ($qq) {
-                                $qq->ofTipo('imagem');
-                            });
-                    });
-                }]);
-        } else {
-            // Outros tipos normais
-            $query->whereHas('midia', fn($q) => $q->ofTipo($tipo))
-                ->with(['midia' => fn($q) => $q->ofTipo($tipo)]);
+            $queryImagemClone = $query->clone();
         }
-        $query->orderByDesc('publicado_em');
-        $posts = $query->paginate();
-        return response()->json($posts);
+        if ($tipo === 'video' || $tipo === 'geral') {
+            $postsVideos = $query->typeMidia('video')->get();
+            $video = FeedVideoResource::collection($postsVideos)->toArray(request());
+        }
+        if ($tipo === 'imagem' || $tipo === 'geral') {
+            $postsImagems = $queryImagemClone->typeMidia('imagem')->get();
+            $imagem = FeedImagemResource::collection($postsImagems)->toArray(request());
+        }
+
+        return array_merge($video, $imagem);
     }
 
 
