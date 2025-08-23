@@ -71,7 +71,7 @@ Route::get('find/feed/{id}', [FeedController::class, 'findPostById']);
 Route::post('imagem', [FeedController::class, 'getImagemFeed']);
 Route::delete('delete/feed/{id}', [FeedController::class, 'deleteFeed'])->middleware('auth.jwt');
 // API para WordPress buscar
-Route::get('wp-json/posts/feed/{tipo}/{id}', [FeedController::class, 'getFeedApiForPostId'])->middleware('basic.external');
+Route::get('wp-json/posts/feed/{tipo}/{id}', [FeedController::class, 'getAllFeedApi'])->middleware('basic.external');
 Route::get('wp-json/posts/{tipo}', [FeedController::class, 'getAllFeedApi'])->middleware('basic.external');
 
 // busca as notificacoes do usuario autenticado

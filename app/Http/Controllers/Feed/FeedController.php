@@ -138,35 +138,36 @@ class FeedController extends \App\Http\Controllers\Controller
         return Storage::disk('s3')->get($path); // Retorna o conteúdo da imagem
     }
 
-
-    public function getFeedApiForPostId($tipo, $id)
+    public function getAllFeedApi($tipo, $id = null)
     {
-        if (!in_array($tipo, ['imagem', 'video', 'geral'])) {
-            return null; // Tipo inválido, retorna null ou pode lançar uma exceção
+        $query = Feed::query();
+        if ($id) {
+            $query->where('post_id', $id);
         }
-        $query = Feed::query()
-            ->where('post_id', $id)
-            ->where('publish', 'Aprovado');
-
         if ($tipo === 'geral') {
+            // Traz todos os feeds que tenham qualquer mídia
             $query->whereHas('midia')->with('midia');
+        } elseif ($tipo === 'video') {
+            // Garante que tem pelo menos um vídeo
+            $query->whereHas('midia', fn($q) => $q->ofTipo('video'))
+                ->with(['midia' => function ($q) {
+                    $q->where(function ($sub) {
+                        $sub->ofTipo('video')
+                            ->orWhere(function ($qq) {
+                                $qq->ofTipo('imagem');
+                            });
+                    });
+                }]);
         } else {
+            // Outros tipos normais
             $query->whereHas('midia', fn($q) => $q->ofTipo($tipo))
                 ->with(['midia' => fn($q) => $q->ofTipo($tipo)]);
         }
-        $posts = $query->orderByDesc('publicado_em')->paginate();
-        return response()->json($posts);
-    }
-
-    public function getAllFeedApi()
-    {
-        $query = Feed::query()
-            ->where('publish', 'Aprovado')
-            ->with(['midia'])
-            ->orderByDesc('publicado_em');
+        $query->orderByDesc('publicado_em');
         $posts = $query->paginate();
         return response()->json($posts);
     }
+
 
     public function deleteFeed($id)
     {
