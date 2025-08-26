@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace app\Http\Controllers\Feed;
 
 use App\Http\Requests\PostFeedRequest;
+use App\Http\Resources\FeedGeralResource;
+use App\Http\Resources\FeedImagemResource;
+use App\Http\Resources\FeedResource;
+use App\Http\Resources\FeedVideoResource;
 use App\Models\Feed;
 use App\Modules\PostImgFeed\Services\PostServices;
 use App\Notifications\PostReprovado;
@@ -118,7 +122,6 @@ class FeedController extends \App\Http\Controllers\Controller
         return response()->json(['message' => 'Publicação atualizada com sucesso'], 200);
     }
 
-
     public function post(PostFeedRequest $request)
     {
         $request->validated();
@@ -129,8 +132,6 @@ class FeedController extends \App\Http\Controllers\Controller
         return response()->json(['message' => 'criado com sucesso'], 200);
     }
 
-
-
     public function getImagemFeed(Request $request)
     {
         $path = $request->input('path');
@@ -138,35 +139,28 @@ class FeedController extends \App\Http\Controllers\Controller
         return Storage::disk('s3')->get($path); // Retorna o conteúdo da imagem
     }
 
-
-    public function getFeedApiForPostId($tipo, $id)
+    public function getAllFeedApi($tipo, $id = null)
     {
-        if (!in_array($tipo, ['imagem', 'video', 'geral'])) {
-            return null; // Tipo inválido, retorna null ou pode lançar uma exceção
+        $query = Feed::query();
+        $video = [];
+        $imagem = [];
+        if ($id) {
+            $query->where('post_id', $id);
         }
-        $query = Feed::query()
-            ->where('post_id', $id)
-            ->where('publish', 'Aprovado');
+        $queryImagemClone = $query->clone();
+        if ($tipo === 'video' || $tipo === 'geral') {
+            $postsVideos = $query->typeMidia('video')->get();
+            $video = FeedVideoResource::collection($postsVideos)->toArray(request());
+        }
+        if ($tipo === 'imagem' || $tipo === 'geral') {
 
-        if ($tipo === 'geral') {
-            $query->whereHas('midia')->with('midia');
-        } else {
-            $query->whereHas('midia', fn($q) => $q->ofTipo($tipo))
-                ->with(['midia' => fn($q) => $q->ofTipo($tipo)]);
+            $postsImagems = $queryImagemClone->typeMidia('imagem')->get();
+            $imagem = FeedImagemResource::collection($postsImagems)->toArray(request());
         }
-        $posts = $query->orderByDesc('publicado_em')->paginate();
-        return response()->json($posts);
+
+        return array_merge($video, $imagem);
     }
 
-    public function getAllFeedApi()
-    {
-        $query = Feed::query()
-            ->where('publish', 'Aprovado')
-            ->with(['midia'])
-            ->orderByDesc('publicado_em');
-        $posts = $query->paginate();
-        return response()->json($posts);
-    }
 
     public function deleteFeed($id)
     {
