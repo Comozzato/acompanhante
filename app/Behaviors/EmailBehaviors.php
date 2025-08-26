@@ -9,24 +9,25 @@ use Illuminate\Support\Facades\Validator;
 class EmailBehaviors
 {
     private string $email;
-    public function __construct(?string $email)
+    public function __construct(?string $email, bool $exist = true)
     {
-        $this->validate($email);
+        $this->validate($email, $exist);
         $this->email = $email;
     }
 
 
-    private function validate(string $email): void
+    private function validate(string $email, bool $exist): void
     {
         $data = ['email' => $email];
         $rules = [
             'email' => [
                 'required',
                 'email',
-                'unique:users,email', // Verifica se já existe no banco
             ],
         ];
-
+        if ($exist) {
+            $rules['email'][] = 'unique:users,email'; // só valida se já existe
+        }
         $messages = [
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'O e-mail não é válido.',

@@ -11,6 +11,7 @@ use App\Http\Controllers\ForgotController;
 use App\Http\Controllers\Feed\FeedController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 
@@ -95,3 +96,13 @@ Route::get('/rota-protegida-jwt', function () {
 Route::get('/rota-protegida-basic', function () {
     return response()->json(['message' => 'API is working']);
 })->middleware('basic.external');
+
+
+Route::get('/teste-email', function () {
+    Mail::raw('Este é um e-mail de teste via Mailtrap Sandbox!', function ($message) {
+        $message->to('wille26ferreira@gmail.com')
+                ->subject('Teste Mailtrap');
+    });
+
+    return 'E-mail enviado para a caixa de areia!';
+});
