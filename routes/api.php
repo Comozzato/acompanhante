@@ -69,6 +69,7 @@ Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('au
 Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid']);//->middleware('auth.jwt');
 Route::get('find/feed/{id}', [FeedController::class, 'findPostById']);
 Route::post('imagem', [FeedController::class, 'getImagemFeed']);
+Route::post('save', [FeedController::class, 'putImagemFeed']);
 Route::delete('delete/feed/{id}', [FeedController::class, 'deleteFeed'])->middleware('auth.jwt');
 // API para WordPress buscar
 Route::get('wp-json/posts/feed/{tipo}/{id}', [FeedController::class, 'getAllFeedApi'])->middleware('basic.external');

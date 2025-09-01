@@ -135,8 +135,12 @@ class FeedController extends \App\Http\Controllers\Controller
     public function getImagemFeed(Request $request)
     {
         $path = $request->input('path');
-
-        return Storage::disk('s3')->get($path); // Retorna o conteúdo da imagem
+        return Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(60));
+    }
+    public function putImagemFeed(Request $request)
+    {
+        $path = $request->input('path');
+        return Storage::disk('s3')->put($path, $request->file('file'));
     }
 
     public function getAllFeedApi($tipo, $id = null)
