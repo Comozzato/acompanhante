@@ -25,16 +25,10 @@ class ConviteController extends Controller
         $validated = $request->validate([
             'email' => 'required|email',
         ]);
-
-        try {
-            $email = new EmailBehaviors($validated['email']);
-            Mail::to($email->getValue())->send(new ConviteMail($email));
-            return response()->json(['message' => 'Convite enviado com sucesso!'], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erro ao enviar o convite.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+      
+        $email = new EmailBehaviors($validated['email']);
+        Mail::to($email->getValue())->send(new ConviteMail($email));
+        return response()->json(['message' => 'Convite enviado com sucesso!'], 200);
+      
     }
 }

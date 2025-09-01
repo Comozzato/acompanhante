@@ -22,7 +22,7 @@ class ForgotController extends Controller
     public function sendCode(Request $request)
     {
         $dataRequest = $request->only('email');
-        $this->sendCodeForUser->sendCode(new EmailBehaviors($dataRequest['email']));
+        $this->sendCodeForUser->sendCode(new EmailBehaviors($dataRequest['email'], false));
         return response()->json(['message' => 'Código enviado com sucesso']);
     }
 
