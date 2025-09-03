@@ -34,24 +34,8 @@ class FeedController extends \App\Http\Controllers\Controller
 
     public function index(Request $request)
     {
-        $user = $request->user(); // usuário autenticado, se houver
+        // $user = $request->user(); // usuário autenticado, se houver
         $query = Feed::query()->with(['anunciante', 'midia']);
-        // Exemplo futuro: recomendação por algoritmo
-        // if ($request->boolean('algoritmo') && $user) {
-        //     // Aqui entraria o motor de recomendação
-        //     //$query = Feed::recommendedForUser($user);
-        // }
-
-        // // Filtro por anunciantes seguidos
-        // if ($request->boolean('seguindo') && $user) {
-        //     $ids = $user->anunciantesSeguidos()->pluck('id');
-        //     $query->whereIn('anunciante_id', $ids);
-        // }
-        // Filtro por categoria
-        // if ($request->filled('categoria')) {
-        //     $query->where('categoria', $request->input('categoria'));
-        // }
-
         // Ordenar por mais recente
         $query->where('publish', 'Pendente');
         $query->orderByDesc('publicado_em');
@@ -60,13 +44,13 @@ class FeedController extends \App\Http\Controllers\Controller
 
         return response()->json($posts);
     }
-    public function findForPostid($id)
+    public function findForPostid(Request $request, $id)
     {
         $query = Feed::query()
             ->where('post_id', $id)
             ->with(['anunciante', 'midia'])
             ->orderByDesc('publicado_em');
-        $posts = $query->paginate();
+        $posts = $query->paginate($request->query('limit', 10));
         return response()->json($posts);
     }
     public function findPostById($id)
@@ -84,7 +68,7 @@ class FeedController extends \App\Http\Controllers\Controller
     }
 
 
-    public function indexByUser()
+    public function indexByUser(Request $request)
     {
         $query = Feed::query()
             ->where('user_id', auth_user()->id)
@@ -93,7 +77,7 @@ class FeedController extends \App\Http\Controllers\Controller
 
         $query->orderByDesc('publicado_em');
 
-        $posts = $query->paginate();
+        $posts = $query->paginate($request->input('limit', 10));
 
         return response()->json($posts);
     }

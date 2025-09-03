@@ -29,7 +29,7 @@ class ForgotController extends Controller
     public function verifyCode(Request $request)
     {
         $dataRequest = $request->only('code', 'email');
-        $this->verifyCode->verify(new EmailBehaviors($dataRequest['email']), $dataRequest['code']);
+        $this->verifyCode->verify(new EmailBehaviors($dataRequest['email'], false), $dataRequest['code']);
         return response()->json(['message' => 'Código verificado com sucesso']);
     }
 
@@ -39,7 +39,7 @@ class ForgotController extends Controller
        
         $this->forgot->forgot(
             $dataRequest['code'],
-            new EmailBehaviors($dataRequest['email']),
+            new EmailBehaviors($dataRequest['email'], false),
             new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
         );
 
