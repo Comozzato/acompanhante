@@ -20,9 +20,9 @@ class AnuncianteController extends Controller
 
     public function getMyAnuncios()
     {
-        $user = auth_user();
-        $cpf = new CpfBehaviors($user->cpf, false);
-        return $this->service->getAnuncioCpf($cpf);
+       $user = auth_user();
+
+        return $this->service->getAnuncioCpf($user);
     }
     public function getAnuncioCpf(request $request)
     {

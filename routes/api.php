@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ConviteController;
 use App\Http\Controllers\ForgotController;
 use App\Http\Controllers\Feed\FeedController;
+use App\Http\Controllers\Historys\HistorysController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -108,3 +109,5 @@ Route::get('/teste-email', function () {
 
     return 'E-mail enviado para a caixa de areia!';
 });
+
+Route::get('historys', [HistorysController::class, 'index']);
