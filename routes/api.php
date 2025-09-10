@@ -110,4 +110,4 @@ Route::get('/teste-email', function () {
     return 'E-mail enviado para a caixa de areia!';
 });
 
-Route::get('historys', [HistorysController::class, 'index'])->middleware('basic.external');
+Route::get('historys', [HistorysController::class, 'index']);//->middleware('basic.external');

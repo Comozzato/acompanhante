@@ -35,8 +35,9 @@ class Treantment
             }
         }
         if (in_array($file->getClientOriginalExtension(), ['mp4', 'mov', 'avi', 'mkv'])) {
-            // Se for um vídeo, adiciona o caminho do vídeo processado
+            // Se for um vídeo, envia para o resolver de vídeo 
             $paths = $this->watermarkStrategy->resolve(ImagemFeed::VIDEO, $file);
+            // retorna o caminho do vídeo + thumb como array
             $path = json_decode($paths, true);
         }
         return $path;
