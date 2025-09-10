@@ -68,7 +68,7 @@ Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt'
 Route::get('posts', [FeedController::class, 'index']);
 Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao'])->middleware('auth.jwt');
 Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
-Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid']);//->middleware('auth.jwt');
+Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid']); //->middleware('auth.jwt');
 Route::get('find/feed/{id}', [FeedController::class, 'findPostById']);
 Route::post('imagem', [FeedController::class, 'getImagemFeed']);
 Route::post('save', [FeedController::class, 'putImagemFeed']);
@@ -104,10 +104,10 @@ Route::get('/rota-protegida-basic', function () {
 Route::get('/teste-email', function () {
     Mail::raw('Este é um e-mail de teste via Mailtrap Sandbox!', function ($message) {
         $message->to('wille26ferreira@gmail.com')
-                ->subject('Teste Mailtrap');
+            ->subject('Teste Mailtrap');
     });
 
     return 'E-mail enviado para a caixa de areia!';
 });
 
-Route::get('historys', [HistorysController::class, 'index']);
+Route::get('historys', [HistorysController::class, 'index'])->middleware('basic.external');
