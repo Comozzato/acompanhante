@@ -28,7 +28,7 @@ class Treantment
         ];
         $path = [];
         // Verifica se o arquivo é uma imagem ou vídeo
-        if (in_array($file->getClientOriginalExtension(), ['jpeg', 'png'])) {
+        if (in_array($file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png'])) {
             // Processa cada tipo de imagem com a estratégia de marca d'água
             foreach ($imagensFeed as $img) {
                 $path[] = $this->watermarkStrategy->resolve($img, $file);
