@@ -25,7 +25,8 @@ class Historys extends JsonResource
             "coverName" => $this->nome,
             "commonName" => "",
             "link" => "javascript:void(0);",
-            'items' => $this->formatStories()
+            'items' => $this->formatStories(),
+            'type' => 'image'
         ];
     }
 
