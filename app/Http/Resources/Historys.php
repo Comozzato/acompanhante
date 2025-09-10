@@ -17,7 +17,7 @@ class Historys extends JsonResource
     {
         return  [
             "authorImage" => $this->imgevidencias,
-            'coverImage' => $this->imgevidencias,
+            "coverImage" => $this->imgevidencias,
             "coverAuthorImage" => $this->imgevidencias,
             "authorName" => $this->nome,
             "coverName" => $this->nome,
