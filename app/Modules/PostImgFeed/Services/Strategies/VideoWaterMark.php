@@ -29,7 +29,7 @@ class VideoWaterMark implements ImageWatermark
         [$relativeInputPath, $absoluteInputPath] = $this->salvarUploadTemporario($uploadedFile);
         // Caminho da imagem
         $relativeOutputPath = auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
-        
+
         // Processar vídeo com FFMpeg
         if (!Storage::disk('local')->exists($relativeInputPath)) {
             throw new \Exception("Arquivo não encontrado: $relativeInputPath");
@@ -71,7 +71,7 @@ class VideoWaterMark implements ImageWatermark
             ->toDisk('s3')  // salva no local
             ->inFormat($format)
             ->save($relativeOutputPath);
-
+        Storage::disk('s3')->setVisibility($relativeOutputPath, 'public');
         $thumbPath = $this->thumbnailFromExported($relativeOutputPath);
         return json_encode([
             $relativeOutputPath,
@@ -140,7 +140,7 @@ class VideoWaterMark implements ImageWatermark
         $frame->export()
             ->toDisk('s3')
             ->save($thumbnail_local_path);
-
+        Storage::disk('s3')->setVisibility($thumbnail_local_path, 'public');
         return $thumbnail_local_path;
     }
 }

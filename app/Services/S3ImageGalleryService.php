@@ -31,14 +31,14 @@ class S3ImageGalleryService
             Log::error('Erro ao fazer upload para o S3: ' . $e->getMessage());
             return false;
         }
-    
     }
 
     public static function getImage(string $filePath, int $minutes = 5): ?string
     {
         if (Storage::disk(self::$disk)->exists($filePath)) {
             // Para buckets privados, use temporaryUrl
-            return Storage::disk(self::$disk)->temporaryUrl($filePath, now()->addMinutes(60));
+            Storage::disk('s3')->setVisibility($filePath, 'public');
+            return Storage::disk(self::$disk)->url($filePath);
             // Para buckets públicos, a URL direta é suficiente
             //return Storage::disk(self::$disk)->get($filePath);
         }
@@ -52,5 +52,4 @@ class S3ImageGalleryService
         }
         return false;
     }
-
 }

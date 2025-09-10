@@ -121,6 +121,7 @@ class FeedController extends \App\Http\Controllers\Controller
         $path = $request->input('path');
         return Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(60));
     }
+
     public function putImagemFeed(Request $request)
     {
         $path = $request->input('path');

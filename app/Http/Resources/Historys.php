@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Services\S3ImageGalleryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class Historys extends JsonResource
 {
@@ -33,6 +34,12 @@ class Historys extends JsonResource
     private function formatStories()
     {
         $stories = [];
+        $button = json_decode('{
+            "link": "javascript:false(0);",
+            "linkText": "' . $this->nome . '",
+            "target": "_self"
+        }');
+
 
         foreach ($this->feeds as $feed) {
 
@@ -40,25 +47,18 @@ class Historys extends JsonResource
             if ($this->isVideo($file)) {
                 $stories[] = [
                     'type' => 'video',
-                    'src'  => S3ImageGalleryService::getImage($this->isVideo($file, true)),
+                    "length" => 14,
+                    'src'  => $this->isVideo($file, true),
                     'publicado_em' => $feed->publicado_em,
-                    'button' => json_decode('{
-                        "link": "",
-                        "linkText": "",
-                        "target": "_self"
-                    }'),
+                    'button' => $button
                 ];
             } else {
                 $stories[] = [
                     'type' => 'image',
-                    'length' => 14,
+                    'length' => 3,
                     'src'  => $this->formatImages($file->toArray()),
                     'publicado_em' => $feed->publicado_em,
-                    'button' => json_decode('{
-                        "link": "",
-                        "linkText": "",
-                        "target": "_self"
-                    }'),
+                    'button' => $button
                 ];
             }
         }
@@ -66,14 +66,15 @@ class Historys extends JsonResource
         return $stories;
     }
 
-    private function formatMidias($files) {}
+
     private function isVideo($filename, $getFileName = false)
     {
         foreach ($filename as $file) {
             $filename = $file['midia'];
             $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             if ($getFileName) {
-                return $filename;
+                Storage::disk('s3')->setVisibility($filename, 'public');
+                return S3ImageGalleryService::getImage($filename);
             }
             return in_array($ext, ['mp4', 'avi', 'mov']);
         }

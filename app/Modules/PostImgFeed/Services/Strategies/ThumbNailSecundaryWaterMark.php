@@ -67,7 +67,7 @@ class ThumbNailSecundaryWaterMark implements ImageWatermark
             throw new \RuntimeException("Arquivo inválido ou vazio: {$inputFile}");
         }
 
-        Storage::disk('s3')->put($relativePath, $content);
+        Storage::disk('s3')->put($relativePath, $content, 'public');
         imagedestroy($resized);
 
         return $relativePath;
