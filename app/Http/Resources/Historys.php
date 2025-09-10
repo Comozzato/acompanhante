@@ -15,14 +15,15 @@ class Historys extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $imageEvidencias = $this->imgevidencias;
         return  [
-            "authorImage" => $this->imgevidencias,
-            "coverImage" => 'aaaaaa',
-            "coverAuthorImage" => $this->imgevidencias,
+            "authorImage" => $imageEvidencias,
+            "coverImage" => $imageEvidencias,
+            "coverAuthorImage" => $imageEvidencias,
             "authorName" => $this->nome,
             "coverName" => $this->nome,
             "commonName" => "",
-            "coverImage" => $this->imgatualizadas,
             "link" => "javascript:void(0);",
             'items' => $this->formatStories()
         ];
