@@ -19,6 +19,8 @@ class Anuncios extends JsonResource
         $data = parent::toArray($request);
 
         // Removemos as imagens
-        return Arr::except($data, ['imgcapa', 'imgevidencias', 'imgatualizadas']);
+        // return Arr::except($data, ['imgcapa', 'imgevidencias', 'imgatualizadas']);
+
+        return $data;
     }
 }
