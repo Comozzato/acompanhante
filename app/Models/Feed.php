@@ -92,4 +92,9 @@ class Feed extends Model
     {
         return $query->where('publicado_em', '>=', now()->subDay());
     }
+
+    public function scopeAprovado($query)
+    {
+        return $query->where('publish', 'Aprovado');
+    }
 }

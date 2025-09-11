@@ -31,7 +31,9 @@ class Posts extends Model
 
     public function feeds()
     {
-        return $this->hasMany(Feed::class, 'post_id')->ultimas24Horas();
+        return $this->hasMany(Feed::class, 'post_id')
+            ->aprovado()
+            ->ultimas24Horas();
     }
 
     public function scopeCity($query, $city)
@@ -42,4 +44,3 @@ class Posts extends Model
         return $query;
     }
 }
-
