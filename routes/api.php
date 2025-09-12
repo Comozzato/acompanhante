@@ -45,7 +45,7 @@ Route::prefix('auth')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LogoutController::class, 'logout'])->middleware('auth.jwt');
     Route::post('refresh-token', [RefreshTokenController::class, 'newRefreshToken']);
-    Route::post('reset-password', [ForgotController::class, 'resetPassword']);
+    Route::post('reset-password', [ForgotController::class, 'resetPassword'])->middleware('auth.jwt');
 });
 
 

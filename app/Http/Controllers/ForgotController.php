@@ -34,7 +34,7 @@ class ForgotController extends Controller
     public function forgot(Request $request)
     {
         $dataRequest = $request->only('code', 'email', 'password', 'password_confirmation');
-
+        
         $this->forgot->forgot(
             $dataRequest['code'],
             new EmailBehaviors($dataRequest['email'], false),
@@ -46,10 +46,10 @@ class ForgotController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $dataRequest = $request->only('email', 'password', 'password_confirmation');
-
+        $dataRequest = $request->only('password', 'password_confirmation');
+        $user = auth_user(); // usuário autenticado
         $this->forgot->resetPassword(
-            new EmailBehaviors($dataRequest['email'], false),
+            new EmailBehaviors($user->email, false),
             new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
         );
         return response()->json(['message' => 'Senha alterada com sucesso']);
