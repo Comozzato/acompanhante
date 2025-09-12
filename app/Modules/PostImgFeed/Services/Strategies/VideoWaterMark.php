@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 use ProtoneMedia\LaravelFFMpeg\Filters\WatermarkFactory;
 use ProtoneMedia\LaravelFFMpeg\MediaOpener;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class VideoWaterMark implements ImageWatermark
 {
@@ -131,16 +132,19 @@ class VideoWaterMark implements ImageWatermark
 
     private function thumbnailFromExported(string $relativeOutputPath): string
     {
-        // abre do S3 o vídeo já com watermark
-        $video = FFMpeg::fromDisk('s3')->open($relativeOutputPath);
-
-        $frame = $video->frame(TimeCode::fromSeconds(1));
         $thumbnail_local_path = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
 
-        $frame->export()
+        // gera frame já redimensionado para 1920x1080
+        FFMpeg::fromDisk('s3')
+            ->open($relativeOutputPath)
+            ->frame(TimeCode::fromSeconds(1))
+            ->export()
             ->toDisk('s3')
+            ->addFilter(['-vf', "scale=w=1920:h=1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black"])
             ->save($thumbnail_local_path);
+
         Storage::disk('s3')->setVisibility($thumbnail_local_path, 'public');
+
         return $thumbnail_local_path;
     }
 }

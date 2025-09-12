@@ -15,9 +15,7 @@ class ForgotController extends Controller
 {
     //
 
-    public function __construct(private Forgot $forgot, private VerifyCode $verifyCode, private SendCodeForUser $sendCodeForUser)
-    {
-    }
+    public function __construct(private Forgot $forgot, private VerifyCode $verifyCode, private SendCodeForUser $sendCodeForUser) {}
 
     public function sendCode(Request $request)
     {
@@ -33,16 +31,27 @@ class ForgotController extends Controller
         return response()->json(['message' => 'Código verificado com sucesso']);
     }
 
-    public function reset(Request $request)
+    public function forgot(Request $request)
     {
         $dataRequest = $request->only('code', 'email', 'password', 'password_confirmation');
-       
+
         $this->forgot->forgot(
             $dataRequest['code'],
             new EmailBehaviors($dataRequest['email'], false),
             new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
         );
 
+        return response()->json(['message' => 'Senha alterada com sucesso']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $dataRequest = $request->only('email', 'password', 'password_confirmation');
+
+        $this->forgot->resetPassword(
+            new EmailBehaviors($dataRequest['email'], false),
+            new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
+        );
         return response()->json(['message' => 'Senha alterada com sucesso']);
     }
 }
