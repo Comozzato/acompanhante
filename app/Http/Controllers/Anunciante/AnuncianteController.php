@@ -20,7 +20,7 @@ class AnuncianteController extends Controller
 
     public function getMyAnuncios()
     {
-       $user = auth_user();
+        $user = auth_user();
 
         return $this->service->getAnuncioCpf($user);
     }
@@ -28,12 +28,14 @@ class AnuncianteController extends Controller
     {
         Gate::forUser(auth_user())->allows('admin');
         $data = $request->input('cpf');
-        if(empty($data)) {
+        if (empty($data)) {
             return response()->json(['message' => 'CPF não informado'], 400);
         }
         $cpf = new CpfBehaviors($data, false);
-        return $this->service->getAnuncioCpf($cpf);
+        return $this->service->getAnuncioAdminCpf($cpf);
     }
+
+
     public function getDados($id)
     {
         return $this->service->getDados($id);

@@ -22,13 +22,22 @@ class AnuncianteService
     {
         $user = auth_user();
         $postsApi = $this->api->getAnuncionsCpf(new CpfBehaviors($user->cpf, false));
-        info($postsApi);
         if (empty($postsApi)) {
             return [];
         }
         $this->sincronizarAnunciosPorCpf($postsApi, $user);
         return Anuncios::collection($postsApi);
     }
+    public function getAnuncioAdminCpf($cpf)
+    {
+        $postsApi = $this->api->getAnuncionsCpf($cpf);
+        if (empty($postsApi)) {
+            return [];
+        }
+
+        return Anuncios::collection($postsApi);
+    }
+
     public function getDados($id)
     {
         return $this->api->getAnuncioDados($id);
