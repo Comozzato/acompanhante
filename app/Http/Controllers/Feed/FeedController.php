@@ -146,9 +146,9 @@ class FeedController extends \App\Http\Controllers\Controller
             $postsImagems = $queryImagemClone->typeMidia('imagem')->get();
             $imagem = FeedImagemResource::collection($postsImagems)->toArray(request());
         }
-
+            
         return array_merge($video, $imagem);
-    }
+    }   
 
 
     public function deleteFeed($id)
