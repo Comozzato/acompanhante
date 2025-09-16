@@ -41,7 +41,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+       DB::statement('DROP TABLE IF EXISTS users CASCADE');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
