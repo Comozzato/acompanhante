@@ -58,7 +58,7 @@ Route::middleware('auth.jwt')->group(function () {
 
 Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
 Route::post('convite', [ConviteController::class, 'enviarConvite']);
-Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf']);
+Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnuncioCpf'])->middleware('auth.jwt');
 
 //Api de Anunciante WordPress
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados'])->middleware('auth.jwt');
