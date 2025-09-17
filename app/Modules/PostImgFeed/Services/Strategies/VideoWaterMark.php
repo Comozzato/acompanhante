@@ -140,7 +140,7 @@ class VideoWaterMark implements ImageWatermark
             ->frame(TimeCode::fromSeconds(1))
             ->export()
             ->toDisk('s3')
-            ->addFilter(['-vf', "scale=w=1920:h=1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black"])
+            //->addFilter(['-vf', "scale=w=1920:h=1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black"])
             ->save($thumbnail_local_path);
 
         Storage::disk('s3')->setVisibility($thumbnail_local_path, 'public');
