@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 use ProtoneMedia\LaravelFFMpeg\Filters\WatermarkFactory;
 use ProtoneMedia\LaravelFFMpeg\MediaOpener;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\Facades\Image;
 
 class VideoWaterMark implements ImageWatermark
 {
@@ -72,8 +72,9 @@ class VideoWaterMark implements ImageWatermark
             ->toDisk('s3')  // salva no local
             ->inFormat($format)
             ->save($relativeOutputPath);
+            
         Storage::disk('s3')->setVisibility($relativeOutputPath, 'public');
-        $thumbPath = $this->thumbnailFromExported($relativeOutputPath);
+        $thumbPath = $this->thumbnailFromExported($video);
         return json_encode([
             $relativeOutputPath,
             $thumbPath,
@@ -130,21 +131,15 @@ class VideoWaterMark implements ImageWatermark
     }
 
 
-    private function thumbnailFromExported(string $relativeOutputPath): string
+    private function thumbnailFromExported(MediaOpener $video): string
     {
         $thumbnail_local_path = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
-
-        // gera frame já redimensionado para 1920x1080
-        FFMpeg::fromDisk('s3')
-            ->open($relativeOutputPath)
-            ->frame(TimeCode::fromSeconds(1))
+        $video->getFrameFromSeconds(1)
             ->export()
             ->toDisk('s3')
-            //->addFilter(['-vf', "scale=w=1920:h=1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black"])
             ->save($thumbnail_local_path);
-
-        Storage::disk('s3')->setVisibility($thumbnail_local_path, 'public');
-
+        // 5) opcional: limpa arquivos temporários
+        //Storage::disk('local')->delete($framePath);
         return $thumbnail_local_path;
     }
 }
