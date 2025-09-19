@@ -21,6 +21,7 @@ class HistoryService
             ->with('feeds.midia')
             ->city(request()->query('city'))
             ->get();
+        //dd($feeds->toArray());
         return [
             'circles' =>  Historys::collection($feeds)->toArray(request())
         ];

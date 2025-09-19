@@ -31,11 +31,11 @@ class Posts extends Model
 
     public function feeds()
     {
-        return $this->hasMany(Feed::class, 'post_id')
-            ->aprovado()
-            ->story();  
+        return $this->hasMany(Feed::class, 'post_id');
+            //->aprovado()
+            //->story();
     }
-    
+
     public function scopeCity($query, $city)
     {
         if ($city) {

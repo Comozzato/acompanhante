@@ -34,12 +34,12 @@ class PostServices
                 $expiraEm = now()->addHours(72);
             }
             $fileType = $file ? $file->getClientMimeType() : null;
-
+        
             $imageMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
             $videoMimes = ['video/mp4', 'video/mkv', 'video/avi', 'video/mov'];
 
             if (in_array($fileType, $imageMimes)) {
-                $tipoMidia = 'foto';
+                $tipoMidia = 'imagem';
             } elseif (in_array($fileType, $videoMimes)) {
                 $tipoMidia = 'video';
             } else {
@@ -61,7 +61,7 @@ class PostServices
             if ($file) {
                 // Processa a imagem e aplica as marcas d'água
                 $paths = $this->treantment->processImageFeed($file);
-
+                
                 foreach ($paths as $path) {
                     Midia::create([
                         'feed_id' => $feed->id,

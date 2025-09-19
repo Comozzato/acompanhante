@@ -36,13 +36,12 @@ class S3ImageGalleryService
     public static function getImage(string $filePath, int $minutes = 5): ?string
     {
         if (Storage::disk(self::$disk)->exists($filePath)) {
-            // Para buckets privados, use temporaryUrl
-            Storage::disk('s3')->setVisibility($filePath, 'public');
+           
             return Storage::disk(self::$disk)->url($filePath);
             // Para buckets públicos, a URL direta é suficiente
             //return Storage::disk(self::$disk)->get($filePath);
         }
-        return null;
+        return 'nao existe';
     }
 
     public static function deleteImage(string $filePath): bool

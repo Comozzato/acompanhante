@@ -53,6 +53,7 @@ class Historys extends JsonResource
                     'button' => $button
                 ];
             } else {
+                
                 $stories[] = [
                     'type' => 'image',
                     'length' => 3,
@@ -89,7 +90,9 @@ class Historys extends JsonResource
     }
 
     private function formatImages(array $images): array
-    {
+    {   
+
+        //dd($images);
         $formatted = [];
         foreach ($images as $image) {
             $type = $this->getImageType($image);

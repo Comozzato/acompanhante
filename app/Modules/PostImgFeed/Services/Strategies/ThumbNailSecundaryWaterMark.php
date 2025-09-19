@@ -45,14 +45,6 @@ class ThumbNailSecundaryWaterMark implements ImageWatermark
             new PositionXConfig('center'),
             new PositionYConfig('middle')
         ));
-        // $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionConfig(
-        //     new PositionXConfig('center'),
-        //     new PositionYConfig('top')
-        // ));
-        // $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionConfig(
-        //     new PositionXConfig('center'),
-        //     new PositionYConfig('bottom')
-        // ));
         $filename = generate_unique_filename('secundary', pathinfo($inputFile, PATHINFO_FILENAME));
         $relativePath = auth_user()->id . '/posts/' . $filename;
         if (!file_exists($inputFile)) {
@@ -66,8 +58,7 @@ class ThumbNailSecundaryWaterMark implements ImageWatermark
         if ($content === false || strlen($content) === 0) {
             throw new \RuntimeException("Arquivo inválido ou vazio: {$inputFile}");
         }
-
-        Storage::disk('s3')->put($relativePath, $content, 'public');
+       Storage::disk('s3')->put($relativePath, $content);
         imagedestroy($resized);
 
         return $relativePath;
