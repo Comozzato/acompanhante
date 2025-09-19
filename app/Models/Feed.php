@@ -13,8 +13,11 @@ class Feed extends Model
         'post', // Renomeado de conteudo para post
         'post_id', // Novo campo adicionado
         'ativo',
+        'tipo', // Novo campo adicionado para diferenciar tipos de posts
         'publicado_em',
         'publish', // Novo campo adicionado para controle de publicação
+        'expires_at', // Novo campo adicionado para expiração de stories
+        'tipo_arquivo', // Novo campo adicionado para tipo de arquivo
     ];
     protected $appends = ['notifications'];
 
@@ -87,14 +90,16 @@ class Feed extends Model
     {
         return $this->belongsTo(Posts::class, 'post_id');
     }
-
-    public function scopeUltimas24Horas($query)
-    {
-        return $query->where('publicado_em', '>=', now()->subDay());
-    }
-
     public function scopeAprovado($query)
     {
         return $query->where('publish', 'Aprovado');
+    }
+    public function scopeStory($query)
+    {
+        return $query->where('tipo', 'story')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
     }
 }

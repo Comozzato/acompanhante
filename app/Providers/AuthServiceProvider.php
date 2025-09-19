@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Providers;
+
 use App\Behaviors\CpfBehaviors;
+use App\Models\Feed;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,7 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('ver-cpf', function (User $user, CpfBehaviors $cpfBehaviors) {
             // Se for admin, pode tudo
-            
+
             if ($user->role === 'admn') {
                 return true;
             }
@@ -29,6 +31,8 @@ class AuthServiceProvider extends ServiceProvider
 
             return false;
         });
-    }
 
+
+      
+    }
 }

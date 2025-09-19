@@ -26,7 +26,7 @@ class AnuncianteController extends Controller
     }
     public function getAnuncioCpf(request $request)
     {
-        //Gate::forUser(auth_user())->allows('admin');
+        Gate::forUser(auth_user())->allows('admin');
         $data = $request->input('cpf');
         if (empty($data)) {
             return response()->json(['message' => 'CPF não informado'], 400);

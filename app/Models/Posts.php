@@ -33,9 +33,9 @@ class Posts extends Model
     {
         return $this->hasMany(Feed::class, 'post_id')
             ->aprovado()
-            ->ultimas24Horas();
+            ->story();  
     }
-
+    
     public function scopeCity($query, $city)
     {
         if ($city) {

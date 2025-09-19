@@ -71,8 +71,14 @@ class VideoWaterMark implements ImageWatermark
         $video->export()
             ->toDisk('s3')  // salva no local
             ->inFormat($format)
+            ->addFilter(function ($filters) {
+                // 1. cortar até 60 segundos
+                $filters->clip(\FFMpeg\Coordinate\TimeCode::fromSeconds(0), \FFMpeg\Coordinate\TimeCode::fromSeconds(60));
+                // 2. redimensionar para no máximo 1920x1080
+                $filters->resize(new \FFMpeg\Coordinate\Dimension(1920, 1080), \FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET, true);
+            })
             ->save($relativeOutputPath);
-            
+
         Storage::disk('s3')->setVisibility($relativeOutputPath, 'public');
         $thumbPath = $this->thumbnailFromExported($video);
         return json_encode([
@@ -138,8 +144,6 @@ class VideoWaterMark implements ImageWatermark
             ->export()
             ->toDisk('s3')
             ->save($thumbnail_local_path);
-        // 5) opcional: limpa arquivos temporários
-        //Storage::disk('local')->delete($framePath);
         return $thumbnail_local_path;
     }
 }
