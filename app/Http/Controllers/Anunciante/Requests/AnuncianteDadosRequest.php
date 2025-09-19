@@ -12,6 +12,7 @@ class AnuncianteDadosRequest extends FormRequest
     public function rules()
     {
         return [
+            'ddi_acompanhante' => 'nullable|string',
             'whatsapp_acompanhante' => 'nullable|string',
             'novoatendimento_acompanhante' => 'nullable|string',
             'cache_acompanhante' => 'nullable|string',
