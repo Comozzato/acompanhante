@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Modules\Auth\Login;
 
 use App\Models\User;
@@ -31,6 +32,7 @@ class AccessToken
 
         $payload = [
             'iss' => config('app.url'),
+            'token_type' => 'access_token',
             'sub' => $user->id,
             'name' => $user->name,
             'role' => $user->role,
@@ -43,6 +45,4 @@ class AccessToken
 
         return JWT::encode($payload, $this->key, 'HS256');
     }
-
-
 }

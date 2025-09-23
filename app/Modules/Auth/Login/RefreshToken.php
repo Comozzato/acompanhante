@@ -7,6 +7,7 @@ use App\Modules\Auth\Login\SessionVerify;
 use Crypt;
 use DomainException;
 use Firebase\JWT\JWT;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Str;
 
 class RefreshToken
@@ -22,9 +23,9 @@ class RefreshToken
     public function getRefreshToken(User $user): string
     {
         if (!$user instanceof User) {
-            throw new DomainException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
+            throw new HttpResponseException(response()->json(['message' => 'o usuario não foi devidamente authenticado'], 401));
         }
-        $accessExpiresTimesTamp = now()->minutes((int) $this->refresh_expire)->timestamp;
+        $accessExpiresTimesTamp = now()->addminutes((int) $this->refresh_expire)->timestamp;
         $now = now()->timestamp;
         $payload = [
             'iss' => config('app.url'),

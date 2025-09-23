@@ -32,12 +32,12 @@ class VerifyTimeRefresh
         if ($payload['token_type'] !== 'refresh_token') {
             throw new HttpResponseException(response()->json(['message' => 'Token inválido.'], Response::HTTP_UNAUTHORIZED));
         }
-        $session = Session::where('user_id', $payload['sub'])->where('refresh_token', $refreshToken)->first();
-        if (!$session) {
-            throw new HttpResponseException(response()->json(['message' => 'Não autenticado. Sessão não encontrada.'], response::HTTP_UNAUTHORIZED));
-        }
+        //$session = Session::where('user_id', $payload['sub'])->where('refresh_token', $refreshToken)->first();
+        //if (!$session) {
+        //    throw new HttpResponseException(response()->json(['message' => 'Não autenticado. Sessão não encontrada.'], response::HTTP_UNAUTHORIZED));
+        //}
         $this->subToken = $payload['sub'];
-        $this->validate($payload, $session);
+        $this->validate($payload);
     }
 
     private function decodePayload(string $jwt): array
@@ -52,23 +52,24 @@ class VerifyTimeRefresh
         }
         return $payload;
     }
-    private function validate(array $refreshToken, Session $session): void
+    private function validate(array $refreshToken): void
     {
-        
+        info($refreshToken['exp']);
+        info(now()->timestamp);
         if ($refreshToken['exp'] < now()->timestamp) {
             throw new HttpResponseException(
                 response()->json(['message' => 'Token expirado.'], Response::HTTP_UNAUTHORIZED)
             );
         }
-        if (
-            $session->ip_address !== request()->ip() ||
-            $session->user_agent !== request()->header('User-Agent', 'Desconhecido')
-        ) {
-            //$session->delete(); // invalida imediatamente
-            throw new HttpResponseException(
-                response()->json(['message' => 'Inconsistência na origem da requisição.'], Response::HTTP_UNAUTHORIZED)
-            );
-        }
+        // if (
+        //     $session->ip_address !== request()->ip() ||
+        //     $session->user_agent !== request()->header('User-Agent', 'Desconhecido')
+        // ) {
+        //     //$session->delete(); // invalida imediatamente
+        //     throw new HttpResponseException(
+        //         response()->json(['message' => 'Inconsistência na origem da requisição.'], Response::HTTP_UNAUTHORIZED)
+        //     );
+        // }
 
     }
 
