@@ -18,6 +18,13 @@ class Historys extends JsonResource
     {
 
         $imageEvidencias = $this->imgevidencias;
+
+        $items = $this->formatStories();
+
+        // se não tiver items, retorna array vazio
+        if (empty($items)) {
+            return [];
+        }
         return  [
             "authorImage" => $imageEvidencias,
             "coverImage" => $imageEvidencias,
@@ -26,7 +33,7 @@ class Historys extends JsonResource
             "coverName" => $this->nome,
             "commonName" => "",
             "link" => "javascript:void(0);",
-            'items' => $this->formatStories(),
+            'items' => $items,
             'type' => 'image'
         ];
     }
@@ -53,7 +60,7 @@ class Historys extends JsonResource
                     'button' => $button
                 ];
             } else {
-                
+
                 $stories[] = [
                     'type' => 'image',
                     'length' => 3,
@@ -90,7 +97,7 @@ class Historys extends JsonResource
     }
 
     private function formatImages(array $images): array
-    {   
+    {
 
         //dd($images);
         $formatted = [];
