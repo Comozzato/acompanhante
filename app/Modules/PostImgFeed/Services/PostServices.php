@@ -30,11 +30,9 @@ class PostServices
             if (!$dataRequest['post_id']) {
                 throw new \Exception('Post ID is required');
             }
-            if ($dataRequest['tipo'] === 'story') {
-                $expiraEm = now()->addHours(72);
-            }
+
             $fileType = $file ? $file->getClientMimeType() : null;
-        
+
             $imageMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
             $videoMimes = ['video/mp4', 'video/mkv', 'video/avi', 'video/mov'];
 
@@ -46,7 +44,13 @@ class PostServices
                 throw new \Exception("Tipo de arquivo não suportado: {$fileType}");
             }
 
-            Gate::forUser(auth_user())->allows('post-limit', $tipoMidia);
+            
+            if ($dataRequest['tipo'] === 'story') {
+                $expiraEm = now()->addHours(72);
+                Gate::forUser(auth_user())->allows('post-limit', $tipoMidia);
+            }
+
+
             $post = [
                 'user_id' => auth_user()->id,
                 'post' => $dataRequest['post'],
@@ -61,7 +65,6 @@ class PostServices
             if ($file) {
                 // Processa a imagem e aplica as marcas d'água
                 $paths = $this->treantment->processImageFeed($file);
-                
                 foreach ($paths as $path) {
                     Midia::create([
                         'feed_id' => $feed->id,
