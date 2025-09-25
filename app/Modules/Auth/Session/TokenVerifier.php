@@ -33,7 +33,7 @@ class TokenVerifier
         if ($payload['exp'] < now()->timestamp) {
             throw new HttpResponseException(response(['message' => 'Token expirado.'], Response::HTTP_UNAUTHORIZED));
         }
-        $this->verifySession($accessToken, $payload);
+        //$this->verifySession($accessToken, $payload);
         return $payload;
     }
 
@@ -70,25 +70,25 @@ class TokenVerifier
         }
     }
 
-    private function verifySession($accessToken, $payload): void
-    {
+    // private function verifySession($accessToken, $payload): void
+    // {
 
-        $chaveCache = 'session:' . $accessToken . ':' . $payload['sub'];
-        $session = Cache::store('file')->get($chaveCache);
-        if ($session) {
-            return;
-        }
+    //     $chaveCache = 'session:' . $accessToken . ':' . $payload['sub'];
+    //     $session = Cache::store('file')->get($chaveCache);
+    //     if ($session) {
+    //         return;
+    //     }
 
-        if (
-            !Session::where('user_id', $payload['sub'])
-                ->where('ip_address', '=', $payload['ip'])
-                ->where('user_agent', '=', $payload['user_agent'])
-                ->where('access_token', '=', $accessToken)
-                ->exists()
-        ) {
-            throw new HttpResponseException(response(['message' => 'Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
-        }
+    //     if (
+    //         !Session::where('user_id', $payload['sub'])
+    //             ->where('ip_address', '=', $payload['ip'])
+    //             ->where('user_agent', '=', $payload['user_agent'])
+    //             ->where('access_token', '=', $accessToken)
+    //             ->exists()
+    //     ) {
+    //         throw new HttpResponseException(response(['message' => 'Sessão não encontrada.'], Response::HTTP_UNAUTHORIZED));
+    //     }
 
-        Cache::store('file')->put($chaveCache, true, now()->addMinutes(10));
-    }
+    //     Cache::store('file')->put($chaveCache, true, now()->addMinutes(10));
+    // }
 }
