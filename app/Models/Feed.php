@@ -102,4 +102,9 @@ class Feed extends Model
                     ->orWhere('expires_at', '>', now());
             });
     }
+
+    public function scopePost($query)
+    {
+        return $query->where('tipo', 'post');
+    }
 }

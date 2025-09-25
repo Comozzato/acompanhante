@@ -138,12 +138,11 @@ class FeedController extends \App\Http\Controllers\Controller
         }
         $queryImagemClone = $query->clone();
         if ($tipo === 'video' || $tipo === 'geral') {
-            $postsVideos = $query->typeMidia('video')->get();
+            $postsVideos = $query->typeMidia('video')->aprovado()->post()->get();
             $video = FeedVideoResource::collection($postsVideos)->toArray(request());
         }
         if ($tipo === 'imagem' || $tipo === 'geral') {
-
-            $postsImagems = $queryImagemClone->typeMidia('imagem')->get();
+            $postsImagems = $queryImagemClone->typeMidia('imagem')->aprovado()->post()->get();
             $imagem = FeedImagemResource::collection($postsImagems)->toArray(request());
         }
             
