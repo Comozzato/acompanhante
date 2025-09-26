@@ -11,7 +11,7 @@ class ImageResizer
         $origWidth = imagesx($image);
         $origHeight = imagesy($image);
 
-        $scale = min($config->width / $origWidth, $config->height / $origHeight);
+        $scale = max($config->width / $origWidth, $config->height / $origHeight);
         $newWidth = intval($origWidth * $scale);
         $newHeight = intval($origHeight * $scale);
 
