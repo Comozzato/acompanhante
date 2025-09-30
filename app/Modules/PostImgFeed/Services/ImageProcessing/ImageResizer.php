@@ -6,7 +6,7 @@ use App\Modules\PostImgFeed\Services\ImageProcessing\Config\ImageResizeConfig;
 
 class ImageResizer
 {
-    public function resizeFillWithoutCrop($image, ImageResizeConfig $config)
+    public function resizeWithBlackBackground($image, ImageResizeConfig $config)
     {
         $origWidth = imagesx($image);
         $origHeight = imagesy($image);
