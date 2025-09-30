@@ -39,7 +39,7 @@ class ThumbNailPrimaryWaterMark implements ImageWatermark
             default => throw new \RuntimeException("Tipo de imagem não suportado: {$imageInfo['mime']}"),
         };
 
-        $resized = $this->resizer->resizeWithBlackBackground($image, new ImageResizeConfig(620, 930, true));
+        $resized = $this->resizer->resizeWithBlackBackground($image, new ImageResizeConfig(630, 950, true));
         imagedestroy($image);
 
      
