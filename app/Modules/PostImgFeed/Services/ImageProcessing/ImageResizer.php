@@ -11,38 +11,37 @@ class ImageResizer
         $origWidth = imagesx($image);
         $origHeight = imagesy($image);
 
-        // Escala proporcional: preenche largura ou altura SEM cortar
-        $scale = min($config->width / $origWidth, $config->height / $origHeight);
+        $scale = max($config->width / $origWidth, $config->height / $origHeight);
+        $newWidth = intval($origWidth * $scale);
+        $newHeight = intval($origHeight * $scale);
 
-        $newWidth = (int)($origWidth * $scale);
-        $newHeight = (int)($origHeight * $scale);
-
-        // Cria canvas exatamente no tamanho desejado
         $canvas = imagecreatetruecolor($config->width, $config->height);
+        // $black = imagecolorallocate($canvas, 0, 0, 0);
+        // imagefill($canvas, 0, 0, $black);
+        $dstX = intval(($config->width - $newWidth) / 2);
+        $dstY = intval(($config->height - $newHeight) / 2);
 
-        // Preserva transparência
-        imagealphablending($canvas, false);
+        imagecopyresampled($canvas, $image, $dstX, $dstY, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
+
+        return $canvas;
+    }
+
+    public function resizeFillWithoutCrop($image, ImageResizeConfig $config)
+    {
+        $origWidth = imagesx($image);
+        $origHeight = imagesy($image);
+
+        $scale = min($config->width / $origWidth, $config->height / $origHeight);
+        $newWidth = intval($origWidth * $scale);
+        $newHeight = intval($origHeight * $scale);
+
+        $canvas = imagecreatetruecolor($config->width, $config->height);
         imagesavealpha($canvas, true);
-        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-        imagefill($canvas, 0, 0, $transparent);
-
-        // Centraliza a imagem no canvas
-        $dstX = (int)(($config->width - $newWidth) / 2);
-        $dstY = (int)(($config->height - $newHeight) / 2);
-
-        imagecopyresampled(
-            $canvas,
-            $image,
-            $dstX,
-            $dstY,
-            0,
-            0,
-            $newWidth,
-            $newHeight,
-            $origWidth,
-            $origHeight
-        );
-
+        $transparency = imagecolorallocatealpha($canvas, 255, 255, 255, 127);
+        imagefill($canvas, 0, 0, $transparency);
+        $dstX = intval(($config->width - $newWidth) / 2);
+        $dstY = intval(($config->height - $newHeight) / 2);
+        imagecopyresampled($canvas, $image, $dstX, $dstY, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
         return $canvas;
     }
 }
