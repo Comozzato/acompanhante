@@ -40,18 +40,22 @@ class ThumbNailPrimaryWaterMark implements ImageWatermark
         };
 
         $resized = $this->resizer->resizeFillWithoutCrop($image, new ImageResizeConfig(630, 950, true));
-        imagedestroy($image);
 
-     
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovacolor24.png'), new PositionConfig(
+        $imgmctop = imagesx($resized) > imagesy($resized) ? public_path('watermarks/mctop24.png') : public_path('watermarks/mctomenorpmenor24.png');
+
+        $imgsel = imagesx($resized) > imagesy($resized) ? public_path('watermarks/wmnovamenor24.png') : public_path('watermarks/wmnovacolormenor24.png');
+
+        $urlwmsite = imagesx($resized) > imagesy($resized) ? public_path('watermarks/wmnovaurl24.png') : public_path('watermarks/wmnovaurmenorl24.png');
+
+        $this->applier->applyFromFile($resized, $imgsel, new PositionConfig(
             new PositionXConfig('center'),
             new PositionYConfig('middle')
         ));
-        $this->applier->applyFromFile($resized, public_path('watermarks/mctop24.png'), new PositionConfig(
+        $this->applier->applyFromFile($resized, $imgmctop, new PositionConfig(
             new PositionXConfig('left'),
             new PositionYConfig('top')
         ));
-        $this->applier->applyFromFile($resized, public_path('watermarks/wmnovaurl24.png'), new PositionConfig(
+        $this->applier->applyFromFile($resized, $urlwmsite, new PositionConfig(
             new PositionXConfig('center'),
             new PositionYConfig('bottom')
         ));
@@ -72,7 +76,6 @@ class ThumbNailPrimaryWaterMark implements ImageWatermark
 
         Storage::disk('s3')->put($relativePath, $content);
         imagedestroy($resized);
-
         return $relativePath;
     }
 }
