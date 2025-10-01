@@ -28,7 +28,7 @@ class ThumbNailPrimaryWaterMark implements ImageWatermark
     public function applyWatermark(UploadedFile $inputFile): string
     {
         $imageInfo = getimagesize($inputFile);
-      
+
         if (!$imageInfo) {
             throw new \RuntimeException("Não foi possível obter informações da imagem: {$inputFile}");
         }
@@ -41,12 +41,12 @@ class ThumbNailPrimaryWaterMark implements ImageWatermark
         };
 
         $resized = $this->resizer->resizeFillWithoutCrop($image, new ImageResizeConfig(630, 950, true));
-      
-        $imgmctop = imagesx($resized) > imagesy($resized) ? public_path('watermarks/mctop24.png') : public_path('watermarks/mctopmenor24.png');
 
-        $imgsel = imagesx($resized) > imagesy($resized) ? public_path('watermarks/wmnovacolor24.png') : public_path('watermarks/wmnovacolor24.png');
+        $imgmctop = imagesx($resized) > imagesy($resized) ?  public_path('watermarks/mctopmenor24.png') : public_path('watermarks/mctop24.png');
 
-        $urlwmsite = imagesx($resized) > imagesy($resized) ? public_path('watermarks/wmnovaurl24.png') : public_path('watermarks/wmnovaurlmenor24.png');
+        $imgsel = imagesx($resized) > imagesy($resized) ? public_path('watermarks/wmnovamenor24.png') : public_path('watermarks/wmnovacolor24.png');
+
+        $urlwmsite = imagesx($resized) > imagesy($resized) ? public_path('watermarks/wmnovaurlmenor24.png') :  public_path('watermarks/wmnovaurl24.png');
 
         $this->applier->applyFromFile($resized, $imgsel, new PositionConfig(
             new PositionXConfig('center'),
