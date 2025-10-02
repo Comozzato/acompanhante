@@ -28,11 +28,11 @@ return new class extends Migration
     {
         Schema::table('feed', function (Blueprint $table) {
             //
-            $table->string('titulo');
-            $table->string('tipo');
-            $table->string('midia_path_master');
-            $table->string('midia_path_thumbnail1');
-            $table->string('midia_path_thumbnail2');
+            $table->string('titulo')->nullable();
+            $table->string('tipo')->nullable();
+            $table->string('midia_path_master')->nullable();
+            $table->string('midia_path_thumbnail1')->nullable();
+            $table->string('midia_path_thumbnail2')->nullable();
         });
     }
 };
