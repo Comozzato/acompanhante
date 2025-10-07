@@ -74,8 +74,8 @@ class VideoWaterMark implements ImageWatermark
             ->addFilter(function ($filters) {
                 // 1. cortar até 60 segundos
                 $filters->clip(\FFMpeg\Coordinate\TimeCode::fromSeconds(0), \FFMpeg\Coordinate\TimeCode::fromSeconds(60));
-                // 2. redimensionar para no máximo 1920x1080
-                $filters->resize(new \FFMpeg\Coordinate\Dimension(1920, 1080), \FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET, true);
+                // 2. redimensionar para no máximo 1080x1920
+                //$filters->resize(new \FFMpeg\Coordinate\Dimension(1080, 1920), \FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET, true);
             })
             ->save($relativeOutputPath);
 
