@@ -53,7 +53,7 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth.jwt')->group(function () {
     Route::post('anuciante/midia/{id}', action: [AnuncianteController::class, 'postMidia']);
-    Route::get('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios']);
+    Route::get('anuciante/meus-anuncios', [AnuncianteController::class, 'getMyAnuncios'])->middleware('auth.jwt');
 });
 
 Route::post('get-imagem', [AnuncianteController::class, 'getImagemFeed']);
@@ -62,7 +62,7 @@ Route::post('anuciante/buscar-anuncios', [AnuncianteController::class, 'getAnunc
 
 //Api de Anunciante WordPress
 Route::get('anuciante/dados/{id}', [AnuncianteController::class, 'getDados'])->middleware('auth.jwt');
-Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados']);//->middleware('auth.jwt');
+Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados'])->middleware('auth.jwt');
 
 // API de Feed
 Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');

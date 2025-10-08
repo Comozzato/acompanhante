@@ -21,7 +21,6 @@ class AnuncianteController extends Controller
     public function getMyAnuncios()
     {
         $user = auth_user();
-
         return $this->service->getAnuncioCpf($user);
     }
     public function getAnuncioCpf(request $request)
@@ -35,7 +34,7 @@ class AnuncianteController extends Controller
         return $this->service->getAnuncioAdminCpf($cpf);
     }
 
-    
+
     public function getDados($id)
     {
         return $this->service->getDados($id);
