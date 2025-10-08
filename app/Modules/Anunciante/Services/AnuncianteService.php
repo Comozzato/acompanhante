@@ -25,7 +25,7 @@ class AnuncianteService
             return response()->json(['message' => 'CPF do usuário não encontrado'], 400);
         }
         $cpf = new CpfBehaviors($user->cpf, false);
-        info($cpf->getValue());
+       
         $postsApi = $this->api->getAnuncionsCpf($cpf);
         if (empty($postsApi)) {
             return [];
