@@ -23,7 +23,10 @@ class HistoryService
             ->get();
         //dd($feeds->toArray());
         return [
-            'circles' =>  Historys::collection($feeds)->toArray(request())
+            'circles' => array_filter(
+                Historys::collection($feeds)->toArray(request()),
+                fn($item) => !empty($item)
+            ),
         ];
     }
 }
