@@ -69,6 +69,7 @@ class AnuncianteService
                     'imgcapa' => $postData['imgcapa'],
                     'imgevidencias' => $postData['imgevidencias'],
                     'imgatualizadas' => $postData['imgatualizadas'],
+                    'url' => $postData['url'],
                 ]);
             } else {
                 // 4. Cria novo post se não existir
@@ -80,6 +81,7 @@ class AnuncianteService
                     'imgcapa' => $postData['imgcapa'],
                     'imgevidencias' => $postData['imgevidencias'],
                     'imgatualizadas' => $postData['imgatualizadas'],
+                    'url' => $postData['url'],
                 ]);
             }
         }

@@ -17,6 +17,7 @@ class Posts extends Model
         'imgatualizadas',
         'nome',
         'cidade',
+        'url',
     ];
 
     public $timestamps = false;

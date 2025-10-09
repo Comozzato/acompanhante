@@ -34,7 +34,8 @@ class Historys extends JsonResource
             "commonName" => "",
             "link" => "javascript:void(0);",
             'items' => $items,
-            'type' => 'image'
+            'type' => 'image',
+            'url' => $this->url,
         ];
     }
 
