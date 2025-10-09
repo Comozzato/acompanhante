@@ -35,7 +35,6 @@ class Historys extends JsonResource
             "link" => "javascript:void(0);",
             'items' => $items,
             'type' => 'image',
-            'url' => $this->url,
         ];
     }
 
@@ -43,7 +42,7 @@ class Historys extends JsonResource
     {
         $stories = [];
         $button = json_decode('{
-            "link": "javascript:false(0);",
+            "link": "' . ($this->url ?? 'javascript:void(0);') . '",
             "linkText": "' . $this->nome . '",
             "target": "_self"
         }');
