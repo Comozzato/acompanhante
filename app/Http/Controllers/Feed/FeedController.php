@@ -35,8 +35,8 @@ class FeedController extends \App\Http\Controllers\Controller
     public function index(Request $request)
     {
         // $user = $request->user(); // usuário autenticado, se houver
-        $query = Feed::query()->with(['anunciante', 'midia', 'post' => function ($q) {
-            $q->select('id', 'nome', 'cidade');
+        $query = Feed::query()->with(['anunciante', 'midia', 'posts_info' => function ($q) {
+            $q->select('id', 'nome', 'cidade', 'url');
         }]);
         // Ordenar por mais recente
         $query->where('publish', 'Pendente');
