@@ -13,9 +13,10 @@ return function () {
         }
     });
 
-    Gate::define('post-limit', function ($user, string $tipoMidia) {
+    Gate::define('post-limit', function ($user, string $tipoMidia, string $postId) {
 
         $countToday = Feed::where('user_id', $user->id)
+            ->where('post_id', $postId)
             ->where('tipo_arquivo', $tipoMidia)
             ->whereDate('created_at', now()->toDateString())
             ->count();
