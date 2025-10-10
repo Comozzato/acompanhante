@@ -35,7 +35,9 @@ class FeedController extends \App\Http\Controllers\Controller
     public function index(Request $request)
     {
         // $user = $request->user(); // usuário autenticado, se houver
-        $query = Feed::query()->with(['anunciante', 'midia']);
+        $query = Feed::query()->with(['anunciante', 'midia', 'post' => function ($q) {
+            $q->select('id', 'nome', 'cidade');
+        }]);
         // Ordenar por mais recente
         $query->where('publish', 'Pendente');
         $query->orderByDesc('publicado_em');
@@ -145,9 +147,9 @@ class FeedController extends \App\Http\Controllers\Controller
             $postsImagems = $queryImagemClone->typeMidia('imagem')->aprovado()->post()->get();
             $imagem = FeedImagemResource::collection($postsImagems)->toArray(request());
         }
-            
+
         return array_merge($video, $imagem);
-    }   
+    }
 
 
     public function deleteFeed($id)
