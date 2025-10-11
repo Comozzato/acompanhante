@@ -45,7 +45,7 @@ class PostServices
             }
 
             if ($dataRequest['tipo'] === 'story') {
-                $expiraEm = now()->addHours(72);
+                $expiraEm = now()->addHours(168); // 7 dias
                 Gate::forUser(auth_user())->allows('post-limit', [$tipoMidia, $dataRequest['post_id']]);
             }
 
