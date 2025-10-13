@@ -27,23 +27,23 @@ class VideoWaterMark implements ImageWatermark
     public function applyWatermark(UploadedFile $uploadedFile): string
     {
         // Caminho temporário para o upload
-        try {
-            [$relativeInputPath, $absoluteInputPath] = $this->salvarUploadTemporario($uploadedFile);
-            // Caminho da imagem
-            $relativeOutputPath = auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
 
-            // Processar vídeo com FFMpeg
-            if (!Storage::disk('local')->exists($relativeInputPath)) {
-                throw new \Exception("Arquivo não encontrado: $relativeInputPath");
-            }
-            $watermarkPath = public_path('watermarks/wmnovacolor24.png');
-            if (!file_exists($watermarkPath)) {
-                throw new \Exception("Arquivo de marca d'água não encontrado: $watermarkPath");
-            }
-            $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
-        } finally {
-            Storage::disk('local')->exists($absoluteInputPath) && unlink($absoluteInputPath);
+        [$relativeInputPath, $absoluteInputPath] = $this->salvarUploadTemporario($uploadedFile);
+        // Caminho da imagem
+        $relativeOutputPath = auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
+
+        // Processar vídeo com FFMpeg
+        if (!Storage::disk('local')->exists($relativeInputPath)) {
+            throw new \Exception("Arquivo não encontrado: $relativeInputPath");
         }
+        $watermarkPath = public_path('watermarks/wmnovacolor24.png');
+        if (!file_exists($watermarkPath)) {
+            throw new \Exception("Arquivo de marca d'água não encontrado: $watermarkPath");
+        }
+        $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
+
+        Storage::disk('local')->exists($absoluteInputPath) && unlink($absoluteInputPath);
+
         return $paths;
     }
 
