@@ -7,6 +7,7 @@ use Exception;
 use FFMpeg\FFProbe;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class Historys extends JsonResource
@@ -54,7 +55,7 @@ class Historys extends JsonResource
 
             $file = $feed->midia;
             if ($this->isVideo($file)) {
-                $Video = $this->isVideo($file, true);
+                $Video = $this->isVideo($file, true, $feed->id);
                 $duration = $Video['duration'] < 30 ? $Video['duration'] : 30;
                 $stories[] = [
                     'type' => 'video',
@@ -79,7 +80,7 @@ class Historys extends JsonResource
     }
 
 
-    private function isVideo($filename, $getFileName = false)
+    private function isVideo($filename, $getFileName = false, $videoId = null)
     {
         foreach ($filename as $file) {
             $filename = $file['midia'];
@@ -90,8 +91,8 @@ class Historys extends JsonResource
                     Storage::disk('s3')->setVisibility($filename, 'public');
                     $url = S3ImageGalleryService::getImage($filename);
 
-                    $metadata = $this->getVideoMetadata($filename);
-                    return ['url' => $url, 'duration' => $metadata['duration']];
+                    $metadata = $this->getVideoMetadata($filename, $videoId);
+                    return ['url' => $url, 'duration' => (int) $metadata['duration']];
                 }
                 return true;
             }
@@ -124,7 +125,7 @@ class Historys extends JsonResource
         return $formatted;
     }
 
-    private function getVideoMetadata($path)
+    function getVideoMetadata($path, $videoId)
     {
         $ffprobe = FFProbe::create([
             'ffprobe.binaries' => env('FFPROBE_BINARIES'),
@@ -132,44 +133,39 @@ class Historys extends JsonResource
             'ffmpeg.threads' => 12,
         ]);
 
-        // Baixa temporariamente se for S3
-        $tempDir = storage_path('app/private/temp');
 
-        if (!file_exists($tempDir)) {
-            mkdir($tempDir, 0755, true);
-        }
+        return Cache::rememberForever("video_meta_{$videoId}", function () use ($path, $ffprobe) {
+            try {
+                // 1️⃣ Tenta usar URL temporária (mais rápido)
+                $url = Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(5));
 
-        if (Storage::disk('s3')->exists($path)) {
-            $temp = $tempDir . '/' . basename($path);  // 👈 Use barra normal
-            $content = Storage::disk('s3')->get($path);
+                $format = $ffprobe->format($url);
+                $stream = $ffprobe->streams($url)->videos()->first();
+            } catch (Exception $e) {
+                // 2️⃣ Se falhar (ex: servidor não suporta byte-range), baixa localmente
+                $tempDir = storage_path('app/private/temp');
+                if (!file_exists($tempDir)) mkdir($tempDir, 0755, true);
 
-            if (!$content || strlen($content) === 0) {
-                throw new Exception("Arquivo vazio ou não encontrado no S3: $path");
+                $temp = $tempDir . '/' . basename($path);
+
+                $streamFile = Storage::disk('s3')->readStream($path);
+                file_put_contents($temp, stream_get_contents($streamFile));
+                fclose($streamFile);
+
+                $format = $ffprobe->format($temp);
+                $stream = $ffprobe->streams($temp)->videos()->first();
+
+                unlink($temp); // limpa o arquivo local temporário
             }
-            
-            file_put_contents($temp, $content);
-            $path = $temp;
-        }
 
-        try {
-            $format = $ffprobe->format($path);
-            $stream = $ffprobe->streams($path)->videos()->first();
-        } finally {
-            // Remove o arquivo temporário se existir
-            if (isset($temp) && file_exists($temp)) {
-                unlink($temp);
-            }
-        }
-
-        return [
-            'duration' => (float) $format->get('duration'),
-            'bitrate' => (int) $format->get('bit_rate'),
-            'codec' => $stream?->get('codec_name'),
-            'width' => $stream?->get('width'),
-            'height' => $stream?->get('height'),
-            'fps' => $stream?->get('avg_frame_rate'),
-            'rotation' => $stream?->get('tags')['rotate'] ?? 0,
-            'format_name' => $format->get('format_name'),
-        ];
+            return [
+                'duration' => $format->get('duration'),
+                'bitrate' => $format->get('bit_rate'),
+                'codec' => $stream?->get('codec_name'),
+                'width' => $stream?->get('width'),
+                'height' => $stream?->get('height'),
+                'size' => $format->get('size'),
+            ];
+        });
     }
 }
