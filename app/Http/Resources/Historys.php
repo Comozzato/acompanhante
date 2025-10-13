@@ -92,7 +92,7 @@ class Historys extends JsonResource
                     $url = S3ImageGalleryService::getImage($filename);
 
                     $metadata = $this->getVideoMetadata($filename, $videoId);
-                    return ['url' => $url, 'duration' => (int) $metadata['duration']];
+                    return ['url' => $url, 'duration' => $metadata['duration']];
                 }
                 return true;
             }
@@ -143,10 +143,10 @@ class Historys extends JsonResource
                 $stream = $ffprobe->streams($url)->videos()->first();
             } catch (Exception $e) {
                 // 2️⃣ Se falhar (ex: servidor não suporta byte-range), baixa localmente
-                $tempDir = storage_path('app/private/temp');
+                $tempDir = storage_path('app\\private\\temp');
                 if (!file_exists($tempDir)) mkdir($tempDir, 0755, true);
 
-                $temp = $tempDir . '/' . basename($path);
+                $temp = $tempDir . '\\' . basename($path);
 
                 $streamFile = Storage::disk('s3')->readStream($path);
                 file_put_contents($temp, stream_get_contents($streamFile));
@@ -159,7 +159,7 @@ class Historys extends JsonResource
             }
 
             return [
-                'duration' => $format->get('duration'),
+                'duration' => (int) $format->get('duration'),
                 'bitrate' => $format->get('bit_rate'),
                 'codec' => $stream?->get('codec_name'),
                 'width' => $stream?->get('width'),
