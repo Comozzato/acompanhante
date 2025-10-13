@@ -124,7 +124,7 @@ class VideoWaterMark implements ImageWatermark
         $ffprobe = FFProbe::create([
             'ffprobe.binaries' => env('FFPROBE_BINARIES'),
             'timeout'          => 3600,
-            'ffmpeg.threads'   => 12,
+            'ffmpeg.threads'   => 1,
         ]);
         $dimensions = $ffprobe->streams(storage_path('app/private/' . $relativeInputPath))->videos()->first()->getDimensions();
         $vwidth = $dimensions->getWidth();
