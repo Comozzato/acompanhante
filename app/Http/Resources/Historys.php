@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\S3ImageGalleryService;
+use Exception;
 use FFMpeg\FFProbe;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -140,10 +141,16 @@ class Historys extends JsonResource
 
         if (Storage::disk('s3')->exists($path)) {
             $temp = $tempDir . '/' . basename($path);  // 👈 Use barra normal
-            file_put_contents($temp, Storage::disk('s3')->get($path));
+            $content = Storage::disk('s3')->get($path);
+
+            if (!$content || strlen($content) === 0) {
+                throw new Exception("Arquivo vazio ou não encontrado no S3: $path");
+            }
+            
+            file_put_contents($temp, $content);
             $path = $temp;
         }
-        
+
         try {
             $format = $ffprobe->format($path);
             $stream = $ffprobe->streams($path)->videos()->first();
