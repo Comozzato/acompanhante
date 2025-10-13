@@ -135,10 +135,10 @@ class Historys extends JsonResource
 
 
         return Cache::rememberForever("video_meta_{$videoId}", function () use ($path, $ffprobe) {
-            try {
-                // 1️⃣ Tenta usar URL temporária (mais rápido)
-                $url = Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(5));
 
+            // 1️⃣ Tenta acessar diretamente (ex: servidor suporta byte-range)
+            $url = "https://s3.us-east-1.amazonaws.com/media.musaclass.com.br/" . $path;
+            try {
                 $format = $ffprobe->format($url);
                 $stream = $ffprobe->streams($url)->videos()->first();
             } catch (Exception $e) {
@@ -147,17 +147,15 @@ class Historys extends JsonResource
                 if (!file_exists($tempDir)) mkdir($tempDir, 0755, true);
 
                 $temp = $tempDir . '\\' . basename($path);
-                $streamFile = Storage::disk('s3')->readStream($path);
-                if( $streamFile === false ) {
+             
+                $streamFile = Storage::disk('s3')->readStream($url);
+                if ($streamFile === false) {
                     throw new Exception("Não foi possível ler o arquivo de mídia.");
                 }
-                
                 file_put_contents($temp, stream_get_contents($streamFile));
                 fclose($streamFile);
-
                 $format = $ffprobe->format($temp);
                 $stream = $ffprobe->streams($temp)->videos()->first();
-
                 unlink($temp); // limpa o arquivo local temporário
             }
 
