@@ -132,18 +132,24 @@ class Historys extends JsonResource
         ]);
 
         // Baixa temporariamente se for S3
-        if (!file_exists(storage_path('app/private/temp'))) {
-            mkdir(storage_path('app/private/temp'), 0755, true);
+        if (!file_exists(storage_path('app\\private\\tmp'))) {
+            mkdir(storage_path('app\\private\\tmp'), 0755, true);
         }
-        
+
         if (Storage::disk('s3')->exists($path)) {
-            $temp = storage_path('app/private/temp/' . basename($path));
+            $temp = storage_path('app\\private\\tmp\\' . basename($path));
             file_put_contents($temp, Storage::disk('s3')->get($path));
             $path = $temp;
         }
-
-        $format = $ffprobe->format($path);
-        $stream = $ffprobe->streams($path)->videos()->first();
+        try {
+            $format = $ffprobe->format($path);
+            $stream = $ffprobe->streams($path)->videos()->first();
+        } finally {
+            // Remove o arquivo temporário se existir
+            if (isset($temp) && file_exists($temp)) {
+                unlink($temp);
+            }
+        }
 
         return [
             'duration' => (float) $format->get('duration'),
