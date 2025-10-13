@@ -147,8 +147,11 @@ class Historys extends JsonResource
                 if (!file_exists($tempDir)) mkdir($tempDir, 0755, true);
 
                 $temp = $tempDir . '\\' . basename($path);
-
                 $streamFile = Storage::disk('s3')->readStream($path);
+                if( $streamFile === false ) {
+                    throw new Exception("Não foi possível ler o arquivo de mídia.");
+                }
+                
                 file_put_contents($temp, stream_get_contents($streamFile));
                 fclose($streamFile);
 
