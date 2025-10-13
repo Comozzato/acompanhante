@@ -15,6 +15,7 @@ class Posts extends Model
         'imgcapa',
         'imgevidencias',
         'imgatualizadas',
+        'status',
         'nome',
         'cidade',
         'url',
@@ -43,5 +44,10 @@ class Posts extends Model
             return $query->where('cidade', $city);
         }
         return $query;
+    }
+
+    public function scopePublish($query)
+    {
+        return $query->where('status', 'Publicado');
     }
 }

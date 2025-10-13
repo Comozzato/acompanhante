@@ -34,7 +34,7 @@ class PostServices
             $fileType = $file ? $file->getClientMimeType() : null;
 
             $imageMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-            $videoMimes = ['video/mp4', 'video/mkv', 'video/avi', 'video/mov'];
+            $videoMimes = ['video/mp4', 'video/mkv', 'video/avi', 'video/mov','video/quicktime'];
 
             if (in_array($fileType, $imageMimes)) {
                 $tipoMidia = 'imagem';

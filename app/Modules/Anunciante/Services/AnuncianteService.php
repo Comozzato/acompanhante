@@ -25,11 +25,12 @@ class AnuncianteService
             return response()->json(['message' => 'CPF do usuário não encontrado'], 400);
         }
         $cpf = new CpfBehaviors($user->cpf, false);
-       
+
         $postsApi = $this->api->getAnuncionsCpf($cpf);
         if (empty($postsApi)) {
             return [];
         }
+        info($postsApi);
         $this->sincronizarAnunciosPorCpf($postsApi, $user);
         return Anuncios::collection($postsApi);
     }
@@ -50,10 +51,11 @@ class AnuncianteService
 
     public function postDados($id, array $dados)
     {
+
         return $this->api->postAnuncioDados($id, $dados);
     }
 
-    public function sincronizarAnunciosPorCpf($postsApi, $user)
+    private function sincronizarAnunciosPorCpf($postsApi, $user)
     {
         $user_id = $user->id;
         foreach ($postsApi as $postData) {
@@ -69,6 +71,7 @@ class AnuncianteService
                     'imgcapa' => $postData['imgcapa'],
                     'imgevidencias' => $postData['imgevidencias'],
                     'imgatualizadas' => $postData['imgatualizadas'],
+                    'status' => $postData['status'],
                     'url' => $postData['url'],
                 ]);
             } else {
@@ -81,9 +84,17 @@ class AnuncianteService
                     'imgcapa' => $postData['imgcapa'],
                     'imgevidencias' => $postData['imgevidencias'],
                     'imgatualizadas' => $postData['imgatualizadas'],
+                    'status' => $postData['status'],
                     'url' => $postData['url'],
                 ]);
             }
         }
+    }
+
+
+    public function atualizarPublicacoesAnunciantes($user)
+    {
+        $postsApi = $this->api->getAnuncionsCpf(new CpfBehaviors($user->cpf, false));
+        $this->sincronizarAnunciosPorCpf($postsApi, $user);
     }
 }

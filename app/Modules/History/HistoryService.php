@@ -19,9 +19,10 @@ class HistoryService
     {
         $feeds = $this->posts
             ->with('feeds.midia')
+            ->publish()
             ->city(request()->query('city'))
             ->get();
-        //dd($feeds->toArray());
+        
         return [
             'circles' => array_values(array_filter(
                 Historys::collection($feeds)->toArray(request()),

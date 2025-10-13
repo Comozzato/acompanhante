@@ -128,8 +128,7 @@ class Historys extends JsonResource
     }
 
     function getVideoMetadata($url, $videoId)
-    {
-        
+    {  
         return Cache::rememberForever($videoId, function () use ($url) {
             $endpoint = urlencode($url);
             $url = "https://api.shotstack.io/v1/probe/{$endpoint}";
