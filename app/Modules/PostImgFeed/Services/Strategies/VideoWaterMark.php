@@ -40,7 +40,7 @@ class VideoWaterMark implements ImageWatermark
             throw new \Exception("Arquivo de marca d'água não encontrado: $watermarkPath");
         }
         $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
-        Storage::disk('local')->exists($absoluteInputPath) && unlink($absoluteInputPath);
+        unlink($absoluteInputPath); // remove o arquivo temporário
         return $paths;
     }
 
