@@ -62,7 +62,12 @@ class MasterImageWaterMark implements ImageWatermark
         }
 
         Storage::disk('s3')->put($relativePath, $content);
+        unset($content); // opcional, apenas se for imagem grande
+
         imagedestroy($resized);
+        if (!Storage::disk('s3')->exists($relativePath)) {
+            throw new \RuntimeException("Falha ao salvar arquivo: {$relativePath}");
+        }
         return $relativePath;
     }
 }
