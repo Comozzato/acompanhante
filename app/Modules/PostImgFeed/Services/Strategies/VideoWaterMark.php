@@ -63,6 +63,8 @@ class VideoWaterMark implements ImageWatermark
         $format = new X264('copy', 'libx264'); // mantém áudio original
         $format->setKiloBitrate(16000) // 0 para deixar CRF controlar a qualidade
             ->setAdditionalParameters([
+                '-threads',
+                '2',   // limita a 2 threads
                 '-preset',
                 'slow', // compressão eficiente
                 '-crf',
