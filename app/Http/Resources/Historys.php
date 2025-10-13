@@ -90,8 +90,8 @@ class Historys extends JsonResource
                     Storage::disk('s3')->setVisibility($filename, 'public');
                     $url = S3ImageGalleryService::getImage($filename);
 
-                    $metadata = $this->getVideoMetadata($filename);
-                    return ['url' => $url, 'duration' => $metadata['duration']];
+                    // $metadata = $this->getVideoMetadata($filename);
+                    return ['url' => $url, 'duration' => 6];//$metadata['duration']];
                 }
                 return true;
             }
@@ -138,7 +138,7 @@ class Historys extends JsonResource
         if (!file_exists($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
-
+        
         if (Storage::disk('s3')->exists($path)) {
             $temp = $tempDir . '/' . basename($path);  // 👈 Use barra normal
             $content = Storage::disk('s3')->get($path);
@@ -146,7 +146,7 @@ class Historys extends JsonResource
             if (!$content || strlen($content) === 0) {
                 throw new Exception("Arquivo vazio ou não encontrado no S3: $path");
             }
-            
+
             file_put_contents($temp, $content);
             $path = $temp;
         }
