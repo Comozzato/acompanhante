@@ -61,7 +61,7 @@ class VideoWaterMark implements ImageWatermark
         $video = FFMpeg::fromDisk('local')->open($relativeInputPath);
         $video = $this->waterMark($video, $relativeInputPath);
         $format = new X264('copy', 'libx264'); // mantém áudio original
-        $format->setKiloBitrate(0) // 0 para deixar CRF controlar a qualidade
+        $format->setKiloBitrate(16000) // 0 para deixar CRF controlar a qualidade
             ->setAdditionalParameters([
                 '-preset',
                 'slow', // compressão eficiente
