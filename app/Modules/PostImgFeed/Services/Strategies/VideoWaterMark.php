@@ -6,16 +6,15 @@ namespace App\Modules\PostImgFeed\Services\Strategies;
 
 use App\Enums\ImagemFeed;
 use App\Modules\PostImgFeed\Contracts\ImageWatermark;
-use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\FFProbe;
 use FFMpeg\Format\Video\X264;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
+use FFMpeg\FFMpeg;  // <- esta é a classe da lib PHP-FFMpeg pura
+use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg as LaravelFFMpeg;
 use ProtoneMedia\LaravelFFMpeg\Filters\WatermarkFactory;
 use ProtoneMedia\LaravelFFMpeg\MediaOpener;
-use Intervention\Image\Facades\Image;
+
 
 class VideoWaterMark implements ImageWatermark
 {
@@ -58,14 +57,14 @@ class VideoWaterMark implements ImageWatermark
 
     private function criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath): string
     {
-        $ffmpeg = \ProtoneMedia\LaravelFFMpeg\Support\FFMpeg::create([
+        $ffmpeg = FFMpeg::create([
             'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
             'ffprobe.binaries' => env('FFPROBE_BINARIES'),
             'timeout'          => 3600,
             'ffmpeg.threads'   => 2, // força 2 threads em todas as execuções
         ]);
         // Abre o vídeo
-        $video = $ffmpeg->fromDisk('local')->open($relativeInputPath);
+        $video = LaravelFFMpeg::fromDisk('local', $ffmpeg)->open($relativeInputPath);
         $video = $this->waterMark($video, $relativeInputPath);
         $format = new X264('copy', 'libx264'); // mantém áudio original
         $format->setKiloBitrate(16000) // 0 para deixar CRF controlar a qualidade
