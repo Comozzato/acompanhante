@@ -42,7 +42,7 @@ class VideoWaterMark implements ImageWatermark
         }
         $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
 
-        Storage::disk('local')->exists($absoluteInputPath) && unlink($absoluteInputPath);
+        unlink($absoluteInputPath);
 
         return $paths;
     }
@@ -58,13 +58,18 @@ class VideoWaterMark implements ImageWatermark
 
     private function criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath): string
     {
-        $video = FFMpeg::fromDisk('local')->open($relativeInputPath);
+        $ffmpeg = \ProtoneMedia\LaravelFFMpeg\Support\FFMpeg::create([
+            'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
+            'ffprobe.binaries' => env('FFPROBE_BINARIES'),
+            'timeout'          => 3600,
+            'ffmpeg.threads'   => 2, // força 2 threads em todas as execuções
+        ]);
+        // Abre o vídeo
+        $video = $ffmpeg->fromDisk('local')->open($relativeInputPath);
         $video = $this->waterMark($video, $relativeInputPath);
         $format = new X264('copy', 'libx264'); // mantém áudio original
         $format->setKiloBitrate(16000) // 0 para deixar CRF controlar a qualidade
             ->setAdditionalParameters([
-                '-threads',
-                '2',   // limita a 2 threads
                 '-preset',
                 'slow', // compressão eficiente
                 '-crf',
