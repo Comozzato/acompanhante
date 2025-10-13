@@ -132,12 +132,14 @@ class Historys extends JsonResource
         ]);
 
         // Baixa temporariamente se for S3
+        if (!file_exists(storage_path('app/private/temp'))) {
+            mkdir(storage_path('app/private/temp'), 0755, true);
+        }
+        
         if (Storage::disk('s3')->exists($path)) {
-            $temp = tempnam(sys_get_temp_dir(), 'video_');
+            $temp = storage_path('app/private/temp/' . basename($path));
             file_put_contents($temp, Storage::disk('s3')->get($path));
             $path = $temp;
-        } else {
-            $path = storage_path('app/' . $path);
         }
 
         $format = $ffprobe->format($path);
