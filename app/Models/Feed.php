@@ -90,6 +90,12 @@ class Feed extends Model
     {
         return $this->belongsTo(Posts::class, 'post_id');
     }
+        
+    public function posts_info()
+    {
+        return $this->belongsTo(Posts::class, 'post_id');
+    }
+        
     public function scopeAprovado($query)
     {
         return $query->where('publish', 'Aprovado');

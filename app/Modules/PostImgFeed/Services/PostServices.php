@@ -44,12 +44,10 @@ class PostServices
                 throw new \Exception("Tipo de arquivo não suportado: {$fileType}");
             }
 
-            
             if ($dataRequest['tipo'] === 'story') {
-                $expiraEm = now()->addHours(72);
-                Gate::forUser(auth_user())->allows('post-limit', $tipoMidia);
+                $expiraEm = now()->addHours(168); // 7 dias
+                Gate::forUser(auth_user())->allows('post-limit', [$tipoMidia, $dataRequest['post_id']]);
             }
-
 
             $post = [
                 'user_id' => auth_user()->id,

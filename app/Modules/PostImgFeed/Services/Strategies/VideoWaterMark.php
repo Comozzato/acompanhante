@@ -126,10 +126,16 @@ class VideoWaterMark implements ImageWatermark
         $dimensions = $ffprobe->streams(storage_path('app/private/' . $relativeInputPath))->videos()->first()->getDimensions();
         $vwidth = $dimensions->getWidth();
         $vheight = $dimensions->getHeight();
+        // array de larguras disponíveis
         $warr = [240, 426, 480, 640, 720, 854, 1080, 1280, 1920];
+
+        // Encontrar a largura mais próxima que não exceda a largura do vídeo caso a largura do vídeo seja menor que a maior largura disponível
         if (!in_array($vwidth, $warr)) {
-            throw new HttpResponseException(response()->json(['message' => "Resolução não suportada: $vwidth"], 400));
+            $filtered = array_filter($warr, fn($w) => $w <= $vwidth);
+            $vwidth = !empty($filtered) ? max($filtered) : min($warr);
         }
+
+        // Caminho da marca d'água baseada na largura do vídeo
         $wmf_path = $camtn . $vwidth . '.png';
         $wmurl_path = $camtn . 'www' . $vwidth . '.png';
 

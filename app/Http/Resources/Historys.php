@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\S3ImageGalleryService;
+use FFMpeg\FFProbe;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -34,7 +35,7 @@ class Historys extends JsonResource
             "commonName" => "",
             "link" => "javascript:void(0);",
             'items' => $items,
-            'type' => 'image'
+            'type' => 'image',
         ];
     }
 
@@ -42,7 +43,7 @@ class Historys extends JsonResource
     {
         $stories = [];
         $button = json_decode('{
-            "link": "javascript:false(0);",
+            "link": "' . ($this->url ?? 'javascript:void(0);') . '",
             "linkText": "' . $this->nome . '",
             "target": "_self"
         }');
@@ -52,10 +53,12 @@ class Historys extends JsonResource
 
             $file = $feed->midia;
             if ($this->isVideo($file)) {
+                $Video = $this->isVideo($file, true);
+                $duration = $Video['duration'] < 30 ? $Video['duration'] : 30;
                 $stories[] = [
                     'type' => 'video',
-                    "length" => 14,
-                    'src'  => $this->isVideo($file, true),
+                    "length" => $duration,
+                    'src'  => $Video['url'],
                     'publicado_em' => $feed->publicado_em,
                     'button' => $button
                 ];
@@ -80,12 +83,20 @@ class Historys extends JsonResource
         foreach ($filename as $file) {
             $filename = $file['midia'];
             $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-            if ($getFileName) {
-                Storage::disk('s3')->setVisibility($filename, 'public');
-                return S3ImageGalleryService::getImage($filename);
+
+            if (in_array($ext, ['mp4', 'avi', 'mov'])) {
+                if ($getFileName) {
+                    Storage::disk('s3')->setVisibility($filename, 'public');
+                    $url = S3ImageGalleryService::getImage($filename);
+
+                    $metadata = $this->getVideoMetadata($filename);
+                    return ['url' => $url, 'duration' => $metadata['duration']];
+                }
+                return true;
             }
-            return in_array($ext, ['mp4', 'avi', 'mov']);
         }
+
+        return false;
     }
 
     private function getImageType($filename)
@@ -110,5 +121,37 @@ class Historys extends JsonResource
         }
 
         return $formatted;
+    }
+
+    private function getVideoMetadata($path)
+    {
+        $ffprobe = FFProbe::create([
+            'ffprobe.binaries' => env('FFPROBE_BINARIES'),
+            'timeout' => 3600,
+            'ffmpeg.threads' => 12,
+        ]);
+
+        // Baixa temporariamente se for S3
+        if (Storage::disk('s3')->exists($path)) {
+            $temp = tempnam(sys_get_temp_dir(), 'video_');
+            file_put_contents($temp, Storage::disk('s3')->get($path));
+            $path = $temp;
+        } else {
+            $path = storage_path('app/' . $path);
+        }
+
+        $format = $ffprobe->format($path);
+        $stream = $ffprobe->streams($path)->videos()->first();
+
+        return [
+            'duration' => (float) $format->get('duration'),
+            'bitrate' => (int) $format->get('bit_rate'),
+            'codec' => $stream?->get('codec_name'),
+            'width' => $stream?->get('width'),
+            'height' => $stream?->get('height'),
+            'fps' => $stream?->get('avg_frame_rate'),
+            'rotation' => $stream?->get('tags')['rotate'] ?? 0,
+            'format_name' => $format->get('format_name'),
+        ];
     }
 }
