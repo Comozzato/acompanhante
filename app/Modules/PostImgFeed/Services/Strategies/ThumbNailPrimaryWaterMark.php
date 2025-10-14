@@ -40,6 +40,23 @@ class ThumbNailPrimaryWaterMark implements ImageWatermark
             default => throw new \RuntimeException("Tipo de imagem não suportado: {$imageInfo['mime']}"),
         };
 
+
+        if ($imageInfo['mime'] === 'image/jpeg' && function_exists('exif_read_data')) {
+            $exif = @exif_read_data($inputFile);
+            if (!empty($exif['Orientation'])) {
+                switch ($exif['Orientation']) {
+                    case 3:
+                        $image = imagerotate($image, 180, 0);
+                        break;
+                    case 6:
+                        $image = imagerotate($image, -90, 0);
+                        break;
+                    case 8:
+                        $image = imagerotate($image, 90, 0);
+                        break;
+                }
+            }
+        }
         $resized = $this->resizer->resizeFillWithoutCrop($image, new ImageResizeConfig(630, 950, true));
 
         $imgmctop = imagesx($resized) > imagesy($resized) ?  public_path('watermarks/mctopmenor24.png') : public_path('watermarks/mctop24.png');
