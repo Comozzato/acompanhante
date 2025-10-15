@@ -19,7 +19,8 @@ class HistorysController extends \App\Http\Controllers\Controller
         $historys = Cache::get('historys_feed');
         if (!$historys) {
             $historys = $this->service->getHistorys();
-            Cache::put('historys_feed', $historys);
+            Cache::put('historys_feed', $historys, 60 * 60); // Cache por 1 hora
+            logger('✅ Cache de historys criado.');
         }
 
         return response()->json($historys);

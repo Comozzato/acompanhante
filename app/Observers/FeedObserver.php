@@ -17,13 +17,13 @@ class FeedObserver
             $this->refreshHistoryCache();
         }
     }
-
+  
     protected function refreshHistoryCache()
     {
         // Exemplo: limpar o cache
         $service = app(HistoryService::class);
         Cache::forget('historys_feed');
-        Cache::put('historys_feed', $service->getHistorys());
+        Cache::put('historys_feed', $service->getHistorys(), 60 * 60); // Cache por 1 hora
         logger('✅ Cache de historys atualizado após aprovação de feed.');
     }
 }
