@@ -15,11 +15,13 @@ class HistorysController extends \App\Http\Controllers\Controller
 
 
     public function index()
-    {
-        $historys = Cache::get('historys_feed');
+    {   
+
+        $city = request()->query('city');
+        $historys = Cache::get('historys_feed_' . $city);
         if (!$historys) {
             $historys = $this->service->getHistorys();
-            Cache::put('historys_feed', $historys, 60 * 60); // Cache por 1 hora
+            Cache::put('historys_feed_' . $city, $historys, 60 * 60); // Cache por 1 hora
             logger('✅ Cache de historys criado.');
         }
 

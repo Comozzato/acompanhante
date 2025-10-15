@@ -22,6 +22,7 @@ class HistoryService
             ->get();
         
         return [
+            
             'circles' => array_values(array_filter(
                 Historys::collection($feeds)->toArray(request()),
                 fn($item) => !empty($item)
