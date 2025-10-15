@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Feed extends Model
@@ -90,23 +91,22 @@ class Feed extends Model
     {
         return $this->belongsTo(Posts::class, 'post_id');
     }
-        
+
     public function posts_info()
     {
         return $this->belongsTo(Posts::class, 'post_id');
     }
-        
+
     public function scopeAprovado($query)
     {
         return $query->where('publish', 'Aprovado');
     }
     public function scopeStory($query)
     {
-        return $query->where('tipo', 'story')
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            });
+        return $query->where(function ($q) {
+            $q->whereNotNull('expires_at')
+                ->where('expires_at', '>', Carbon::now('America/Sao_Paulo'));
+        });
     }
 
     public function scopePost($query)
