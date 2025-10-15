@@ -113,7 +113,6 @@ class Historys extends JsonResource
 
     private function formatImages(array $images): array
     {
-
         //dd($images);
         $formatted = [];
         foreach ($images as $image) {
