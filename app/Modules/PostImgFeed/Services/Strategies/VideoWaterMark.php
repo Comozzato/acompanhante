@@ -89,7 +89,8 @@ class VideoWaterMark implements ImageWatermark
             ->save($relativeOutputPath);
 
         Storage::disk('s3')->setVisibility($relativeOutputPath, 'public');
-        $thumbPath = $this->thumbnailFromExported($video);
+
+        $thumbPath = $this->thumbnailFromExported($relativeInputPath);
         return json_encode([
             $relativeOutputPath,
             $thumbPath,
@@ -152,10 +153,13 @@ class VideoWaterMark implements ImageWatermark
     }
 
 
-    private function thumbnailFromExported(MediaOpener $video): string
+    private function thumbnailFromExported(string $relativeInputPath): string
     {
+        $processedVideo = LaravelFFMpeg::fromDisk('s3')->open($relativeInputPath);
+
         $thumbnail_local_path = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
-        $video->getFrameFromSeconds(1)
+
+        $processedVideo->getFrameFromSeconds(1)
             ->export()
             ->toDisk('s3')
             ->save($thumbnail_local_path);
