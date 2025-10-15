@@ -113,4 +113,8 @@ class Feed extends Model
     {
         return $query->where('tipo', 'post');
     }
+    public function scopeLastTreePosts($query)
+    {
+        return $query->where('tipo', 'post')->orderByDesc('publicado_em')->limit(3);
+    }
 }
