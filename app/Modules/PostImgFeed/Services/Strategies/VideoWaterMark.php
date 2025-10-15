@@ -156,9 +156,7 @@ class VideoWaterMark implements ImageWatermark
     private function thumbnailFromExported(string $relativeInputPath): string
     {
         $processedVideo = LaravelFFMpeg::fromDisk('s3')->open($relativeInputPath);
-
         $thumbnail_local_path = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
-
         $processedVideo->getFrameFromSeconds(1)
             ->export()
             ->toDisk('s3')

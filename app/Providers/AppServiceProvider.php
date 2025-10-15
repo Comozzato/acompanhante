@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Feed;
 use App\Models\Midia;
 use App\Modules\PostImgFeed\Services\Strategies\MasterImageWaterMark;
 use App\Modules\PostImgFeed\Services\Strategies\ThumbNailPrimaryWaterMark;
 use App\Modules\PostImgFeed\Services\Strategies\ThumbNailSecundaryWaterMark;
 use App\Modules\PostImgFeed\Services\WatermarkStrategy;
+use App\Observers\FeedObserver;
 use App\Observers\MidiaObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -44,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Midia::observe(MidiaObserver::class);
+        Feed::observe(FeedObserver::class);
         $registerGates = require app_path('Gates/Auth.php');
         $registerGates(); // Executa o closure
     }
