@@ -34,7 +34,7 @@ class Posts extends Model
     public function feeds()
     {
         return $this->hasMany(Feed::class, 'post_id')
-            ->lastTreePosts()
+            //->lastTreePosts()
             ->aprovado()
             ->story();
     }
