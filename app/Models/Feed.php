@@ -101,6 +101,7 @@ class Feed extends Model
     {
         return $query->where('publish', 'Aprovado');
     }
+    
     public function scopeStory($query)
     {
         return $query->where(function ($q) {

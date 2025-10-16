@@ -15,14 +15,14 @@ class HistorysController extends \App\Http\Controllers\Controller
 
 
     public function index()
-    {   
+    {
 
         $city = request()->query('city');
-        $historys = Cache::get('historys_feed_' . $city);
+        $historys = Cache::tags(['historys'])->get('historys_feed_' . $city);
         if (!$historys) {
             $historys = $this->service->getHistorys();
-            Cache::put('historys_feed_' . $city, $historys, 60 * 60); // Cache por 1 hora
-            logger('✅ Cache de historys criado.');
+            Cache::tags(['historys'])->put('historys_feed_' . $city, $historys, 15); // Cache por 15 minutos
+            info('✅ Cache de historys criado.');
         }
 
         return response()->json($historys);
