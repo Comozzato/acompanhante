@@ -115,6 +115,13 @@ class Feed extends Model
     }
     public function scopeLastTreePosts($query)
     {
-        return $query->where('tipo', 'post')->orderByDesc('publicado_em')->limit(3);
+        return $query
+            ->fromSub(function ($sub) {
+                $sub->from('feeds')
+                    ->select('*')
+                    ->selectRaw('ROW_NUMBER() OVER (PARTITION BY post_id ORDER BY publicado_em DESC) as row_num')
+                    ->where('tipo', 'post');
+            }, 't')
+            ->where('t.row_num', '<=', 3);
     }
 }
