@@ -16,12 +16,26 @@ class HistorysController extends \App\Http\Controllers\Controller
 
     public function index()
     {
-
         $city = request()->query('city');
-        $historys = Cache::tags(['historys'])->get('historys_feed_' . $city);
+        $key = 'historys_feed_' . $city;
+
+        // Tenta recuperar do cache
+        $historys = Cache::get($key);
+
         if (!$historys) {
+            // Busca do serviço
             $historys = $this->service->getHistorys();
-            Cache::tags(['historys'])->put('historys_feed_' . $city, $historys, 15); // Cache por 15 minutos
+
+            // Salva no cache principal
+            Cache::put($key, $historys, 3600); // 1 hora
+
+            // Atualiza a lista de chaves de historys
+            $keys = Cache::get('historys_keys', []);
+            if (!in_array($key, $keys)) {
+                $keys[] = $key;
+                Cache::put('historys_keys', $keys, 3600);
+            }
+
             info('✅ Cache de historys criado.');
         }
 

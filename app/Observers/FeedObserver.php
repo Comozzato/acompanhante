@@ -11,10 +11,13 @@ class FeedObserver
     //
     public function updated(Feed $feed)
     {
-        // Verifica se o campo 'publish' mudou e foi aprovado
         if ($feed->wasChanged('publish') && $feed->publish === 'Aprovado') {
-            // Aqui você atualiza seu cache de Historys
-            Cache::tags(['historys'])->flush();
+            $keys = Cache::get('historys_keys', []);
+            foreach ($keys as $key) {
+                Cache::forget($key);
+            }
+            Cache::forget('historys_keys'); // limpa a lista
+            info('🧹 Todos os caches de historys limpos.');
         }
     }
 }
