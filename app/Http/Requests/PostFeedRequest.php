@@ -30,7 +30,7 @@ class PostFeedRequest extends FormRequest
 
 
             'post' => ['nullable', 'string', 'max:2200'],
-            'tipo' => ['nullable', Rule::in(['post', 'story'])],
+            //'tipo' => ['nullable', Rule::in(['post', 'story'])],
         ];
     }
 

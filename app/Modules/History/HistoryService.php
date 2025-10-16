@@ -16,7 +16,7 @@ class HistoryService
     public function getHistorys()
     {
         $feeds = $this->posts
-            ->with('feeds.midia')
+            ->with('feedslimits3.midia')
             ->publish()
             ->city(request()->query('city'))
             ->get();

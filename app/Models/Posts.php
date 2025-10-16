@@ -34,11 +34,20 @@ class Posts extends Model
     public function feeds()
     {
         return $this->hasMany(Feed::class, 'post_id')
-            ->lastTreePosts()
             ->aprovado()
             ->story();
     }
 
+
+    public function feedslimits3()
+    {
+        return $this->hasMany(Feed::class, 'post_id')
+            ->aprovado()
+            ->story()
+            ->orderByDesc('publicado_em')
+            ->limit(3); // pega os 3 últimos feeds de cada post
+    }
+    
     public function scopeCity($query, $city)
     {
         if ($city) {
