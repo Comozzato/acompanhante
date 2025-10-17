@@ -33,19 +33,19 @@ class VideoWaterMark implements ImageWatermark
 
         // 3️⃣ Garante que o vídeo temporário existe no disco local
         if (!file_exists($absoluteInputPath)) {
-            throw new \RuntimeException("Arquivo não foi movido corretamente: $absoluteInputPath");
+            throw new \Exception("Arquivo não foi movido corretamente: $absoluteInputPath");
         }
-
+        
         // 5️⃣ Processa o vídeo e envia para o S3
         $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
 
         // 6️⃣ Valida o arquivo processado no S3
         if (!Storage::disk('s3')->exists($relativeOutputPath)) {
-            throw new \RuntimeException("Arquivo processado não encontrado no S3: {$relativeOutputPath}");
+            throw new \Exception("Arquivo processado não encontrado no S3: {$relativeOutputPath}");
         }
         $fileSize = Storage::disk('s3')->size($relativeOutputPath);
         if ($fileSize <= 0) {
-            throw new \RuntimeException("Arquivo processado está vazio ou corrompido no S3: {$relativeOutputPath}");
+            throw new \Exception("Arquivo processado está vazio ou corrompido no S3: {$relativeOutputPath}");
         }
         // 7️⃣ Limpa arquivos temporários locais (com segurança)
         if (file_exists($absoluteInputPath)) {
@@ -93,11 +93,11 @@ class VideoWaterMark implements ImageWatermark
         $format->setKiloBitrate(16000) // 0 para deixar CRF controlar a qualidade
             ->setAdditionalParameters([
                 '-preset',
-                'slow', // compressão eficiente
+                'slow',
                 '-crf',
-                '18',      // alta qualidade
+                '18',
                 '-c:a',
-                'copy'     // mantém áudio original
+                'copy'
             ]);
         // Exporta o vídeo com a marca d'água
         info("Exportando vídeo processado para S3: {$relativeOutputPath}");
