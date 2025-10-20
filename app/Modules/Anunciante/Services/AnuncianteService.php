@@ -108,7 +108,7 @@ class AnuncianteService
             $query->with(['midia']);
             $query->aprovado();
         }]);
-
-        return $query->get();
+        
+        return $query->paginate();
     }
 }
