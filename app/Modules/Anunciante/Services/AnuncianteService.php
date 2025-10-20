@@ -4,6 +4,7 @@ namespace App\Modules\Anunciante\Services;
 
 use App\Behaviors\CpfBehaviors;
 use App\Http\Resources\Anuncios;
+use App\Models\Feed;
 use App\Models\Posts;
 use App\Modules\Watermark\Services\Strategies\TypeMediaValueEnum;
 use App\Modules\Watermark\Services\WatermarkStrategy;
@@ -100,15 +101,15 @@ class AnuncianteService
 
     public function GetAllAnunciantesForAdmin()
     {
-        $query = Posts::query();
+        $query = Feed::query()
+            ->with([
+                'posts_info' => fn($q) => $q->select('id', 'nome', 'cidade', 'url'),
+                'midia',
+            ])
+            ->whereHas('post', fn($q) => $q->city(request('city')))
+            ->aprovado()
+            ->orderByDesc('publicado_em');
 
-        $query->city(request()->query('city'));
-
-        $query->with(['feeds' => function ($query) {
-            $query->with(['midia']);
-            $query->aprovado();
-        }]);
-        
-        return $query->paginate();
+        return $query->paginate(20);
     }
 }

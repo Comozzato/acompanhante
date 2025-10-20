@@ -15,23 +15,13 @@ class AnuncioMidias extends JsonResource
 
     public function toArray(Request $request): array
     {
-        // Cada feed será mapeado separadamente
-        $dados = collect($this->feeds)
-            ->map(function ($feed) {    
-                return [
-                    'nome' => $this->nome,
-                    'cidade' => $this->cidade,
-                    'feed' => [
-                        'id' => $feed->id,
-                        'descricao' => $feed->post,
-                        'midias' => $feed->midia,
-                    ],
-                ];
-            })
-            ->filter() // remove vazios
-            ->values()
-            ->toArray();
-
-        return $dados;
+        $post = $this->posts_info;
+        return [
+            'id' => $this->id,
+            'nome' => $post?->nome,
+            'cidade' => $post?->cidade,
+            'midia' => $this->whenLoaded('midia'),
+            'publicado_em' => $this->publicado_em,
+        ];
     }
 }
