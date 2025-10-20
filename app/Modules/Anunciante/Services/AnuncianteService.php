@@ -97,4 +97,18 @@ class AnuncianteService
         $postsApi = $this->api->getAnuncionsCpf(new CpfBehaviors($user->cpf, false));
         $this->sincronizarAnunciosPorCpf($postsApi, $user);
     }
+
+    public function GetAllAnunciantesForAdmin()
+    {
+        $query = Posts::query();
+
+        $query->city(request()->query('city'));
+
+        $query->with(['feeds' => function ($query) {
+            $query->with(['midia']);
+            $query->aprovado();
+        }]);
+
+        return $query->get();
+    }
 }

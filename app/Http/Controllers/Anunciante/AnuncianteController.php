@@ -64,4 +64,10 @@ class AnuncianteController extends Controller
         }
         return response()->json(['image' => $imageContent]);
     }
+
+    public function GetAllAnunciantesForAdminForPosts(Request $request)
+    {
+        Gate::forUser(auth_user())->allows('admin');
+        return $this->service->GetAllAnunciantesForAdmin($request->all());
+    }
 }

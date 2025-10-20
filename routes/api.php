@@ -112,3 +112,4 @@ Route::get('/teste-email', function () {
 });
 
 Route::get('historys', [HistorysController::class, 'index']);//->middleware('basic.external');
+Route::get('anuncios', [AnuncianteController::class, 'GetAllAnunciantesForAdminForPosts'])->middleware('auth.jwt');
