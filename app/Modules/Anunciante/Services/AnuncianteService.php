@@ -110,6 +110,6 @@ class AnuncianteService
             ->aprovado()
             ->orderByDesc('publicado_em');
 
-        return $query->paginate(20);
+        return $query->paginate(request('per_page', 10));
     }
 }
