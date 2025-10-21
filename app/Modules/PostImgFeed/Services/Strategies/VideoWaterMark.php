@@ -72,14 +72,19 @@ class VideoWaterMark implements ImageWatermark
         info("Iniciando processamento de vídeo: {$relativeInputPath} -> {$relativeOutputPath}");
 
         info('Criando instancia do FFMpeg');
-        
+        // Cria instância do FFMpeg (puro)
+        $ffmpeg = FFMpeg::create([
+            'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
+            'ffprobe.binaries' => env('FFPROBE_BINARIES'),
+            'timeout'          => 3600,
+            'ffmpeg.threads'   => 1, // força 2 threads em todas as execuções
+        ]);
         // Abre o vídeo
         info("Abrindo vídeo para processamento: {$relativeInputPath}");
-        $video = LaravelFFMpeg::fromDisk('local')->open($relativeInputPath);
+        $video = LaravelFFMpeg::fromDisk('local', $ffmpeg)->open($relativeInputPath);
         info('Aplicando marca d\'água ao vídeo');
         // Aplica a marca d'água
         $video = $this->waterMark($video, $relativeInputPath);
-        $video->setThreads(1);
         $format = new X264('copy', 'libx264'); // mantém áudio original
         $format->setKiloBitrate(16000) // 0 para deixar CRF controlar a qualidade
             ->setAdditionalParameters([
