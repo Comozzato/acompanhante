@@ -91,9 +91,7 @@ class VideoWaterMark implements ImageWatermark
                 '-preset',
                 'slow',
                 '-crf',
-                '18',
-                '-c:a',
-                'copy'
+                '18'
             ]);
         // Exporta o vídeo com a marca d'água
         info("Exportando vídeo processado para S3: {$relativeOutputPath}");
