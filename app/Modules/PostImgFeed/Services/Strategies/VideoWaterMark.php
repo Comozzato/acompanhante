@@ -6,18 +6,46 @@ namespace App\Modules\PostImgFeed\Services\Strategies;
 
 use App\Enums\ImagemFeed;
 use App\Modules\PostImgFeed\Contracts\ImageWatermark;
+use FFMpeg\Coordinate\TimeCode;
+use FFMpeg\Coordinate\Dimension;
 use FFMpeg\FFProbe;
 use FFMpeg\Format\Video\X264;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use FFMpeg\FFMpeg;  // <- esta é a classe da lib PHP-FFMpeg pura
+use FFMpeg\FFMpeg;
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg as LaravelFFMpeg;
 use ProtoneMedia\LaravelFFMpeg\Filters\WatermarkFactory;
-use ProtoneMedia\LaravelFFMpeg\MediaOpener;
-
 
 class VideoWaterMark implements ImageWatermark
 {
+    private $ffmpeg;
+    private $ffprobe;
+
+    public function __construct()
+    {
+        // Instância única do FFMpeg e FFProbe (Singleton pattern)
+        $this->initializeFFMpeg();
+    }
+
+    private function initializeFFMpeg(): void
+    {
+        if (!$this->ffmpeg) {
+            $this->ffmpeg = FFMpeg::create([
+                'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
+                'ffprobe.binaries' => env('FFPROBE_BINARIES'),
+                'timeout'          => 3600,
+                'ffmpeg.threads'   => 1,
+            ]);
+        }
+
+        if (!$this->ffprobe) {
+            $this->ffprobe = FFProbe::create([
+                'ffprobe.binaries' => env('FFPROBE_BINARIES'),
+                'timeout'          => 3600,
+            ]);
+        }
+    }
+
     public function getSupportedType(): ImagemFeed
     {
         return ImagemFeed::VIDEO;
@@ -25,198 +53,233 @@ class VideoWaterMark implements ImageWatermark
 
     public function applyWatermark(UploadedFile $uploadedFile): string
     {
-        // 1️⃣ Salva upload temporário no storage local
+        // 1. Salva upload temporário
         [$relativeInputPath, $absoluteInputPath] = $this->salvarUploadTemporario($uploadedFile);
-        // 2️⃣ Define caminho de saída no S3
-        $relativeOutputPath = auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
-        // 3️⃣ Garante que o vídeo temporário existe no disco local
-        if (!file_exists($absoluteInputPath)) {
-            throw new \Exception("Arquivo não foi movido corretamente: $absoluteInputPath");
-        }
-        // 5️⃣ Processa o vídeo e envia para o S3
-        $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
-        // 6️⃣ Valida o arquivo processado no S3
-        if (!Storage::disk('s3')->exists($relativeOutputPath)) {
-            throw new \Exception("Arquivo processado não encontrado no S3: {$relativeOutputPath}");
-        }
-        $fileSize = Storage::disk('s3')->size($relativeOutputPath);
-        if ($fileSize <= 0) {
-            throw new \Exception("Arquivo processado está vazio ou corrompido no S3: {$relativeOutputPath}");
-        }
-        // 7️⃣ Limpa arquivos temporários locais (com segurança)
-        if (file_exists($absoluteInputPath)) {
-            unlink($absoluteInputPath);
-        }
-        if (Storage::disk('local')->exists($relativeInputPath)) {
-            Storage::disk('local')->delete($relativeInputPath);
-        }
 
-        info("Limpeza concluída: {$relativeInputPath} removido do storage local.");
+        // 2. Define caminho de saída
+        $relativeOutputPath = $this->generateOutputPath();
 
-        // 8️⃣ Retorna os caminhos do vídeo e thumbnail
-        return $paths;
+        try {
+            // 3. Processa o vídeo
+            $paths = $this->processarVideo($relativeInputPath, $relativeOutputPath);
+
+            // 4. Valida o resultado
+            $this->validarArquivoProcessado($relativeOutputPath);
+
+            return $paths;
+        } finally {
+            // 5. Limpeza garantida (executa mesmo se houver exception)
+            $this->limparArquivosTemporarios($relativeInputPath, $absoluteInputPath);
+        }
     }
-
-
 
     private function salvarUploadTemporario(UploadedFile $uploadedFile): array
     {
-        $relativeInputPath = 'tmp/' . uniqid('video_') . '.' . $uploadedFile->getClientOriginalExtension();
-        $absoluteInputPath = storage_path('app/private/' . $relativeInputPath); // ⬅️ corrigido
-        $uploadedFile->move(dirname($absoluteInputPath), basename($absoluteInputPath));
-        return [$relativeInputPath, $absoluteInputPath];
+        try {
+            $filename = uniqid('video_') . '.' . $uploadedFile->getClientOriginalExtension();
+            $relativeInputPath = 'tmp/' . $filename;
+
+            // Verifica se o arquivo temporário original existe
+            if (!file_exists($uploadedFile->getRealPath())) {
+                throw new \Exception("Arquivo temporário original não encontrado: " . $uploadedFile->getRealPath());
+            }
+
+            // Usa o método store do UploadedFile (mais seguro)
+            $storedPath = $uploadedFile->storeAs('tmp', $filename, 'local');
+
+            $absoluteInputPath = Storage::disk('local')->path($storedPath);
+
+            // Verifica se o arquivo foi salvo corretamente
+            if (!file_exists($absoluteInputPath)) {
+                throw new \Exception("Falha ao salvar arquivo temporário: {$absoluteInputPath}");
+            }
+
+            info("Arquivo salvo com sucesso: {$absoluteInputPath}");
+
+            return [$storedPath, $absoluteInputPath];
+        } catch (\Exception $e) {
+            throw new \Exception("Erro ao salvar arquivo temporário: " . $e->getMessage());
+        }
     }
 
-    private function criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath): string
+    private function processarVideo(string $relativeInputPath, string $relativeOutputPath): string
     {
-        info("Iniciando processamento de vídeo: {$relativeInputPath} -> {$relativeOutputPath}");
+        info("Processando vídeo: {$relativeInputPath} -> {$relativeOutputPath}");
 
-        info('Criando instancia do FFMpeg');
-        // Cria instância do FFMpeg (puro)
-        $ffmpeg = FFMpeg::create([
-            'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
-            'ffprobe.binaries' => env('FFPROBE_BINARIES'),
-            'timeout'          => 3600,
-            'ffmpeg.threads'   => 1, // força 2 threads em todas as execuções
-        ]);
-        // Abre o vídeo
-        info("Abrindo vídeo para processamento: {$relativeInputPath}");
-        $video = LaravelFFMpeg::fromDisk('local', $ffmpeg)->open($relativeInputPath);
-        info('Aplicando marca d\'água ao vídeo');
-        // Aplica a marca d'água
-        $video = $this->waterMark($video, $relativeInputPath);
-        $format = new X264('copy', 'libx264'); // mantém áudio original
-        $format->setKiloBitrate(16000) // 0 para deixar CRF controlar a qualidade
-            ->setAdditionalParameters([
-                '-preset',
-                'slow',
-                '-crf',
-                '18'
-            ]);
-        // Exporta o vídeo com a marca d'água
-        info("Exportando vídeo processado para S3: {$relativeOutputPath}");
-        $video->export()
-            ->toDisk('s3')  // salva no local
-            ->inFormat($format)
-            ->addFilter(function ($filters) {
-                // 1. cortar até 60 segundos
-                $filters->clip(\FFMpeg\Coordinate\TimeCode::fromSeconds(0), \FFMpeg\Coordinate\TimeCode::fromSeconds(60));
-                // 2. redimensionar para no máximo 1080x1920
-                //$filters->resize(new \FFMpeg\Coordinate\Dimension(1080, 1920), \FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET, true);
-            })
-            ->save($relativeOutputPath);
+        // Obtém dimensões e watermarks
+        [$watermarkPaths, $dimensions] = $this->getVideoDimensionsAndWatermarks($relativeInputPath);
 
-        // Torna o vídeo público
-        Storage::disk('s3')->setVisibility($relativeOutputPath, 'public');
-        info("Vídeo exportado e salvo no S3: {$relativeOutputPath}");
-        $thumbPath = $this->thumbnailFromExported($relativeOutputPath);
-        return json_encode([
-            $relativeOutputPath,
-            $thumbPath,
-        ]);
+        // Abre vídeo
+        $video = LaravelFFMpeg::fromDisk('local', $this->ffmpeg)->open($relativeInputPath);
+
+        // Aplica watermarks
+        $this->applyWatermarkToVideo($video, $watermarkPaths, $dimensions);
+
+        // Exporta com 1 thread
+        $this->exportVideo($video, $relativeOutputPath);
+
+        // Gera thumbnail
+        $thumbPath = $this->generateThumbnail($relativeOutputPath);
+
+        return json_encode([$relativeOutputPath, $thumbPath]);
     }
 
-    private function waterMark(MediaOpener $video, $relativeInputPath): MediaOpener
+    private function getVideoDimensionsAndWatermarks(string $relativeInputPath): array
     {
-        [$wmf_path, $wmurl_path, $vwidth, $vheight] = $this->getWaterMarkPathForResolution($relativeInputPath);
-
-        $wmf_dims = getimagesize(public_path($wmf_path));
-        $wmf_width = $wmf_dims[0];
-        $wmf_height = $wmf_dims[1];
-
-        // 2. Obter as dimensões da segunda marca d'água (URL)
-        $wmurl_dims = getimagesize(public_path($wmurl_path));
-        $wmurl_width = $wmurl_dims[0];
-        $wmurl_height = $wmurl_dims[1];
-        $video->addWatermark(function (WatermarkFactory $watermark) use ($wmf_path, $wmurl_path, $vwidth, $vheight, $wmf_width, $wmf_height, $wmurl_width, $wmurl_height) {
-            $watermark->fromDisk('public_root')
-                ->open($wmf_path)
-                ->left(intval(($vwidth / 2) - ($wmf_width / 2)))
-                ->top(intval(($vheight / 2) - ($wmf_height / 2)));
-        });
-        $video->addWatermark(function (WatermarkFactory $watermark) use ($wmf_path, $wmurl_path, $vwidth, $vheight, $wmf_width, $wmf_height, $wmurl_width, $wmurl_height) {
-            $offsetFromBottom = 30;
-            $watermark->fromDisk('public_root')
-                ->open($wmurl_path)
-                ->bottom($offsetFromBottom)
-                ->left(intval(($vwidth / 2) - ($wmurl_width / 2)));
-        });
-        return $video;
-    }
-
-    private function getWaterMarkPathForResolution($relativeInputPath)
-    {
-        $camtn = 'vdimages' . DIRECTORY_SEPARATOR;
-
-        // Usa o caminho real do disco 'local' — evita erro de /tmp/tmp/
-        info('Obtendo dimensões do vídeo com FFProbe');
-        // Caminho completo do arquivo no storage local
-        // $fullPath = storage_path('app/private/' . $relativeInputPath); //
         $fullPath = Storage::disk('local')->path($relativeInputPath);
-        info("Caminho completo do vídeo: {$fullPath}");
+
         if (!file_exists($fullPath)) {
-            throw new \RuntimeException("Arquivo não encontrado para FFProbe: {$fullPath}");
+            throw new \RuntimeException("Arquivo não encontrado: {$fullPath}");
         }
 
-        // Cria instância do FFProbe
-        info('Criando instancia do FFProbe');
-
-        $ffprobe = FFProbe::create([
-            'ffprobe.binaries' => env('FFPROBE_BINARIES'),
-            'timeout'          => 3600,
-            'ffmpeg.threads'   => 1,
-        ]);
-
-        // Obtém dimensões do vídeo
-        info('Lendo dimensões do vídeo');
-        $stream = $ffprobe->streams($fullPath)->videos()->first();
+        $stream = $this->ffprobe->streams($fullPath)->videos()->first();
         if (!$stream) {
-            throw new \RuntimeException("Não foi possível obter informações de vídeo de: {$fullPath}");
+            throw new \RuntimeException("Não foi possível obter informações do vídeo: {$fullPath}");
         }
 
         $dimensions = $stream->getDimensions();
         $vwidth = $dimensions->getWidth();
         $vheight = $dimensions->getHeight();
 
-        // Array de larguras suportadas
-        $warr = [240, 426, 480, 640, 720, 854, 1080, 1280, 1920];
+        // Encontra a resolução mais adequada
+        $optimalWidth = $this->findOptimalWatermarkResolution($vwidth);
+        $watermarkPaths = $this->getWatermarkPaths($optimalWidth);
 
-        // Encontra a largura mais próxima para baixo
-        if (!in_array($vwidth, $warr)) {
-            $filtered = array_filter($warr, fn($w) => $w <= $vwidth);
-            $vwidth = !empty($filtered) ? max($filtered) : min($warr);
-        }
-
-
-        $wmf_path = $camtn . $vwidth . '.png';
-        $wmurl_path = $camtn . 'www' . $vwidth . '.png';
-        if (!file_exists(public_path($wmf_path)) || !file_exists(public_path($wmurl_path))) {
-            throw new \RuntimeException("Arquivos de marca d'água não encontrados para largura: {$vwidth}px");
-        }
-        info("Caminho da marca d'água: {$wmf_path}");
-        info("Caminho da marca d'água (www): {$wmurl_path}");
-        return [$wmf_path, $wmurl_path, $vwidth, $vheight];
+        return [
+            $watermarkPaths,
+            ['width' => $vwidth, 'height' => $vheight, 'optimal_width' => $optimalWidth]
+        ];
     }
 
-
-    private function thumbnailFromExported(string $relativeOutputPath): string
+    private function findOptimalWatermarkResolution(int $videoWidth): int
     {
-        info('Gerando thumbnail do vídeo');
-        // Usa LaravelFFMpeg para consistência com o vídeo
-        info('Criando instancia do LaravelFFMpeg');
-        info("Caminho do vídeo para thumbnail: {$relativeOutputPath}");
-        if (!Storage::disk('s3')->exists($relativeOutputPath)) {
-            throw new \RuntimeException("Arquivo de vídeo não encontrado no S3 para thumbnail: {$relativeOutputPath}");
+        $supportedResolutions = [240, 426, 480, 640, 720, 854, 1080, 1280, 1920];
+
+        $filtered = array_filter($supportedResolutions, fn($w) => $w <= $videoWidth);
+        return !empty($filtered) ? max($filtered) : min($supportedResolutions);
+    }
+
+    private function getWatermarkPaths(int $width): array
+    {
+        $basePath = 'vdimages' . DIRECTORY_SEPARATOR;
+        $wmfPath = $basePath . $width . '.png';
+        $wmurlPath = $basePath . 'www' . $width . '.png';
+
+        if (!file_exists(public_path($wmfPath)) || !file_exists(public_path($wmurlPath))) {
+            throw new \RuntimeException("Watermarks não encontrados para resolução: {$width}px");
         }
-        if (Storage::disk('s3')->size($relativeOutputPath) <= 0) {
-            throw new \RuntimeException("Arquivo de vídeo está vazio ou corrompido no S3 para thumbnail: {$relativeOutputPath}");
+
+        return ['main' => $wmfPath, 'url' => $wmurlPath];
+    }
+
+    private function applyWatermarkToVideo($video, array $watermarkPaths, array $dimensions): void
+    {
+        $vwidth = $dimensions['width'];
+        $vheight = $dimensions['height'];
+
+        // Carrega dimensões dos watermarks UMA VEZ
+        $mainWatermarkSize = getimagesize(public_path($watermarkPaths['main']));
+        $urlWatermarkSize = getimagesize(public_path($watermarkPaths['url']));
+
+        // Aplica watermarks em lote
+        $video->addWatermark(function (WatermarkFactory $watermark) use ($watermarkPaths, $vwidth, $vheight, $mainWatermarkSize) {
+            $watermark->fromDisk('public_root')
+                ->open($watermarkPaths['main'])
+                ->left(intval(($vwidth / 2) - ($mainWatermarkSize[0] / 2)))
+                ->top(intval(($vheight / 2) - ($mainWatermarkSize[1] / 2)));
+        });
+
+        $video->addWatermark(function (WatermarkFactory $watermark) use ($watermarkPaths, $vwidth, $vheight, $urlWatermarkSize) {
+            $watermark->fromDisk('public_root')
+                ->open($watermarkPaths['url'])
+                ->bottom(30)
+                ->left(intval(($vwidth / 2) - ($urlWatermarkSize[0] / 2)));
+        });
+    }
+
+    private function exportVideo($video, string $outputPath): void
+    {
+        info("Exportando vídeo para: {$outputPath}");
+
+        $format = (new X264('copy', 'libx264'))
+            ->setKiloBitrate(16000)
+            ->setAdditionalParameters([
+                '-preset',
+                'slow',
+                '-crf',
+                '18',
+                '-threads',
+                '1',
+                '-thread_type',
+                'frame',
+                '-movflags',
+                '+faststart'
+            ]);
+
+        try {
+            $video->export()
+                //->setThreads(1) // ← Método correto para setar threads
+                ->toDisk('s3')
+                ->inFormat($format)
+                ->addFilter(function ($filters) {
+                    $filters->clip(TimeCode::fromSeconds(0), TimeCode::fromSeconds(60));
+                })
+                ->save($outputPath);
+
+            info("Vídeo exportado com sucesso: {$outputPath}");
+        } catch (\Exception $e) {
+            throw new \Exception("Erro ao exportar vídeo: " . $e->getMessage());
         }
-        $processedVideo = LaravelFFMpeg::fromDisk('s3')->open($relativeOutputPath);
-        $thumbnail_local_path = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
-        $processedVideo->getFrameFromSeconds(1)
+
+        Storage::disk('s3')->setVisibility($outputPath, 'public');
+    }
+    private function generateThumbnail(string $videoPath): string
+    {
+        $thumbnailPath = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
+
+        $video = LaravelFFMpeg::fromDisk('s3', $this->ffmpeg)->open($videoPath);
+
+        $video->getFrameFromSeconds(1)
             ->export()
             ->toDisk('s3')
-            ->save($thumbnail_local_path);
-        return $thumbnail_local_path;
+            ->save($thumbnailPath);
+
+        return $thumbnailPath;
+    }
+
+    private function generateOutputPath(): string
+    {
+        return auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
+    }
+
+    private function validarArquivoProcessado(string $path): void
+    {
+        if (!Storage::disk('s3')->exists($path)) {
+            throw new \Exception("Arquivo processado não encontrado: {$path}");
+        }
+
+        $fileSize = Storage::disk('s3')->size($path);
+        if ($fileSize <= 0) {
+            throw new \Exception("Arquivo processado está vazio: {$path}");
+        }
+    }
+
+    private function limparArquivosTemporarios(string $relativePath, string $absolutePath): void
+    {
+        $cleaned = false;
+
+        if (file_exists($absolutePath)) {
+            unlink($absolutePath);
+            $cleaned = true;
+        }
+
+        if (Storage::disk('local')->exists($relativePath)) {
+            Storage::disk('local')->delete($relativePath);
+            $cleaned = true;
+        }
+
+        if ($cleaned) {
+            info("Arquivos temporários limpos: {$relativePath}");
+        }
     }
 }
