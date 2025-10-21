@@ -88,23 +88,23 @@ class Feed extends Model implements Auditable
             // só imagens que NÃO são thumbnails
             return $query->whereHas('midia', fn($q) => $q->ofTipo('imagem')->where('midia', 'NOT ILIKE', '%thumb%'))
                 ->with(['midia' => fn($q) => $q->ofTipo('imagem')->where('midia', 'NOT ILIKE', '%thumb%')]);
-        }
-    }
+        }   
+    }   
 
     public function post()
-    {
+    {       
         return $this->belongsTo(Posts::class, 'post_id');
-    }
+    }    
 
     public function posts_info()
-    {
+    {   
         return $this->belongsTo(Posts::class, 'post_id');
-    }
+    }   
 
     public function scopeAprovado($query)
-    {
+    {   
         return $query->where('publish', 'Aprovado');
-    }
+    }   
 
     public function scopeStory($query)
     {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\History;
 
 use App\Http\Resources\Historys;
+use App\Models\Feed;
 use App\Models\Posts;
 
 class HistoryService
@@ -19,10 +20,15 @@ class HistoryService
             ->with('feedslimits3.midia')
             ->publish()
             ->city(request()->query('city'))
+            ->orderByDesc(
+                Feed::select('publicado_em')
+                    ->whereColumn('post_id', 'posts.id')
+                    ->orderByDesc('publicado_em')
+                    ->limit(1)
+            )
             ->get();
-        
         return [
-            
+
             'circles' => array_values(array_filter(
                 Historys::collection($feeds)->toArray(request()),
                 fn($item) => !empty($item)

@@ -29,7 +29,9 @@ class Historys extends JsonResource
         // se não tiver items, retorna array vazio
         if (empty($items)) {
             return [];
-        }
+        }  
+
+
         return  [
             "authorImage" => $imageEvidencias,
             "coverImage" => $imageEvidencias,
@@ -53,8 +55,7 @@ class Historys extends JsonResource
         }');
 
 
-        foreach ($this->feeds as $feed) {
-
+        foreach ($this->feedslimits3 as $feed) {
             $file = $feed->midia;
             if ($this->isVideo($file)) {
                 $Video = $this->isVideo($file, true, $feed->id);

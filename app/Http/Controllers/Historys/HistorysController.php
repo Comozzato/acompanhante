@@ -27,7 +27,7 @@ class HistorysController extends \App\Http\Controllers\Controller
             $historys = $this->service->getHistorys();
 
             // Salva no cache principal
-            Cache::put($key, $historys, 3600); // 1 hora
+            //Cache::put($key, $historys, 3600); // 1 hora
 
             // Atualiza a lista de chaves de historys
             $keys = Cache::get('historys_keys', []);
