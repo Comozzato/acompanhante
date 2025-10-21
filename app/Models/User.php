@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable, HasUuids;// Laravel 10+ já tem suporte nativo para UUID
+class User extends Authenticatable  implements Auditable
+{   
+    
+
+    use HasFactory, Notifiable, HasUuids, AuditableTrait;// Laravel 10+ já tem suporte nativo para UUID
 
     public $incrementing = false; // Evita IDs auto incrementais
     protected $keyType = 'string'; // Define o tipo como string

@@ -27,18 +27,14 @@ class VideoWaterMark implements ImageWatermark
     {
         // 1️⃣ Salva upload temporário no storage local
         [$relativeInputPath, $absoluteInputPath] = $this->salvarUploadTemporario($uploadedFile);
-
         // 2️⃣ Define caminho de saída no S3
         $relativeOutputPath = auth_user()->id . '/posts/video-' . uniqid() . '.mp4';
-
         // 3️⃣ Garante que o vídeo temporário existe no disco local
         if (!file_exists($absoluteInputPath)) {
             throw new \Exception("Arquivo não foi movido corretamente: $absoluteInputPath");
         }
-        
         // 5️⃣ Processa o vídeo e envia para o S3
         $paths = $this->criarVideoAplicarWaterMark($relativeInputPath, $relativeOutputPath);
-
         // 6️⃣ Valida o arquivo processado no S3
         if (!Storage::disk('s3')->exists($relativeOutputPath)) {
             throw new \Exception("Arquivo processado não encontrado no S3: {$relativeOutputPath}");

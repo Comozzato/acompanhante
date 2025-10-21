@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class Feed extends Model
+class Feed extends Model implements Auditable
 {
     //
+    use AuditableTrait;
+
     protected $table = 'feed';
     protected $fillable = [
         'user_id',
@@ -101,7 +105,7 @@ class Feed extends Model
     {
         return $query->where('publish', 'Aprovado');
     }
-    
+
     public function scopeStory($query)
     {
         return $query->where(function ($q) {
@@ -114,5 +118,4 @@ class Feed extends Model
     {
         return $query->where('tipo', 'post');
     }
- 
 }

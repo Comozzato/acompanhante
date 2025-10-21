@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class Posts extends Model
+class Posts extends Model implements Auditable
 {
     //
+    use AuditableTrait;
+
     protected $table = 'posts';
 
     protected $fillable = [

@@ -5,10 +5,14 @@ namespace App\Models;
 use App\Services\S3ImageGalleryService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class Midia extends Model
+class Midia extends Model implements Auditable
 {
     //
+    use AuditableTrait;
+
     protected $table = 'midia';
 
     protected $fillable = ['feed_id', 'midia'];
