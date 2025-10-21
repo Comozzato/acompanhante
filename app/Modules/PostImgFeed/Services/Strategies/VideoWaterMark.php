@@ -34,7 +34,6 @@ class VideoWaterMark implements ImageWatermark
                 'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
                 'ffprobe.binaries' => env('FFPROBE_BINARIES'),
                 'timeout'          => 3600,
-                'ffmpeg.threads'   => 1,
             ]);
         }
 
@@ -208,12 +207,6 @@ class VideoWaterMark implements ImageWatermark
                 'slow',
                 '-crf',
                 '18',
-                '-threads',
-                '1',
-                '-thread_type',
-                'frame',
-                '-movflags',
-                '+faststart'
             ]);
 
         try {
