@@ -23,7 +23,6 @@ class VideoWaterMark implements ImageWatermark
 
     public function __construct()
     {
-        // Instância única do FFMpeg e FFProbe (Singleton pattern)
         $this->initializeFFMpeg();
     }
 
@@ -34,6 +33,7 @@ class VideoWaterMark implements ImageWatermark
                 'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
                 'ffprobe.binaries' => env('FFPROBE_BINARIES'),
                 'timeout'          => 3600,
+                'ffmpeg.threads'   => 1,
             ]);
         }
 
@@ -41,6 +41,7 @@ class VideoWaterMark implements ImageWatermark
             $this->ffprobe = FFProbe::create([
                 'ffprobe.binaries' => env('FFPROBE_BINARIES'),
                 'timeout'          => 3600,
+                'ffmpeg.threads'   => 1,
             ]);
         }
     }
@@ -66,8 +67,10 @@ class VideoWaterMark implements ImageWatermark
             $this->validarArquivoProcessado($relativeOutputPath);
 
             return $paths;
+        } catch (\Exception $e) {
+            throw new \Exception("Erro ao processar vídeo: " . $e->getMessage());
         } finally {
-            // 5. Limpeza garantida (executa mesmo se houver exception)
+            // 5. Limpa arquivos temporários
             $this->limparArquivosTemporarios($relativeInputPath, $absoluteInputPath);
         }
     }
@@ -92,9 +95,7 @@ class VideoWaterMark implements ImageWatermark
             if (!file_exists($absoluteInputPath)) {
                 throw new \Exception("Falha ao salvar arquivo temporário: {$absoluteInputPath}");
             }
-
             info("Arquivo salvo com sucesso: {$absoluteInputPath}");
-
             return [$storedPath, $absoluteInputPath];
         } catch (\Exception $e) {
             throw new \Exception("Erro ao salvar arquivo temporário: " . $e->getMessage());
@@ -196,9 +197,9 @@ class VideoWaterMark implements ImageWatermark
         });
     }
 
-    private function exportVideo($video, string $outputPath): void
+    private function exportVideo($video, string $tempPath): void
     {
-        info("Exportando vídeo para: {$outputPath}");
+        info("Exportando vídeo para: {$tempPath}");
 
         $format = (new X264('copy', 'libx264'))
             ->setKiloBitrate(16000)
@@ -212,30 +213,34 @@ class VideoWaterMark implements ImageWatermark
         try {
             $video->export()
                 //->setThreads(1) // ← Método correto para setar threads
-                ->toDisk('s3')
+                ->toDisk('local')
                 ->inFormat($format)
                 ->addFilter(function ($filters) {
                     $filters->clip(TimeCode::fromSeconds(0), TimeCode::fromSeconds(60));
                 })
-                ->save($outputPath);
-
-            info("Vídeo exportado com sucesso: {$outputPath}");
+                ->save($tempPath);
+            info("Vídeo processado localmente, fazendo upload para S3...");
+            info("Vídeo exportado com sucesso: {$tempPath}");
         } catch (\Exception $e) {
             throw new \Exception("Erro ao exportar vídeo: " . $e->getMessage());
         }
-
-        Storage::disk('s3')->setVisibility($outputPath, 'public');
+        // Faz upload para S3
+        Storage::disk('s3')->put($tempPath, file_get_contents($tempPath));
+        Storage::disk('s3')->setVisibility($tempPath, 'public');
     }
-    private function generateThumbnail(string $videoPath): string
+    private function generateThumbnail(string $tempPath): string
     {
         $thumbnailPath = auth_user()->id . '/posts/video-thumbnail_' . uniqid() . '.png';
 
-        $video = LaravelFFMpeg::fromDisk('s3', $this->ffmpeg)->open($videoPath);
+        $video = LaravelFFMpeg::fromDisk('local', $this->ffmpeg)->open($tempPath);
 
         $video->getFrameFromSeconds(1)
             ->export()
-            ->toDisk('s3')
+            ->toDisk('local')
             ->save($thumbnailPath);
+        // Faz upload para S3
+        Storage::disk('s3')->put($thumbnailPath, file_get_contents($thumbnailPath));
+        Storage::disk('s3')->setVisibility($thumbnailPath, 'public');
 
         return $thumbnailPath;
     }

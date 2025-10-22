@@ -10,6 +10,7 @@ use App\Modules\PostImgFeed\Services\Strategies\ThumbNailSecundaryWaterMark;
 use App\Modules\PostImgFeed\Services\WatermarkStrategy;
 use App\Observers\FeedObserver;
 use App\Observers\MidiaObserver;
+use App\Resolvers\UserResolver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -45,8 +46,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+
         Midia::observe(MidiaObserver::class);
         Feed::observe(FeedObserver::class);
+        //new UserResolver();
         $registerGates = require app_path('Gates/Auth.php');
         $registerGates(); // Executa o closure
     }
