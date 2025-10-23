@@ -34,18 +34,25 @@ class FeedController extends \App\Http\Controllers\Controller
 
     public function index(Request $request)
     {
-        // $user = $request->user(); // usuário autenticado, se houver
-        $query = Feed::query()->with(['anunciante', 'midia', 'posts_info' => function ($q) {
-            $q->select('id', 'nome', 'cidade', 'url');
-        }]);
-        // Ordenar por mais recente
-        $query->where('publish', 'Pendente');
-        $query->orderByDesc('publicado_em');
-        // Paginação simples
+        $query = Feed::query()
+            ->with([
+                'anunciante',
+                'midia',
+                'posts_info' => function ($q) {
+                    $q->select('id', 'nome', 'cidade', 'url');
+                }
+            ])
+            ->where('publish', 'Pendente')
+   
+            ->where('created_at', '<=', now()->subMinutes(5)) // só mostra registros criados há pelo menos 5 minutos
+            ->orderByDesc('publicado_em');
+
         $posts = $query->paginate($request->input('limit', 10));
 
         return response()->json($posts);
     }
+
+
     public function findForPostid(Request $request, $id)
     {
         $query = Feed::query()
