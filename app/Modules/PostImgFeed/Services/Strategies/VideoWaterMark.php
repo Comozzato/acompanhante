@@ -21,7 +21,7 @@ class VideoWaterMark implements ImageWatermark
 
     private $ffprobe;
 
-    public function __construct(private ImageManager $imageManager)
+    public function __construct()
     {
         $this->initializeFFMpeg();
     }
@@ -36,7 +36,7 @@ class VideoWaterMark implements ImageWatermark
             ]);
         }
     }
-    
+
     public function getSupportedType(): ImagemFeed
     {
         return ImagemFeed::VIDEO;
@@ -97,8 +97,9 @@ class VideoWaterMark implements ImageWatermark
         $frame = $videoLocal->getFrameFromSeconds(1);
         $frame->export()->toDisk('local')->save($thumbnailPath);
         $thumbAbsolutePath = Storage::disk('local')->path($thumbnailPath);
+        $manager = new ImageManager(new Driver());
 
-        $image = $this->imageManager->read($thumbAbsolutePath);
+        $image = $manager->read($thumbAbsolutePath);
         $image->scale(480, 853);
         $image->toPng()->save($thumbAbsolutePath);
 

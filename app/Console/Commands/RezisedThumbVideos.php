@@ -69,6 +69,12 @@ class RezisedThumbVideos extends Command
                     // Caminho local
                     $localPath = $tempDir . '/' . basename($midia->midia);
                     file_put_contents($localPath, $conteudo);
+                    
+                    if (!@getimagesize($localPath)) {
+                        echo "⚠ Ignorado: {$midia->midia} não é imagem válida.\n";
+                        unlink($localPath);
+                        return;
+                    }
 
                     // Processar imagem
                     $image = $manager->read($localPath);
