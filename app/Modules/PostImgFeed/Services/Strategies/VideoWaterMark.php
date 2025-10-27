@@ -100,7 +100,7 @@ class VideoWaterMark implements ImageWatermark
         $manager = new ImageManager(new Driver());
 
         $image = $manager->read($thumbAbsolutePath);
-        $image->scale(480, 853);
+        $image->cover(480, 853,'center');
         $image->toPng()->save($thumbAbsolutePath);
 
         Storage::disk('s3')->put($relativeOutputPath, Storage::disk('local')->get($relativeOutputPath));

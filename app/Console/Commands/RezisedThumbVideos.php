@@ -38,6 +38,7 @@ class RezisedThumbVideos extends Command
         // Traz feeds com as mídias
         $feeds = Feed::with('midia')
             ->where('tipo_arquivo', 'video')
+            ->whereIn('status', ['Pendente', 'Aprovado'])
             ->get();
 
         $totalMidias = $feeds->sum(function ($feed) {
@@ -69,7 +70,7 @@ class RezisedThumbVideos extends Command
                     // Caminho local
                     $localPath = $tempDir . '/' . basename($midia->midia);
                     file_put_contents($localPath, $conteudo);
-                    
+
                     if (!@getimagesize($localPath)) {
                         echo "⚠ Ignorado: {$midia->midia} não é imagem válida.\n";
                         unlink($localPath);
@@ -78,7 +79,7 @@ class RezisedThumbVideos extends Command
 
                     // Processar imagem
                     $image = $manager->read($localPath);
-                    $image->resize(480, 848);
+                    $image->cover(480, 848, 'center');
                     $image->toPng()->save($localPath);
 
                     // Reenviar pro S3
