@@ -38,7 +38,7 @@ class RezisedThumbVideos extends Command
         // Traz feeds com as mídias
         $feeds = Feed::with('midia')
             ->where('tipo_arquivo', 'video')
-            ->whereIn('status', ['Pendente', 'Aprovado'])
+            //->whereIn('status', ['Pendente', 'Aprovado'])
             ->get();
 
         $totalMidias = $feeds->sum(function ($feed) {
