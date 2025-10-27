@@ -78,7 +78,7 @@ class RezisedThumbVideos extends Command
 
                     // Processar imagem
                     $image = $manager->read($localPath);
-                    $image->scaleDown(480, 853);
+                    $image->resize(480, 848);
                     $image->toPng()->save($localPath);
 
                     // Reenviar pro S3
