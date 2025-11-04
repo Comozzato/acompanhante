@@ -12,7 +12,10 @@ class PagamentoController extends Controller
 {
     public function __construct(private PagamentoService $service) {}
 
-    public function pagamento(Request $request) {
-        
+    public function gerarCobranca(Request $request, $type)
+    {
+        $tipoPagamento = TipoPagamento::from($type);
+        $inputData = $request->input();
+        return  $this->service->gerarCobranca($tipoPagamento, $inputData);
     }
 }

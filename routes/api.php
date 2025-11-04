@@ -12,6 +12,7 @@ use App\Http\Controllers\Feed\FeedController;
 use App\Http\Controllers\Historys\HistorysController;
 use App\Models\User;
 use App\Modules\Clientes\ClientesController;
+use App\Modules\Pagamentos\PagamentoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -117,3 +118,5 @@ Route::get('anuncios', [AnuncianteController::class, 'GetAllAnunciantesForAdminF
 
 Route::get('clientes', [ClientesController::class, 'clientes']);
 Route::post('cadatrar-clientes', [ClientesController::class, 'cadastroCliente']);
+
+Route::post('gerar-cobranca/{type}', [PagamentoController::class, 'gerarCobranca']);

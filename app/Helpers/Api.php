@@ -53,6 +53,7 @@ class Api
             $response = self::$client->post($uri, ['json' => $payload]);
             return $response->getBody()->getContents();
         } catch (GuzzleException $e) {
+            throw new \RuntimeException('erro ao criar cobrança'. $e->getMessage());
         }
     }
 }

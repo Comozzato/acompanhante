@@ -6,39 +6,18 @@ namespace App\Modules\Pagamentos;
 
 use App\Helpers\Api;
 use App\Helpers\ApiAsaas;
+use App\Modules\Pagamentos\Strategies\Pagamento;
 use Exception;
 
 class PagamentoService
 {
-    private Api $api;
+    public function __construct() {}
 
-    public function __construct()
+    public function gerarCobranca(TipoPagamento $tipo_pagamento, array $data)
     {
-        $uri = env('URL_SANDBOX_ASAAS');
-        $token = env('ACCESS_TOKEN');
-        if (is_null($uri)) {
-            throw new Exception('url do serviço de pagamento asaas está vazio', 15);
-        }
-        if (is_null($token)) {
-            throw new Exception('token de accesso vazio', 16);
-        }
-        $this->api = new Api($uri, [
-            'access_token' => $token
-        ]);
-    }
 
+        $corpoDaCobranca = $tipo_pagamento->metodoDePagamento();
 
-    public function costumers()
-    {
-        $response = Api::get('v3/customers');
-
-        return $response;
-    }
-
-
-    public function cadastroCostumers(array $data = [])
-    {
-        $response = Api::post('/v3/customers', $data);
-        return $response;
+        return $corpoDaCobranca->gerarCobranca($data);
     }
 }

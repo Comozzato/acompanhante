@@ -15,7 +15,7 @@ class ClientesServices
 
     public function clientes()
     {
-        $response = AsaasApi::Assas()->get('v3/customers');
+        $response = AsaasApi::api()->get('v3/customers');
 
         return $response;
     }
@@ -23,7 +23,7 @@ class ClientesServices
 
     public function cadastroCliente(array $data = [])
     {
-        $response = AsaasApi::Assas()->post('/v3/customers', $data);
+        $response = AsaasApi::api()->post('/v3/customers', $data);
         return $response;
     }
 }
