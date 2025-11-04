@@ -52,5 +52,8 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'asaas' => [
+        'url' => env('ASAAS_URL'),
+        'token' => env('ASAAS_TOKEN'),
+    ],
 ];

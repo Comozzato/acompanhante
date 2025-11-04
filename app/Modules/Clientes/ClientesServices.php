@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace App\Modules\Clientes;
 
 use App\Helpers\Api;
-use App\Helpers\AsaasApi;
 use Exception;
 
 class ClientesServices
 {
 
-    public function __construct(private AsaasApi $api) {}
+    public function __construct(private Api $asaasApi) {}
 
     public function clientes()
     {
-        $response = AsaasApi::api()->get('v3/customers');
+        $response = $this->asaasApi::get('v3/customers');
 
         return $response;
     }
@@ -23,7 +22,8 @@ class ClientesServices
 
     public function cadastroCliente(array $data = [])
     {
-        $response = AsaasApi::api()->post('/v3/customers', $data);
+        $response = $this->asaasApi::post('/v3/customers', $data);
+        
         return $response;
     }
 }
