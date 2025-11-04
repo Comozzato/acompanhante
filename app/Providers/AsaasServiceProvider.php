@@ -17,7 +17,6 @@ class AsaasServiceProvider extends ServiceProvider
         $this->app->singleton(Api::class, function ($app) {
             $uri = config('services.asaas.url');
             $token = config('services.asaas.token');
-
             if (empty($uri)) {
                 throw new RuntimeException('URL do serviço Asaas está vazia.');
             }
@@ -25,7 +24,6 @@ class AsaasServiceProvider extends ServiceProvider
             if (empty($token)) {
                 throw new RuntimeException('Token de acesso Asaas está vazio.');
             }
-
             return new Api($uri, [
                 'access_token' => "{$token}",
                 'User-Agent' => sprintf(

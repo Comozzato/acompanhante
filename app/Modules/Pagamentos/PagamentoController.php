@@ -14,8 +14,11 @@ class PagamentoController extends Controller
 
     public function gerarCobranca(Request $request, $type)
     {
+    
         $tipoPagamento = TipoPagamento::from($type);
+        //DD($request);
         $inputData = $request->input();
+        
         return  $this->service->gerarCobranca($tipoPagamento, $inputData);
     }
 }

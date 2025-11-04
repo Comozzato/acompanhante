@@ -14,7 +14,7 @@ class Api
     public function __construct(
         string $baseUri,
         array $headers = [],
-        float $timeout = 10.0
+        float $timeout = 60.0
     ) {
         if (self::$client === null) {
             self::$client = new Client([
@@ -50,7 +50,9 @@ class Api
     public static function post(string $uri, array $payload = [])
     {
         try {
+         
             $response = self::$client->post($uri, ['json' => $payload]);
+            
             return $response->getBody()->getContents();
         } catch (GuzzleException $e) {
             throw new \RuntimeException('erro ao criar cobrança'. $e->getMessage());
