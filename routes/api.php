@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Anunciante\AnuncianteController;
-
+use App\Http\Controllers\AsaasWebhookController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RefreshTokenController;
@@ -120,3 +120,5 @@ Route::get('clientes', [ClientesController::class, 'clientes']);
 Route::post('cadatrar-clientes', [ClientesController::class, 'cadastroCliente']);
 
 Route::post('gerar-cobranca/{type}', [PagamentoController::class, 'gerarCobranca']);
+
+Route::post('/asaas/webhook', [AsaasWebhookController::class, 'handle']);
