@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Anunciante\AnuncianteController;
-
+use App\Http\Controllers\AsaasWebhookController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RefreshTokenController;
@@ -11,6 +11,8 @@ use App\Http\Controllers\ForgotController;
 use App\Http\Controllers\Feed\FeedController;
 use App\Http\Controllers\Historys\HistorysController;
 use App\Models\User;
+use App\Modules\Clientes\ClientesController;
+use App\Modules\Pagamentos\PagamentoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -67,7 +69,7 @@ Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados'])->
 // API de Feed
 Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');
 Route::get('posts', [FeedController::class, 'index']);
-Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao']);//->middleware('auth.jwt');
+Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao']); //->middleware('auth.jwt');
 Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
 Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid']); //->middleware('auth.jwt');
 Route::get('find/feed/{id}', [FeedController::class, 'findPostById']);
@@ -77,7 +79,7 @@ Route::delete('delete/feed/{id}', [FeedController::class, 'deleteFeed'])->middle
 
 // API para WordPress buscar
 Route::get('wp-json/posts/feed/{tipo}/{id}', [FeedController::class, 'getAllFeedApi'])->middleware('basic.external');
-Route::get('wp-json/posts/{tipo}', [FeedController::class, 'getAllFeedApi']);//->middleware('basic.external');
+Route::get('wp-json/posts/{tipo}', [FeedController::class, 'getAllFeedApi']); //->middleware('basic.external');
 
 // busca as notificacoes do usuario autenticado
 Route::get('/notificacoes', function () {
@@ -111,5 +113,12 @@ Route::get('/teste-email', function () {
     return 'E-mail enviado para a caixa de areia!';
 });
 
-Route::get('historys', [HistorysController::class, 'index']);//->middleware('basic.external');
-Route::get('anuncios', [AnuncianteController::class, 'GetAllAnunciantesForAdminForPosts']);//->middleware('auth.jwt');
+Route::get('historys', [HistorysController::class, 'index']); //->middleware('basic.external');
+Route::get('anuncios', [AnuncianteController::class, 'GetAllAnunciantesForAdminForPosts']); //->middleware('auth.jwt');
+
+Route::get('clientes', [ClientesController::class, 'clientes']);
+Route::post('cadatrar-clientes', [ClientesController::class, 'cadastroCliente']);
+
+Route::post('gerar-cobranca/{type}', [PagamentoController::class, 'gerarCobranca']);
+
+Route::post('/asaas/webhook', [AsaasWebhookController::class, 'handle']);
