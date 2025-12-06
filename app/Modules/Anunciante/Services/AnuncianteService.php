@@ -2,17 +2,12 @@
 
 namespace App\Modules\Anunciante\Services;
 
-use App\Behaviors\CpfBehaviors;
+use App\Behaviors\Cpf;
+
 use App\Http\Resources\Anuncios;
 use App\Models\Feed;
 use App\Models\Posts;
-use App\Modules\Watermark\Services\Strategies\TypeMediaValueEnum;
-use App\Modules\Watermark\Services\WatermarkStrategy;
 use App\Services\AnuncioApiService;
-use App\Services\S3ImageGalleryService;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Validation\Rules\Enum;
-use Log;
 
 class AnuncianteService
 {
@@ -25,7 +20,7 @@ class AnuncianteService
         if (empty($user->cpf)) {
             return response()->json(['message' => 'CPF do usuário não encontrado'], 400);
         }
-        $cpf = new CpfBehaviors($user->cpf, false);
+        $cpf = new Cpf($user->cpf);
 
         $postsApi = $this->api->getAnuncionsCpf($cpf);
         if (empty($postsApi)) {
@@ -95,7 +90,7 @@ class AnuncianteService
 
     public function atualizarPublicacoesAnunciantes($user)
     {
-        $postsApi = $this->api->getAnuncionsCpf(new CpfBehaviors($user->cpf, false));
+        $postsApi = $this->api->getAnuncionsCpf(new Cpf($user->cpf));
         $this->sincronizarAnunciosPorCpf($postsApi, $user);
     }
 

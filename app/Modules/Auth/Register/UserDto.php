@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\Register;
 
-use App\Behaviors\CpfBehaviors;
-use App\Behaviors\EmailBehaviors;
-use App\Behaviors\NameBehaviors;
+use App\Behaviors\Cpf;
+use App\Behaviors\EmailAddress;
+use App\Behaviors\Password;
 use App\Behaviors\PasswordBehaviors;
-
+use App\Models\User;
 
 class UserDto
 {
@@ -16,20 +16,20 @@ class UserDto
 
     public function __construct(
         //private NameBehaviors $name,
-        private CpfBehaviors $cpf,
-        private EmailBehaviors $email,
-        private PasswordBehaviors $password
+        private Cpf $cpf,
+        private EmailAddress $email,
+        private Password $password
     ) {
 
     }
 
     public function toArray(): array
-    {
+    {   
+
         return [
-            //'name' => $this->name->getValue(),
-            'cpf' => $this->cpf->getCpfNoUsed(),
-            'email' => $this->email->getValue(),
-            'password' => $this->password->getValue(),
+            'cpf' => $this->cpf->getValue(),
+            'email' => $this->email->value(),
+            'password' => $this->password->hash(),
         ];
     }
 

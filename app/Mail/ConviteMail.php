@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Behaviors\EmailAddress;
 use App\Behaviors\EmailBehaviors;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -21,8 +22,8 @@ class ConviteMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(private EmailBehaviors $emailBehaviors) {
-        $this->link = config('services.front_end.url') . '/cadastro?email=' . urlencode($this->emailBehaviors->getValue());
+    public function __construct(private EmailAddress $emailBehaviors) {
+        $this->link = config('services.front_end.url') . '/cadastro?email=' . urlencode($this->emailBehaviors->value());
     }
 
     /*

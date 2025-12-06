@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Anunciante;
 
+use App\Behaviors\Cpf;
 use App\Behaviors\CpfBehaviors;
 use App\Http\Controllers\Anunciante\Requests\AnuncianteDadosRequest;
 
@@ -31,7 +32,7 @@ class AnuncianteController extends Controller
         if (empty($data)) {
             return response()->json(['message' => 'CPF não informado'], 400);
         }
-        $cpf = new CpfBehaviors($data, false);
+        $cpf = new Cpf($data);
         return $this->service->getAnuncioAdminCpf($cpf);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Behaviors\Cpf;
 use App\Behaviors\CpfBehaviors;
 use App\Models\Feed;
 use App\Models\User;
@@ -17,7 +18,7 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->registerPolicies();
 
-        Gate::define('ver-cpf', function (User $user, CpfBehaviors $cpfBehaviors) {
+        Gate::define('ver-cpf', function (User $user, Cpf $cpfBehaviors) {
             // Se for admin, pode tudo
 
             if ($user->role === 'admn') {

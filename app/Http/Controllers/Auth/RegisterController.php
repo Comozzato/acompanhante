@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Behaviors\CpfBehaviors;
-use App\Behaviors\EmailBehaviors;
-use App\Behaviors\NameBehaviors;
-use App\Behaviors\PasswordBehaviors;
+use App\Behaviors\Cpf;
+use App\Behaviors\EmailAddress;
+use App\Behaviors\Password;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Register\RegisterUser;
 use App\Modules\Auth\Register\UserDto;
-use Illuminate\Http\Request;
-
-
-
 class RegisterController extends Controller
 {
     //  
@@ -22,18 +18,19 @@ class RegisterController extends Controller
         $this->register = $registerUser;
     }
 
-    public function register(Request $request)
-    {
+    public function register(RegisterRequest $request)
+    {   
+        
+        $dataRequest = $request->validated();
 
-        $dataRequest = $request->only('cpf', 'email', 'password', 'password_confirmation');
-        $cpf = new CpfBehaviors($dataRequest['cpf']);
-        $email = new EmailBehaviors($dataRequest['email']);
-        $password = new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation']);
+        $cpf = new Cpf($dataRequest['cpf']);
+        $email = new EmailAddress($dataRequest['email']);
+       
+        
         $userDto = new UserDto(
-            //  new NameBehaviors($dataRequest['name']),
             $cpf,
             $email,
-            $password
+            Password::fromPlain($dataRequest['password'])
         );
         
         $this->register->create($userDto);

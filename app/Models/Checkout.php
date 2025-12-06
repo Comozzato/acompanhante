@@ -4,19 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EventAsaas extends Model
+class Checkout extends Model
 {
     //
-    protected $table = 'events';
-    
+    protected $table = 'checkouts';
+
     protected $id = 'string';
 
     protected $fillable = [
         'id',
-        'event_type',
-        'event_id',
-        'payment',
+        'customer_id',
+        'expires_at',
+        'amount',
+        'status',
     ];
 
-    public $timestamps = true;
+
 }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Behaviors\EmailBehaviors;
+use App\Behaviors\EmailAddress;
+use App\Behaviors\Password;
 use App\Behaviors\PasswordBehaviors;
-use App\Comportamentos\Email;
-use App\Comportamentos\Password;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Modules\Auth\ForgotPassword\Forgot;
 use App\Modules\Auth\ForgotPassword\SendCodeForUser;
 use App\Modules\Auth\ForgotPassword\VerifyCode;
@@ -20,37 +20,39 @@ class ForgotController extends Controller
     public function sendCode(Request $request)
     {
         $dataRequest = $request->only('email');
-        $this->sendCodeForUser->sendCode(new EmailBehaviors($dataRequest['email'], false));
+        $this->sendCodeForUser->sendCode(new EmailAddress($dataRequest['email']));
         return response()->json(['message' => 'Código enviado com sucesso']);
     }
 
     public function verifyCode(Request $request)
     {
         $dataRequest = $request->only('code', 'email');
-        $this->verifyCode->verify(new EmailBehaviors($dataRequest['email'], false), $dataRequest['code']);
+        $this->verifyCode->verify(new EmailAddress($dataRequest['email']), $dataRequest['code']);
         return response()->json(['message' => 'Código verificado com sucesso']);
     }
 
     public function forgot(Request $request)
     {
-        $dataRequest = $request->only('code', 'email', 'password', 'password_confirmation');
         
+        $dataRequest = $request->only('code', 'email', 'password', 'password_confirmation');
         $this->forgot->forgot(
             $dataRequest['code'],
-            new EmailBehaviors($dataRequest['email'], false),
-            new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
+            new EmailAddress($dataRequest['email']),
+            Password::fromPlain($dataRequest['password'])
         );
 
         return response()->json(['message' => 'Senha alterada com sucesso']);
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
-        $dataRequest = $request->only('password', 'password_confirmation');
-        $user = auth_user(); // usuário autenticado
+        $dataRequest = $request->validated();
+
+        $user = auth_user();
+
         $this->forgot->resetPassword(
-            new EmailBehaviors($user->email, false),
-            new PasswordBehaviors($dataRequest['password'], $dataRequest['password_confirmation'])
+            new EmailAddress($user->email),
+            Password::fromPlain($dataRequest['password'])
         );
         return response()->json(['message' => 'Senha alterada com sucesso']);
     }

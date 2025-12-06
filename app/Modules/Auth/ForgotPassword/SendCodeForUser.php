@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\ForgotPassword;
 
-
+use App\Behaviors\EmailAddress;
 use App\Behaviors\EmailBehaviors;
 use App\Mail\ForgotPassword;
 
@@ -20,9 +20,9 @@ class SendCodeForUser
 
     }
 
-    public function sendCode(EmailBehaviors $email): void
+    public function sendCode(EmailAddress $email): void
     {
-        $code = $this->createCode($email->getEmailIfExists());
+        $code = $this->createCode($email->value());
         $this->sendEmail($email, $code);
     }
 
@@ -33,10 +33,10 @@ class SendCodeForUser
         return $code;
     }
 
-    private function sendEmail(EmailBehaviors $email, string $code)
+    private function sendEmail(EmailAddress $email, string $code)
     {
         try {
-            Mail::to($email->getValue())->send(new ForgotPassword($code));
+            Mail::to($email->value())->send(new ForgotPassword($code));
         } catch (\Exception $e) {
             throw new HttpClientException($e->getMessage(), 400);
         }

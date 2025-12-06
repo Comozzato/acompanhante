@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Behaviors\EmailAddress;
 use App\Behaviors\EmailBehaviors;
 use App\Mail\ConviteMail;
 use App\Services\AnuncioApiService;
@@ -26,8 +27,8 @@ class ConviteController extends Controller
             'email' => 'required|email',
         ]);
       
-        $email = new EmailBehaviors($validated['email']);
-        Mail::to($email->getValue())->send(new ConviteMail($email));
+        $email = new EmailAddress($validated['email']);
+        Mail::to($email->value())->send(new ConviteMail($email));
         return response()->json(['message' => 'Convite enviado com sucesso!'], 200);
       
     }

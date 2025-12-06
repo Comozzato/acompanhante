@@ -3,11 +3,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Behaviors\CpfBehaviors;
+use App\Behaviors\Cpf;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Http;
-use PhpParser\JsonDecoder;
-
 class AnuncioApiService
 {
     private string $user;
@@ -25,7 +23,7 @@ class AnuncioApiService
 
     public function getTodosOsAnucios()
     {
-        $endpoint = rtrim($this->url, '/') . "/wp-json/meusanuncios/v1/busca/?cpf={$cpf->getValue()}";
+        $endpoint = rtrim($this->url, '/') . "/wp-json/meusanuncios/v1/busca/";
         $headers = [
             'Authorization' => 'Basic ' . $this->token,
         ];
@@ -40,7 +38,7 @@ class AnuncioApiService
         return $response->json();   
     }
 
-    public function getAnuncionsCpf(CpfBehaviors $cpf)
+    public function getAnuncionsCpf(Cpf $cpf)
     {   
 
         $endpoint = rtrim($this->url, '/') . "/wp-json/meusanuncios/v1/busca/?cpf={$cpf->getValue()}";

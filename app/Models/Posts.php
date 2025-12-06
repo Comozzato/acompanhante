@@ -23,6 +23,7 @@ class Posts extends Model implements Auditable
         'nome',
         'cidade',
         'url',
+        'customer_id',
     ];
 
     public $timestamps = false;
