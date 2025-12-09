@@ -19,6 +19,7 @@ class User extends Authenticatable  //implements Auditable
     public $incrementing = false; // Evita IDs auto incrementais
     protected $keyType = 'string'; // Define o tipo como string
     protected $fillable = [
+        'asaas_customer_id',
         'cpf',
         'email',
         'password',

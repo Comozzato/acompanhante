@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Pagamentos\Strategies\Interfaces;
 
 
-interface Pix extends Pagamento
+interface Pagamentopix extends Pagamento
 {
-    
+    public function gerarCobranca(array $data);
 }

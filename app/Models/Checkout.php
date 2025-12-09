@@ -13,10 +13,12 @@ class Checkout extends Model
 
     protected $fillable = [
         'id',
+        'post_id',
+        'produto_id',
         'customer_id',
         'expires_at',
         'amount',
-        'status',
+        'status'
     ];
 
 

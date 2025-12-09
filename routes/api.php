@@ -116,9 +116,10 @@ Route::get('/teste-email', function () {
 Route::get('historys', [HistorysController::class, 'index']); //->middleware('basic.external');
 Route::get('anuncios', [AnuncianteController::class, 'GetAllAnunciantesForAdminForPosts']); //->middleware('auth.jwt');
 
+
 Route::get('clientes', [ClientesController::class, 'clientes']);
 Route::post('cadatrar-clientes', [ClientesController::class, 'cadastroCliente']);
-
 Route::post('gerar-cobranca/{type}', [PagamentoController::class, 'gerarCobranca']);
-
 Route::post('/asaas/webhook', [AsaasWebhookController::class, 'handle']);
+
+Route::post('produtos/criar', [\App\Modules\Produto\ProdutoController::class, 'criarProduto']);

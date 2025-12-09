@@ -11,7 +11,6 @@ class RegisterUser
 
     public function create(UserDto $userDto)
     {   
-        
         User::create($userDto->toArray());
     }
 }

@@ -21,4 +21,10 @@ class IdValueObject
     {
         return $this->id;
     }
+
+    public static function fromPlain(string $id): self
+    {
+        return new self($id);
+    }
+    
 }

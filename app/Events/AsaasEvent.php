@@ -35,5 +35,6 @@ class AsaasEvent
     {
         $this->payload = $payload;
         $this->event = $payload['event'] ?? null;
+        info('AsaasEvent fired: ' . $this->event . ' Payload: ' . json_encode($this->payload['payment']));
     }
 }

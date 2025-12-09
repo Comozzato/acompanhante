@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\Clientes;
 
 use App\Helpers\Api;
+use App\Models\User;
+use App\Modules\Shared\ValueObjects\IdValueObject;
 use Exception;
 
 class ClientesServices
@@ -20,10 +22,19 @@ class ClientesServices
     }
 
 
-    public function cadastroCliente(array $data = [])
-    {
+    public function cadastroCliente(IdValueObject $userID)
+    {   
+        $userData = User::find($userID->getValue());
+        $data = [
+            'name' => $userData->name,
+            'email' => $userData->email,
+            //'phone' => $userData->phone,
+            //'mobilePhone' => $userData->phone,
+            //'cpfCnpj' => $userData->cpf_cnpj,
+            //'externalReference' => $userData->id,
+            'notificationDisabled' => true,
+        ];
         $response = $this->asaasApi::post('/v3/customers', $data);
-        
         return $response;
     }
 }

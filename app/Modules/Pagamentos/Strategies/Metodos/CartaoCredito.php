@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagamentos\Strategies\Metodos;
 
-use App\Helpers\Api;
-use App\Modules\Pagamentos\Strategies\Interfaces\CartaoCredito as InterfacesCartaoCredito;
+use App\Modules\Pagamentos\Strategies\Interfaces\PagamentoCartaoCredito;
 use Money\Money;
-use Money\Currency;
 
-class CartaoCredito implements InterfacesCartaoCredito
+class CartaoCredito implements PagamentoCartaoCredito
 {
-
-    public function __construct(private Api $asaasApi) {}
     public function gerarCobranca(array $data)
     {   
 
