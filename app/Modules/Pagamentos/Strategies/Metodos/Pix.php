@@ -9,6 +9,10 @@ use App\Models\Produto;
 use App\Models\User;
 use App\Modules\Pagamentos\Strategies\Interfaces\Pagamentopix;
 use Carbon\Carbon;
+use Money\Currencies\ISOCurrencies;
+use Money\Formatter\DecimalMoneyFormatter;
+use Money\Money;
+use Money\Parser\DecimalMoneyParser;
 
 class Pix implements Pagamentopix
 {   
@@ -17,21 +21,25 @@ class Pix implements Pagamentopix
     // escrito pelo comozzato em 05/11/2025
     // atualizado em 07/11/2025
     public function gerarCobranca(array $data)
-    {   
+    {    
         // busca os dados do usuário e do produto
-        $user =  User::find($data['user_id'])->first();
+        $user =  User::find($data['user_id']);
         if (! $user) {
             throw new \RuntimeException('Usuário não encontrado');
-        }       
-        $produto = Produto::find($data['produto_id'])->first();
+        }        
+        $produto = Produto::find($data['produto_id']);
         // monta o payload para criar a cobrança pix na api do asaas
         if (! $produto) {
             throw new \RuntimeException('Produto não encontrado');
         }
+
+        $formatter = new DecimalMoneyFormatter(new ISOCurrencies());
+        $preco =  $formatter->format(Money::BRL($produto->preco));
+
         $payload = [
             'customer' => $user->asaas_customer_id,
             "description" => $produto->nome,
-            "value" => $produto->preco,
+            "value" => $preco,
             "dueDate" => Carbon::now()->addMinutes(30)->format('Y-m-d'),
             "billingType" => 'PIX'
         ];

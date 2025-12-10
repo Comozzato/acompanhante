@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace  App\Modules\Produto;
 
 use App\Models\Produto;
+use Money\Currencies\ISOCurrencies;
+use Money\Formatter\DecimalMoneyFormatter;
+use Money\Money;
 
 class ProdutoService
 {
@@ -14,13 +17,15 @@ class ProdutoService
 
     
     public function listarProdutos(): array
-    {
+    {   
         return $this->produto->all()->toArray();
     }
 
-
     public function criarProduto(array $data): Produto
-    {
+    {   
+
+        $money =  Money::BRL((int) $data['preco'])->getAmount();
+        $data['preco'] = $money;
         return $this->produto->create($data);
     }
 

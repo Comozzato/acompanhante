@@ -11,7 +11,7 @@ RUN apk --update --no-cache add \
     libzip-dev \
     postgresql-dev
 
-RUN docker-php-ext-install pdo_pgsql exif zip 
+RUN docker-php-ext-install pdo_pgsql exif zip bcmath
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # (Opcional, se for usar PIE pra outras extensões)

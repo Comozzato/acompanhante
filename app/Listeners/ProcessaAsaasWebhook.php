@@ -34,6 +34,8 @@ class ProcessaAsaasWebhook
         };
         $this->updateCheckoutStatus($payload['payment']['id'], $tipo);
     }
+
+    
     protected function handleCheckoutPaid(array $payload): void
     {
         

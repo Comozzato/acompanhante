@@ -118,8 +118,14 @@ Route::get('anuncios', [AnuncianteController::class, 'GetAllAnunciantesForAdminF
 
 
 Route::get('clientes', [ClientesController::class, 'clientes']);
-Route::post('cadatrar-clientes', [ClientesController::class, 'cadastroCliente']);
 Route::post('gerar-cobranca/{type}', [PagamentoController::class, 'gerarCobranca']);
 Route::post('/asaas/webhook', [AsaasWebhookController::class, 'handle']);
 
-Route::post('produtos/criar', [\App\Modules\Produto\ProdutoController::class, 'criarProduto']);
+
+
+Route::prefix('produtos')->group(function () {
+    Route::post('/criar', [\App\Modules\Produto\ProdutoController::class, 'criarProduto']);
+    Route::get('/', [\App\Modules\Produto\ProdutoController::class, 'listarProdutos']);
+    Route::put('/atualizar/{id}', [\App\Modules\Produto\ProdutoController::class, 'atualizarProduto']);
+    Route::delete('/deletar/{id}', [\App\Modules\Produto\ProdutoController::class, 'deletarProduto']);
+});//->middleware('auth.jwt');
