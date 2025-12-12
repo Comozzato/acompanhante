@@ -4,24 +4,40 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagamentos\Strategies\Metodos;
 
+use App\Models\Produto;
+use App\Models\User;
 use App\Modules\Pagamentos\Strategies\Interfaces\PagamentoCartaoCredito;
+use Money\Currencies\ISOCurrencies;
+use Money\Formatter\DecimalMoneyFormatter;
 use Money\Money;
 
 class CartaoCredito implements PagamentoCartaoCredito
 {
     public function gerarCobranca(array $data)
     {   
+         // busca os dados do usuário e do produto
+        $user =  User::find($data['user_id']);
+        if (! $user) {
+            throw new \RuntimeException('Usuário não encontrado');
+        }        
+        $produto = Produto::find($data['produto_id']);
+        // monta o payload para criar a cobrança pix na api do asaas
+        if (! $produto) {
+            throw new \RuntimeException('Produto não encontrado');
+        }
 
-       
-        $valor = Money::BRL($data['value']);
+        $formatter = new DecimalMoneyFormatter(new ISOCurrencies());
+        $preco =  $formatter->format(Money::BRL($produto->preco));
+
+        $valor = Money::BRL($preco);
         $payload = array_filter([
-            'customer' => $data['customer'],
+            'customer' => $user->asaas_customer_id,
             'billingType' => 'CREDIT_CARD',
-            'value' =>  number_format($valor->getAmount() / 100, 2, '.', ''),
+            'value' =>  $valor->getAmount(),
             'dueDate' => $data['dueDate'],
-            //'description' => $data['description'] ?? 'Pagamento via cartão de crédito',
             'installmentCount' => $data['installmentCount'] > 1 ? $data['installmentCount'] : null,
-            'installmentValue' => $this->calcularValorParcela($data['installmentCount'], $data['value']),
+            'installmentValue' => 0,
+            
             'creditCard' => [
                 'holderName' => $data['creditCard']['holderName'],
                 'number' => $data['creditCard']['number'],
@@ -47,13 +63,4 @@ class CartaoCredito implements PagamentoCartaoCredito
 
         return $response;
     }
-
-    private function calcularValorParcela(int $parcelas = 1, int $value)
-    {
-        if ($parcelas > 1) {
-            $valorParcela = $value / $parcelas;
-        }
-        return $valorParcela ?? null;
-    }
-    private function calcularTotalPorValorParcela($value, int $valueParcela) {}
 }

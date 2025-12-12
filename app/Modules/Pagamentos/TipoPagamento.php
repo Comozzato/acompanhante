@@ -18,7 +18,8 @@ enum TipoPagamento: string
 
 
     public function metodoDePagamento(): Pagamento
-    {
+    {   
+        // retorna a implementação específica para cada tipo de pagamento
         return match ($this) {
             self::PIX     => app(Pix::class),
             self::CREDITO => app(CartaoCredito::class),
@@ -26,6 +27,16 @@ enum TipoPagamento: string
         };
     }
 
+    // metodo que retorna a request específica para cada tipo de pagamento
+    public function TipoRequest()
+    {
+        return match ($this) {
+            self::PIX     => app(\App\Http\Requests\CobrancaPixRequest::class),
+            self::CREDITO => app(\App\Http\Requests\CobrancaoCreditoRequest::class),
+            //self::DEBITO  => \App\Http\Requests\CobrancaDebitoRequest::class,
+        };
+    }
+    
     public function forSelect(): array
     {
         return match ($this) {
