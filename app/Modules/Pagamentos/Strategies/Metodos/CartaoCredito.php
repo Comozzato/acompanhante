@@ -37,7 +37,7 @@ class CartaoCredito implements PagamentoCartaoCredito
             'dueDate' => $data['dueDate'],
             'installmentCount' => $data['installmentCount'] > 1 ? $data['installmentCount'] : null,
             'installmentValue' => 0,
-            
+
             'creditCard' => [
                 'holderName' => $data['creditCard']['holderName'],
                 'number' => $data['creditCard']['number'],
@@ -59,8 +59,7 @@ class CartaoCredito implements PagamentoCartaoCredito
             'remoteIp' => $data['remoteIp'] ?? request()->ip(),
         ]);
 
-        $response =  $this->asaasApi->post('/v3/lean/payments', $payload);
-
-        return $response;
+    
+        return [];
     }
 }
