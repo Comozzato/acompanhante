@@ -67,15 +67,15 @@ class Historys extends JsonResource
                     'publicado_em' => $feed->publicado_em,
                     'button' => $button
                 ];
-            } else {
-
-                $stories[] = [
-                    'type' => 'image',
-                    'length' => 3,
-                    'src'  => $this->formatImages($file->toArray()),
-                    'publicado_em' => $feed->publicado_em,
-                    'button' => $button
-                ];
+            // } else {
+            //     $stories[] = [
+            //         'type' => 'image',
+            //         'length' => 3,
+            //         'src'  => $this->formatImages($file->toArray()),
+            //         'publicado_em' => $feed->publicado_em,
+            //         'button' => $button
+            //     ];
+            // }
             }
         }
         usort($stories, fn($a, $b) => strtotime($b['publicado_em']) <=> strtotime($a['publicado_em']));
