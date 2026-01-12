@@ -29,7 +29,7 @@ class Historys extends JsonResource
         // se não tiver items, retorna array vazio
         if (empty($items)) {
             return [];
-        }  
+        }
 
 
         return  [
@@ -67,16 +67,16 @@ class Historys extends JsonResource
                     'publicado_em' => $feed->publicado_em,
                     'button' => $button
                 ];
-            } else {
+            } // else {
 
-                $stories[] = [
-                    'type' => 'image',
-                    'length' => 3,
-                    'src'  => $this->formatImages($file->toArray()),
-                    'publicado_em' => $feed->publicado_em,
-                    'button' => $button
-                ];
-            }
+            //     $stories[] = [
+            //         'type' => 'image',
+            //         'length' => 3,
+            //         'src'  => $this->formatImages($file->toArray()),
+            //         'publicado_em' => $feed->publicado_em,
+            //         'button' => $button
+            //     ];
+            // }
         }
         usort($stories, fn($a, $b) => strtotime($b['publicado_em']) <=> strtotime($a['publicado_em']));
         return $stories;
@@ -128,7 +128,7 @@ class Historys extends JsonResource
     }
 
     function getVideoMetadata($url, $videoId)
-    {  
+    {
         return Cache::rememberForever($videoId, function () use ($url) {
             $endpoint = urlencode($url);
             $url = "https://api.shotstack.io/v1/probe/{$endpoint}";
