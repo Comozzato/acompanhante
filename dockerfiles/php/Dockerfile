@@ -1,24 +1,30 @@
 FROM php:8.4-fpm-alpine
 
-# Composer (igual você já tinha)
-RUN apk --update --no-cache add \
-    git \
-    make \
-    autoconf \
+WORKDIR /var/www
+EXPOSE 9000
+
+# 1) Dependências RUNTIME (ficam na imagem final)
+RUN apk add --no-cache \
+    libpq \
+    libzip \
+
+# 2) Dependências de BUILD (só pra compilar extensões) + build + remove
+RUN apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
     build-base \
     linux-headers \
-    librdkafka-dev \
+    postgresql-dev \
     libzip-dev \
-    postgresql-dev
+  && docker-php-ext-install pdo_pgsql exif zip bcmath \
+  && apk del .build-deps
 
-RUN docker-php-ext-install pdo_pgsql exif zip bcmath
-
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-# (Opcional, se for usar PIE pra outras extensões)
+
+# (Opcional) PIE - só mantenha se você realmente usa dentro do container
 COPY --from=ghcr.io/php/pie:bin /pie /usr/bin/pie
 
+# Node: isso pesa MUITO. Se precisar mesmo, ok:
 RUN apk add --no-cache nodejs npm
-# Dependências de sistema + libs do Postgres
-WORKDIR /var/www
 
-EXPOSE 9000
+USER root
