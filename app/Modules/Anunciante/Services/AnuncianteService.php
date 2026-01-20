@@ -35,8 +35,14 @@ class AnuncianteService
     {
         $postsApi = $this->api->getAnuncionsCpf($cpf);
         if (empty($postsApi)) {
-            return false;
+            return 0;
         }
+        if (User::where('cpf', $cpf->getValue())->exists()) {
+            $user = User::where('cpf', $cpf->getValue())->first();
+            $this->sincronizarAnunciosPorCpf($postsApi, $user);
+            return Posts::where('user_id', $user->id)->get();
+        }
+
         return Anuncios::collection($postsApi);
     }
 

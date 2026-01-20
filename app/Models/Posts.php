@@ -27,6 +27,10 @@ class Posts extends Model implements Auditable
         'cidades_virtuais',
     ];
 
+    protected $casts = [
+    'cidade_virtual'   => 'boolean',
+    'cidades_virtuais' => 'array',
+];
 
 
     public $timestamps = false;
