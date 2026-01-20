@@ -18,14 +18,13 @@ class HistorysController extends \App\Http\Controllers\Controller
     {
         $city = request()->query('city');
         $key = 'historys_feed_' . $city;
-
         // Tenta recuperar do cache
         $historys = Cache::get($key);
+
 
         if (!$historys) {
             // Busca do serviço
             $historys = $this->service->getHistorys();
-
             // Salva no cache principal
             Cache::put($key, $historys, 3600); // 1 hora
 

@@ -16,6 +16,9 @@ return new class extends Migration
             $table->boolean('cidade_virtual')->default(false);
             $table->json('cidades_virtuais')->nullable();
         });
+        Schema::table('posts', function (Blueprint $table) {
+            $table->index('cidade_virtual');
+        });
     }
 
     /**

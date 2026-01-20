@@ -54,7 +54,7 @@ class Posts extends Model implements Auditable
             ->limit(3); // pega os 3 últimos feeds de cada post
     }
 
-    public function scopeCity($query, $city)
+   public function scopeCity($query, $city)
     {
         if (!$city) {
             return $query;
@@ -62,15 +62,14 @@ class Posts extends Model implements Auditable
 
         return $query->where(function ($q) use ($city) {
 
-            // Caso 1: cidade normal
+            // Cidade física
             $q->where('cidade', $city)
 
-                // Caso 2: cidade virtual
-                ->orWhere(function ($q2) use ($city) {
-                    $q2->whereNull('cidade')
-                        ->where('cidade_virtual', true)
-                        ->whereJsonContains('cidades_virtuais', $city);
-                });
+            // Cidade virtual (CORRIGIDO)
+            ->orWhere(function ($q2) use ($city) {
+                $q2->where('cidade_virtual', true)
+                    ->whereJsonContains('cidades_virtuais', $city);
+            });
         });
     }
 
