@@ -7,6 +7,7 @@ use App\Behaviors\EmailBehaviors;
 use App\Behaviors\NameBehaviors;
 use App\Behaviors\PasswordBehaviors;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Modules\Auth\Register\RegisterUser;
 use App\Modules\Auth\Register\UserDto;
 use Illuminate\Http\Request;
@@ -38,5 +39,14 @@ class RegisterController extends Controller
         
         $this->register->create($userDto);
         return response()->json(['message' => 'Register successfully'], 201);
+    }
+
+
+    public function updateEmail(Request $request)
+    {  
+        $requestData = $request->input();
+        $user = User::find($requestData['lastEmail']);
+        $user->email = $requestData['newEmail'];
+        $user->save();
     }
 }

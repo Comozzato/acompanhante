@@ -1,0 +1,32 @@
+services:
+    webserver:
+        image: "nginx:alpine"
+        working_dir: /app
+        depends_on:
+            - php
+        volumes:
+            - ".:/app"
+            - "./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
+        ports:
+            - "48000:81"
+        networks:
+            - musa-network
+
+    php:
+        build:
+            context: phpdocker/php-fpm
+            args:
+                UID: ${UID}
+                GID: ${GID}
+        working_dir: /app
+        user: "${UID}:${GID}"
+        volumes:
+            - ".:/app"
+            - "./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/fpm/conf.d/99-overrides.ini"
+            - "./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/cli/conf.d/99-overrides.ini"
+        networks:
+            - musa-network
+
+networks:
+    musa-network:
+        driver: bridge

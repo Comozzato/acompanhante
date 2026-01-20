@@ -7,6 +7,7 @@ use App\Http\Controllers\Anunciante\Requests\AnuncianteDadosRequest;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnuncioMidias;
+use App\Models\Posts;
 use App\Models\User;
 use App\Modules\Anunciante\Services\AnuncianteService;
 use App\Services\S3ImageGalleryService;
@@ -22,8 +23,12 @@ class AnuncianteController extends Controller
     public function getMyAnuncios()
     {
         $user = auth_user();
-        return $this->service->getAnuncioCpf($user);
+        $this->service->getAnuncioCpf($user);
+        $data = Posts::where('user_id', $user->id)->get();
+
+        return $data;
     }
+
     public function getAnuncioCpf(request $request)
     {
         Gate::forUser(auth_user())->allows('admin');

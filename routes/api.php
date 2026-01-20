@@ -43,6 +43,7 @@ Route::prefix('auth')->group(function () {
         Route::post('verify-code', [ForgotController::class, 'verifyCode']);
         Route::post('reset', [ForgotController::class, 'forgot']);
     });
+
     Route::post('register', [RegisterController::class, 'register']);
     Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LogoutController::class, 'logout'])->middleware('auth.jwt');
@@ -50,6 +51,7 @@ Route::prefix('auth')->group(function () {
     Route::post('reset-password', [ForgotController::class, 'resetPassword'])->middleware('auth.jwt');
 });
 
+Route::patch('auth/update-email', [RegisterController::class, 'updateEmail']);//->middleware('auth.jwt');
 
 
 

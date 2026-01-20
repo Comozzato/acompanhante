@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Posts;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
@@ -17,10 +19,8 @@ class Anuncios extends JsonResource
     {
         // Aqui pegamos o retorno padrão do recurso
         $data = parent::toArray($request);
-
         // Removemos as imagens
         // return Arr::except($data, ['imgcapa', 'imgevidencias', 'imgatualizadas']);
-
-        return $data;
+        return $data;//array_merge($data, $profile->email);
     }
 }

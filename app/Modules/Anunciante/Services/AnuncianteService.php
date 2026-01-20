@@ -6,13 +6,9 @@ use App\Behaviors\CpfBehaviors;
 use App\Http\Resources\Anuncios;
 use App\Models\Feed;
 use App\Models\Posts;
-use App\Modules\Watermark\Services\Strategies\TypeMediaValueEnum;
-use App\Modules\Watermark\Services\WatermarkStrategy;
+use App\Models\User;
 use App\Services\AnuncioApiService;
-use App\Services\S3ImageGalleryService;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Validation\Rules\Enum;
-use Log;
+use Illuminate\Database\Eloquent\Collection;
 
 class AnuncianteService
 {
@@ -28,20 +24,19 @@ class AnuncianteService
         $cpf = new CpfBehaviors($user->cpf, false);
 
         $postsApi = $this->api->getAnuncionsCpf($cpf);
+
         if (empty($postsApi)) {
-            return [];
+            return 0;
         }
-        info($postsApi);
         $this->sincronizarAnunciosPorCpf($postsApi, $user);
-        return Anuncios::collection($postsApi);
     }
+
     public function getAnuncioAdminCpf($cpf)
     {
         $postsApi = $this->api->getAnuncionsCpf($cpf);
         if (empty($postsApi)) {
-            return [];
+            return false;
         }
-
         return Anuncios::collection($postsApi);
     }
 
@@ -74,6 +69,8 @@ class AnuncianteService
                     'imgatualizadas' => $postData['imgatualizadas'],
                     'status' => $postData['status'],
                     'url' => $postData['url'],
+                    'cidade_virtual' => $postData['temvirtual'] ?? 0,
+                    'cidades_virtuais' => $postData['cidadevirtual'] ?? null,
                 ]);
             } else {
                 // 4. Cria novo post se não existir
@@ -87,6 +84,8 @@ class AnuncianteService
                     'imgatualizadas' => $postData['imgatualizadas'],
                     'status' => $postData['status'],
                     'url' => $postData['url'],
+                    'cidade_virtual' => $postData['temvirtual'] ?? 0,
+                    'cidades_virtuais' => $postData['cidadevirtual'] ?? null,
                 ]);
             }
         }
