@@ -44,11 +44,19 @@ class RegisterController extends Controller
     public function updateEmail(Request $request)
     {
         Gate::forUser(auth_user())->allows('admin');
+
         $requestData = $request->input();
+        if(User::where('email', $requestData['lastEmail'])->exists())
+        {
+            return response()->json(['message'=>'email ja registrado'],422);
+        }
+
         $user = User::where('email', $requestData['lastEmail']);
+
         $user->update([
             'email' => $requestData['newEmail']
         ]);
+        
         return response()->json(['message' => 'successfully'], 200);
     }
 }
