@@ -17,6 +17,7 @@ RUN apk add --no-cache \
 
 # Dependências de build
 RUN apk add --no-cache --virtual .build-deps \
+  ffmpeg \
   $PHPIZE_DEPS \
   build-base \
   linux-headers \

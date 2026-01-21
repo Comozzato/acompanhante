@@ -51,8 +51,7 @@ Route::prefix('auth')->group(function () {
     Route::post('reset-password', [ForgotController::class, 'resetPassword'])->middleware('auth.jwt');
 });
 
-Route::patch('auth/update-email', [RegisterController::class, 'updateEmail']);//->middleware('auth.jwt');
-
+Route::post('auth/admin/update-email', [RegisterController::class, 'updateEmail']);//->middleware('auth.jwt');
 
 
 Route::middleware('auth.jwt')->group(function () {

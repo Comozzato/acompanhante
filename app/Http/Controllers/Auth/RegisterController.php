@@ -11,8 +11,7 @@ use App\Models\User;
 use App\Modules\Auth\Register\RegisterUser;
 use App\Modules\Auth\Register\UserDto;
 use Illuminate\Http\Request;
-
-
+use Illuminate\Support\Facades\Gate;
 
 class RegisterController extends Controller
 {
@@ -36,17 +35,20 @@ class RegisterController extends Controller
             $email,
             $password
         );
-        
+
         $this->register->create($userDto);
         return response()->json(['message' => 'Register successfully'], 201);
     }
 
 
     public function updateEmail(Request $request)
-    {  
+    {
+        Gate::forUser(auth_user())->allows('admin');
         $requestData = $request->input();
-        $user = User::find($requestData['lastEmail']);
-        $user->email = $requestData['newEmail'];
-        $user->save();
+        $user = User::where('email', $requestData['lastEmail']);
+        $user->update([
+            'email' => $requestData['newEmail']
+        ]);
+        return response()->json(['message' => 'successfully'], 200);
     }
 }

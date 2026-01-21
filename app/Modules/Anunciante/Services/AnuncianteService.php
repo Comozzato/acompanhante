@@ -40,10 +40,12 @@ class AnuncianteService
         if (User::where('cpf', $cpf->getValue())->exists()) {
             $user = User::where('cpf', $cpf->getValue())->first();
             $this->sincronizarAnunciosPorCpf($postsApi, $user);
-            return Posts::where('user_id', $user->id)->get();
+            return ['anuncios' => posts::where('user_id', $user->id)->get()->toArray(), 'profile' => [
+                'email' => $user->email
+            ]];
         }
 
-        return Anuncios::collection($postsApi);
+        return ['anuncios' => Anuncios::collection($postsApi), 'cadastrado' => 0];
     }
 
     public function getDados($id)
