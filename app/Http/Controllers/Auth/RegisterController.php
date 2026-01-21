@@ -45,18 +45,26 @@ class RegisterController extends Controller
     {
         Gate::forUser(auth_user())->allows('admin');
 
-        $requestData = $request->input();
-        if(User::where('email', $requestData['lastEmail'])->exists())
-        {
-            return response()->json(['message'=>'email ja registrado'],422);
-        }
+         $request->validate([
+        'lastEmail' => 'required|email',
+        'newEmail'  => 'required|email'
+    ]);
 
-        $user = User::where('email', $requestData['lastEmail']);
-
-        $user->update([
-            'email' => $requestData['newEmail']
-        ]);
-        
-        return response()->json(['message' => 'successfully'], 200);
+    // verifica se o NOVO email já existe
+    if (User::where('email', $request->newEmail)->exists()) {
+        return response()->json(['message' => 'email já registrado'], 422);
     }
+
+    $user = User::where('email', $request->lastEmail)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'usuário não encontrado'], 404);
+    }
+
+    $user->update([
+        'email' => $request->newEmail
+    ]);
+
+    return response()->json(['message' => 'successfully'], 200);
+}
 }
