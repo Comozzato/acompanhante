@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ConviteController;
 use App\Http\Controllers\ForgotController;
 use App\Http\Controllers\Feed\FeedController;
+use App\Http\Controllers\GaleryAcompanhanteController;
 use App\Http\Controllers\Historys\HistorysController;
 use App\Models\User;
 use App\Modules\Clientes\ClientesController;
@@ -51,7 +52,7 @@ Route::prefix('auth')->group(function () {
     Route::post('reset-password', [ForgotController::class, 'resetPassword'])->middleware('auth.jwt');
 });
 
-Route::post('auth/admin/update-email', [RegisterController::class, 'updateEmail']);//->middleware('auth.jwt');
+Route::post('auth/admin/update-email', [RegisterController::class, 'updateEmail']); //->middleware('auth.jwt');
 
 
 Route::middleware('auth.jwt')->group(function () {
@@ -123,3 +124,12 @@ Route::post('cadatrar-clientes', [ClientesController::class, 'cadastroCliente'])
 Route::post('gerar-cobranca/{type}', [PagamentoController::class, 'gerarCobranca']);
 
 Route::post('/asaas/webhook', [AsaasWebhookController::class, 'handle']);
+
+
+Route::prefix('galeria')->group(function () {
+    route::get('/{id}', [GaleryAcompanhanteController::class, 'index']);
+    route::post('/{id}', [GaleryAcompanhanteController::class, 'upload']);
+    route::post('/{id}/reorder', [GaleryAcompanhanteController::class, 'reorder']);
+    route::post('/{id}/detach/{imagem}', [GaleryAcompanhanteController::class, 'detach']);
+    route::delete('/{id}/delete{imagem}', [GaleryAcompanhanteController::class, 'delete']);
+});
