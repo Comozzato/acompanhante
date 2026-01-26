@@ -14,7 +14,10 @@ class GaleryAcompanhanteController extends Controller
     {
         $this->ensureAcompanhanteExists($postId);
 
-        $res = $this->Api->get('/wp-json/musaclass/v1/acompanhante/' . $postId . '/images');
+        $timestamp = '?t=' . now()->timestamp;
+        $uri = '/wp-json/musaclass/v1/acompanhante/' . $postId . '/images' . $timestamp;
+        //return $uri;
+        $res = $this->Api->get($uri);
 
         if (!$res->successful()) {
             return response()->json([
@@ -29,21 +32,15 @@ class GaleryAcompanhanteController extends Controller
 
 
     public function upload(Request $request, int $postId)
-    {   
-        
-        if (!$request->hasFile('file')) {
-        return response()->json(['erro' => 'Arquivo não enviado'], 422);
-        }
-       
-    
+    {
+
         $this->ensureAcompanhanteExists($postId);
 
-        $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
-        ]);
-
-
         $file = $request->file('file');
+
+        if (!is_file($file)) {
+            return response()->json(['message' => 'arquivo nao enviado'], 422);
+        }
 
         // nome seguro
         $safeName = preg_replace('/[^a-zA-Z0-9\.\-_]/', '-', $file->getClientOriginalName());
@@ -123,17 +120,16 @@ class GaleryAcompanhanteController extends Controller
             'ordered_ids.*' => 'integer',
         ]);
 
-        
+
         info($request->ordered_ids);
-        
+
         $res = $this->Api->post('/wp-json/musaclass/v1/acompanhante/' . $postId . '/images/reorder', [
             'ordered_ids' => $request->ordered_ids
         ]);
 
-        if(!$res->successful())
-        {
-            info('Error: '. $res->json());
-            return response()->json(['message'=>'erro ao reordena as imagens'],400);
+        if (!$res->successful()) {
+            info('Error: ' . $res->json());
+            return response()->json(['message' => 'erro ao reordena as imagens'], 400);
         }
 
         return $res->json();
