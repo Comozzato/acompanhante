@@ -128,8 +128,8 @@ Route::post('/asaas/webhook', [AsaasWebhookController::class, 'handle']);
 
 Route::prefix('galeria')->group(function () {
     route::get('/{id}', [GaleryAcompanhanteController::class, 'index']);
-    route::post('/{id}', [GaleryAcompanhanteController::class, 'upload']);
+    route::post('/upload/{id}', [GaleryAcompanhanteController::class, 'upload']);
     route::post('/{id}/reorder', [GaleryAcompanhanteController::class, 'reorder']);
     route::post('/{id}/detach/{imagem}', [GaleryAcompanhanteController::class, 'detach']);
-    route::delete('/{id}/delete{imagem}', [GaleryAcompanhanteController::class, 'delete']);
+    route::delete('/{id}/delete/{imagem}', [GaleryAcompanhanteController::class, 'delete']);
 });

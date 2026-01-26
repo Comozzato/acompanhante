@@ -14,8 +14,6 @@ class WpApi
 
     public function __construct()
     {
-
-
         $this->baseUrl = rtrim(config('services.anuncio_api.url'), '/');
         $this->username = config('services.anuncio_api.user');
         $this->appPassword = config('services.anuncio_api.pass');
@@ -42,10 +40,14 @@ class WpApi
     {
         return $this->client()
             ->withHeaders([
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-                'Content-Type' => $mimeType,
-            ])
-            ->post($this->baseUrl . '/wp-json/wp/v2/media', $fileBinary);
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Type'        => $mimeType,
+        ])
+        ->withBody($fileBinary, $mimeType)
+        ->send(
+            'POST',
+            $this->baseUrl . '/wp-json/wp/v2/media'
+        );
     }
 
     public function delete(string $endpoint, array $query = [])

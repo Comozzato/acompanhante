@@ -29,12 +29,19 @@ class GaleryAcompanhanteController extends Controller
 
 
     public function upload(Request $request, int $postId)
-    {
+    {   
+        
+        if (!$request->hasFile('file')) {
+        return response()->json(['erro' => 'Arquivo não enviado'], 422);
+        }
+       
+    
         $this->ensureAcompanhanteExists($postId);
 
         $request->validate([
             'file' => 'required|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
         ]);
+
 
         $file = $request->file('file');
 
