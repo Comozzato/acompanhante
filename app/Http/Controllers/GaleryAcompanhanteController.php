@@ -15,9 +15,13 @@ class GaleryAcompanhanteController extends Controller
         $this->ensureAcompanhanteExists($postId);
 
         $timestamp = '?t=' . now()->timestamp;
-        $uri = '/wp-json/musaclass/v1/acompanhante/' . $postId . '/images' . $timestamp;
+        $uri = '/wp-json/musaclass/v1/acompanhante/' . $postId . '/images';
         //return $uri;
-        $res = $this->Api->get($uri);
+        $options = [  
+        't' => now()->timestamp
+        ];
+        
+        $res = $this->Api->get($uri,$options);
 
         if (!$res->successful()) {
             return response()->json([
