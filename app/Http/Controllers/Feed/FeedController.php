@@ -43,7 +43,7 @@ class FeedController extends \App\Http\Controllers\Controller
                 }
             ])
             ->where('publish', 'Pendente')
-   
+
             ->where('created_at', '<=', now()->subMinutes(5)) // só mostra registros criados há pelo menos 5 minutos
             ->orderByDesc('publicado_em');
 
@@ -56,11 +56,17 @@ class FeedController extends \App\Http\Controllers\Controller
     public function findForPostid(Request $request, $id)
     {
         $query = Feed::query()
-            ->where('post_id', $id)
+          ->where('post_id', $id)
             ->with(['anunciante', 'midia'])
-            ->orderByDesc('publicado_em');
-        $posts = $query->paginate($request->query('limit', 10));
-        return response()->json($posts);
+            ->orderByDesc('publicado_em')
+            ->get()
+            ->groupBy(fn ($item) => strtolower($item->publish))
+            ->map(function ($items) {
+                return $items->groupBy(
+                    fn ($item) => strtolower($item->tipo_arquivo ?? 'desconhecido')
+                );
+            });
+        return response()->json($query);
     }
     public function findPostById($id)
     {
@@ -117,6 +123,7 @@ class FeedController extends \App\Http\Controllers\Controller
 
     public function post(PostFeedRequest $request)
     {
+        info('entrou no controller');
         $request->validated();
         $dataRequest = $request->input();
         $inputFilePostFeed = $request->file('file');

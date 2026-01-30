@@ -55,5 +55,14 @@ class WpApi
         return $this->client()->delete($this->baseUrl . $endpoint, $query);
     }
 
+    public function postMultipart(string $endpoint, string $field, string $filePath, string $filename)
+    {   
+        return $this->client()
+            ->asMultipart()
+            ->timeout(15)
+            ->retry(0)
+            ->attach($field, file_get_contents($filePath), $filename)
+            ->post($this->baseUrl . $endpoint);
+    }
     
 }

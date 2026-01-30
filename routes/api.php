@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcompanhanteVideoController;
 use App\Http\Controllers\Anunciante\AnuncianteController;
 use App\Http\Controllers\AsaasWebhookController;
 use App\Http\Controllers\Auth\LoginController;
@@ -131,5 +132,12 @@ Route::prefix('galeria')->group(function () {
     route::post('/upload/{id}', [GaleryAcompanhanteController::class, 'upload']);
     route::post('/{id}/reorder', [GaleryAcompanhanteController::class, 'reorder']);
     route::post('/{id}/detach/{imagem}', [GaleryAcompanhanteController::class, 'detach']);
+   
+    route::get('/video/{id}', [AcompanhanteVideoController::class, 'index']);
+    route::post('/video/upload/{id}', [AcompanhanteVideoController::class, 'upload']);
+    route::post('/video/reorder/{id}', [AcompanhanteVideoController::class, 'reorder']);
+
+    route::delete('/video/delete/{id}', [AcompanhanteVideoController::class, 'delete']);
     route::delete('/{id}/delete/{imagem}', [GaleryAcompanhanteController::class, 'delete']);
+    
 });

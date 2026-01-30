@@ -13,22 +13,38 @@ WORKDIR /app
 RUN apk add --no-cache \
   libpq \
   libzip \
-  icu-libs
+  icu-libs \
+  libjpeg-turbo \
+  libpng \
+  freetype \
+  ffmpeg
 
 # Dependências de build
 RUN apk add --no-cache --virtual .build-deps \
-  ffmpeg \
   $PHPIZE_DEPS \
   build-base \
   linux-headers \
+  libjpeg-turbo-dev \
+  libpng-dev \
+  freetype-dev \
   postgresql-dev \
   libzip-dev \
   icu-dev \
-  && docker-php-ext-install pdo_pgsql exif zip bcmath intl \
+  && docker-php-ext-configure gd \
+  --with-freetype \
+  --with-jpeg \
+  && docker-php-ext-install \
+  pdo_pgsql \
+  exif \
+  zip \
+  bcmath \
+  intl \
+  gd \
   && apk del .build-deps
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY php-ini-overrides.ini /usr/local/etc/php/conf.d/99-overrides.ini
 
 # Ajusta permissões
 RUN chown -R app:app /app
