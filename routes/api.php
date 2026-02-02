@@ -72,14 +72,14 @@ Route::post('anuciante/post/{id}', [AnuncianteController::class, 'postDados'])->
 // API de Feed
 Route::post('post-feed', [FeedController::class, 'post'])->middleware('auth.jwt');
 Route::get('posts', [FeedController::class, 'index']);
-Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao']); //->middleware('auth.jwt');
+Route::post('post/aprovar/{id}', [FeedController::class, 'aprovarPublicacao'])->middleware('auth.jwt');
 Route::get('posts/user', [FeedController::class, 'indexByUser'])->middleware('auth.jwt');
-Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid']); //->middleware('auth.jwt');
+Route::get('posts/feed/{id}', [FeedController::class, 'findForPostid'])->middleware('auth.jwt');
 Route::get('find/feed/{id}', [FeedController::class, 'findPostById']);
 Route::post('imagem', [FeedController::class, 'getImagemFeed']);
 Route::post('save', [FeedController::class, 'putImagemFeed']);
 Route::delete('delete/feed/{id}', [FeedController::class, 'deleteFeed'])->middleware('auth.jwt');
-
+Route::post('reorder/feed', [FeedController::class, 'reorder'])->middleware('auth.jwt');
 // API para WordPress buscar
 Route::get('wp-json/posts/feed/{tipo}/{id}', [FeedController::class, 'getAllFeedApi'])->middleware('basic.external');
 Route::get('wp-json/posts/{tipo}', [FeedController::class, 'getAllFeedApi']); //->middleware('basic.external');

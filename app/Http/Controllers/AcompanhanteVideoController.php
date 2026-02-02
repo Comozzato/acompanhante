@@ -50,9 +50,10 @@ class AcompanhanteVideoController extends Controller
     public function delete(Request $request, $postId)
     {      
         $url = $request->url;
-        $res = $this->Api->post("/acompanhantes/" . $postId. '/videos/remove',[
+        $res = $this->Api->post("/wp-json/musaclass/v1/acompanhante/" . $postId. '/videos/remove',[
             'url' => $url
         ]);
+        return $res;
         if (!$res->successful()) {
             return response()->json([
                 'message' => 'Falha ao apagar imagem do WordPress',

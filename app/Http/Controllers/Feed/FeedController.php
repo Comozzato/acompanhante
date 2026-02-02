@@ -58,7 +58,7 @@ class FeedController extends \App\Http\Controllers\Controller
         $query = Feed::query()
           ->where('post_id', $id)
             ->with(['anunciante', 'midia'])
-            ->orderByDesc('publicado_em')
+            ->orderBy('ordem', 'asc')
             ->get()
             ->groupBy(fn ($item) => strtolower($item->publish))
             ->map(function ($items) {
@@ -174,5 +174,46 @@ class FeedController extends \App\Http\Controllers\Controller
         }
         $feed->delete();
         return response()->json(['message' => 'Feed deletado com sucesso'], 200);
+    }
+
+    public function reorder(Request $request)
+    {
+
+    $request->validate([
+        'anuncio' => 'required|integer|exists:posts,id',
+        'ordem'   => 'required|array|min:1',
+        'ordem.*' => 'integer|exists:feed,id',
+        'tipo'    => 'required|string',
+        'status'  => 'required|string',
+    ]);
+    $tipo = strtolower($request->tipo);
+    $status = ucfirst(strtolower($request->status));
+
+
+    // Busca apenas os feeds que pertencem ao grupo informado
+    $feeds = Feed::whereIn('id', $request->ordem)
+        ->where('post_id', $request->anuncio)
+        ->where('tipo_arquivo', $tipo)
+        ->where('publish', $status)
+        ->get();
+
+    // Se algum ID não pertencer ao grupo → erro
+    if ($feeds->count() !== count($request->ordem)) {
+        return response()->json([
+            'message' => 'Ordem inválida para este anúncio / status / tipo'
+        ], 422);
+    }
+
+    // Reordena
+    foreach ($request->ordem as $index => $feedId) {
+        Feed::where('id', $feedId)->update([
+            'ordem' => $index + 1
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Ordem atualizada com sucesso'
+    ]);
+
     }
 }
