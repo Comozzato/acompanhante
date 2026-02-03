@@ -18,6 +18,7 @@ class FeedImagemResource extends JsonResource
             'id'          => $this->id,
             'post_id'     => $this->post_id,
             'publicado_em' => $this->publicado_em,
+            'ordem'      => $this->ordem,
             'midia' => $this->formatImages($this->midia->toArray()), // Converte a coleção para array
         ];
     }

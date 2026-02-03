@@ -20,6 +20,7 @@ class Feed extends Model implements Auditable
         'ativo',
         'tipo', // Novo campo adicionado para diferenciar tipos de posts
         'publicado_em',
+        'ordem',
         'publish', // Novo campo adicionado para controle de publicação
         'expires_at', // Novo campo adicionado para expiração de stories
         'tipo_arquivo', // Novo campo adicionado para tipo de arquivo

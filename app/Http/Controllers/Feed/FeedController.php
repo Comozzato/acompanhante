@@ -12,7 +12,9 @@ use App\Http\Resources\FeedVideoResource;
 use App\Models\Feed;
 use App\Modules\PostImgFeed\Services\PostServices;
 use App\Notifications\PostReprovado;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
@@ -100,11 +102,14 @@ class FeedController extends \App\Http\Controllers\Controller
     {
         // Verifica se o usuário tem permissão para aprovar publicações
 
-        Gate::forUser(auth_user())->allows('admin');
+        //Gate::forUser(auth_user())->allows('admin');
         $data = $request->input();
+
         if ($data['publish'] !== 'Aprovado' && $data['publish'] !== 'Reprovado') {
             throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json(['message' => 'Status inválido'], 400));
         }
+
+    
         $post = Feed::query()
             ->with('anunciante')
             ->where('id', $id)
@@ -112,11 +117,32 @@ class FeedController extends \App\Http\Controllers\Controller
 
         if ($data['publish'] === 'Reprovado') {
             if (empty($data['motivo'])) {
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json(['message' => 'Motivo de reprovação é obrigatório'], 400));
+                throw new HttpResponseException(
+                    response()->json(['message' => 'Motivo de reprovação é obrigatório'], 400)
+                );
             }
+
             $post->anunciante->notify(new PostReprovado($post, $data['motivo']));
         }
-        $post->update(['publish' => $data['publish']]);
+
+        DB::transaction(function () use ($post, $data) {
+
+        if ($data['publish'] === 'Aprovado') {
+
+            $ultima = Feed::where('post_id', $post->post_id)
+                ->where('publish', 'Aprovado')
+                ->where('tipo_arquivo', $post->tipo_arquivo)
+                ->orderByDesc('ordem')
+                ->lockForUpdate()
+                ->first();
+
+            $post->ordem = ($ultima?->ordem ?? 0) + 1;
+            }
+
+            $post->publish = $data['publish'];
+            $post->save();
+        });
+
 
         return response()->json(['message' => 'Publicação atualizada com sucesso'], 200);
     }
@@ -154,11 +180,18 @@ class FeedController extends \App\Http\Controllers\Controller
         }
         $queryImagemClone = $query->clone();
         if ($tipo === 'video' || $tipo === 'geral') {
-            $postsVideos = $query->typeMidia('video')->aprovado()->get();
+            $postsVideos = $query->typeMidia('video')
+                        ->aprovado()
+                        ->orderBy('ordem')
+                        ->get();
             $video = FeedVideoResource::collection($postsVideos)->toArray(request());
         }
         if ($tipo === 'imagem' || $tipo === 'geral') {
-            $postsImagems = $queryImagemClone->typeMidia('imagem')->aprovado()->get();
+            $postsImagems = $queryImagemClone
+                ->typeMidia('imagem')
+                ->aprovado()
+                ->orderBy('ordem')
+                ->get();
             $imagem = FeedImagemResource::collection($postsImagems)->toArray(request());
         }
 

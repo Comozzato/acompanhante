@@ -50,6 +50,13 @@ class PostServices
             // }
             $expiraEm = now()->addHours(168); // 7 dias
 
+            $ultimaOrdem = Feed::where('post_id', $dataRequest['post_id'])
+                        ->where('publish', 'Pendente')
+                        ->where('tipo_arquivo', $tipoMidia)
+                        ->max('ordem');
+
+            $novaOrdem = ($ultimaOrdem ?? 0) + 1;
+
             $post = [
                 'user_id' => auth_user()->id,
                 'post' => $dataRequest['post'],
@@ -57,6 +64,8 @@ class PostServices
                 'ativo' => true,
                 'tipo' => 'post',//$dataRequest['tipo'] ?? 'post',
                 'tipo_arquivo' => $tipoMidia,
+                'ordem' => $novaOrdem,
+                'publish' => 'Pendente',
                 'expires_at' => $expiraEm ?? null,
                 'publicado_em' => now()->setTimezone('America/Sao_Paulo')
             ];
