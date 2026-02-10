@@ -69,7 +69,7 @@ class Posts extends Model implements Auditable
             // Cidade física
             $q->where('cidade', $city)
 
-            // Cidade virtual (CORRIGIDO)
+            // cidade virtual 
             ->orWhere(function ($q2) use ($city) {
                 $q2->where('cidade_virtual', true)
                     ->whereJsonContains('cidades_virtuais', $city);

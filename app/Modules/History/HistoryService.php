@@ -20,6 +20,7 @@ class HistoryService
             ->with('feedslimits3.midia')
             ->publish()
             ->city(request()->query('city'))
+            ->orderByRaw('cidade_virtual = 1 ASC')
             ->orderByDesc(
                 Feed::select('publicado_em')
                     ->whereColumn('post_id', 'posts.id')
