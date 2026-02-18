@@ -2,15 +2,12 @@
 
 use App\Models\Feed;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Request;
-
 
 return function () {
     Gate::define('admin', function ($user) {
-
-        if (!in_array($user->role, ['admn'])) {
-            throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json(['message' => 'Acesso negado'], 401));
-        }
+        if(!$user)
+            return false;
+        return in_array($user->role, ['admn']);
     });
 
     Gate::define('post-limit', function ($user, string $tipoMidia, string $postId) {

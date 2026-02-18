@@ -8,7 +8,6 @@ use App\Models\Feed;
 use App\Models\Posts;
 use App\Models\User;
 use App\Services\AnuncioApiService;
-use Illuminate\Database\Eloquent\Collection;
 
 class AnuncianteService
 {
@@ -53,10 +52,19 @@ class AnuncianteService
         return $this->api->getAnuncioDados($id);
     }
 
+    public function getDadosCompleto($id)
+    {
+        return $this->api->getAnuncioDadosCompleto($id);
+    }
+
     public function postDados($id, array $dados)
     {
-
         return $this->api->postAnuncioDados($id, $dados);
+    }
+
+    public function postAnuncioDadosCompleto($id, array $dados)
+    {
+        return $this->api->postAnuncioDadosCompleto($id, $dados);
     }
 
     private function sincronizarAnunciosPorCpf($postsApi, $user)

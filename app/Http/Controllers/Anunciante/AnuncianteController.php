@@ -6,6 +6,7 @@ use App\Behaviors\CpfBehaviors;
 use App\Http\Controllers\Anunciante\Requests\AnuncianteDadosRequest;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PostDadosAnuncianteAdmin;
 use App\Http\Resources\AnuncioMidias;
 use App\Models\Posts;
 use App\Models\User;
@@ -54,11 +55,26 @@ class AnuncianteController extends Controller
         return $this->service->getDados($id);
     }
 
+    public function getDadosCompleto($id)
+    {   
+        if(Gate::forUser(auth_user())->allows('admin'))
+        {
+            return $this->service->getDadosCompleto($id);
+        }
+        return response()->json(['message' => 'Acesso negado'], 401);
+    }
     public function postDados(AnuncianteDadosRequest $request, $id)
     {
         return $this->service->postDados($id, $request->validated());
     }
 
+    public function atualizarDadosAnuncianteAdmin(PostDadosAnuncianteAdmin $request,  $id)
+    {   
+        
+        return $this->service->postAnuncioDadosCompleto($id, $request->validated());
+        
+        return response()->json(['message' => 'Acesso negado'], 401);
+    }
     // public function postMidia(Request $request, $id)
     // {
     //     $file = $request->file('file');
@@ -81,7 +97,7 @@ class AnuncianteController extends Controller
 
     public function GetAllAnunciantesForAdminForPosts(Request $request)
     {
-        //Gate::forUser(auth_user())->allows('admin');
+        Gate::forUser(auth_user())->allows('admin');
         $anuncios = $this->service->GetAllAnunciantesForAdmin($request->all());
         return AnuncioMidias::collection($anuncios);
     }

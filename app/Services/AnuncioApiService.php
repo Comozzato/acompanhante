@@ -71,6 +71,22 @@ class AnuncioApiService
         return $response->json();
     }
 
+        public function getAnuncioDadosCompleto(int|string $id): array
+    {
+        $endpoint = rtrim($this->url, '/') . "/wp-json/anuncios/v1/anuncio/{$id}/completo";
+        $headers = [
+            'Authorization' => 'Basic ' . $this->token,
+        ];
+        $response = Http::withHeaders($headers)->get($endpoint);
+        if ($response->failed()) {
+            $body = $response->json();
+            $message = $body['message'] ?? 'Erro ao obter dados do anúncio';
+            throw new HttpResponseException(response(['message' => $message], $response->status()));
+        }
+
+        return $response->json();
+    }
+
     public function postAnuncioDados(int|string $id, $data): array
     {
         $endpoint = rtrim($this->url, '/') . "/wp-json/anuncios/v1/anuncio/{$id}/dados";
@@ -88,6 +104,24 @@ class AnuncioApiService
         return $response->json();
     }
 
+    
+     public function postAnuncioDadosCompleto(int|string $id, $data): array
+    {
+        $endpoint = rtrim($this->url, '/') . "/wp-json/anuncios/v1/anuncio/{$id}/completo";
+        $headers = [
+            'Authorization' => 'Basic ' . $this->token,
+        ];
+        $response = Http::withHeaders($headers)->put($endpoint, $data);
+  
+        if ($response->failed()) {
+            $body = $response->json();
+            $message = $body['message'] ?? 'Erro ao atualizar dados do anúncio';
+            throw new HttpResponseException(response(['message' => $message], $response->status()));
+        }
+
+        return $response->json();
+    }
+
     public function postMidiaDados(int|string $id, $data): array
     {
         $endpoint = rtrim($this->url, '/') . "/wp-json/anuncios/v1/anuncio/{$id}/midia";
@@ -95,7 +129,7 @@ class AnuncioApiService
             'Authorization' => 'Basic ' . $this->token,
         ];
         $response = Http::withHeaders($headers)->post($endpoint, $data);
-
+        
         if ($response->failed()) {
             $body = $response->json();
             $message = $body['message'] ?? 'Erro ao obter dados do anúncio';
